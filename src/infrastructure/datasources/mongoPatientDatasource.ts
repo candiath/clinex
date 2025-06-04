@@ -1,0 +1,58 @@
+import { Types } from "mongoose";
+import { PatientModel } from "../../data/mongo/models/patient.model";
+import { PatientDatasource } from "../../domain/datasources/patientDatasource";
+import { Patient } from "../../domain/entities/patient";
+
+
+export class MongoPatientDatasource implements PatientDatasource {
+  async findById(id: string): Promise<Patient | null> {
+    const result = await PatientModel.findOne({id});
+    if (result) {
+      return Promise.resolve(result as Patient);
+    } 
+    return Promise.resolve(null);
+  }
+
+  async findByDni(dni: string): Promise<Patient | null> {
+    const result = await PatientModel.findOne({ dni });
+    // console.log('|\n' + result + '|\n');
+    if ( result ) return Promise.resolve( result as Patient );
+    return Promise.resolve(null);
+  }
+
+  async save(patient: Patient): Promise<void> {
+    const newPatient = await PatientModel.create( patient );
+    // console.log('Patient created:', newPatient);
+    // await newPatient.save();
+  }
+
+  async update(patient: Patient): Promise< boolean > {
+    const result = await PatientModel.updateOne( patient );
+    // console.log(result);
+    /**
+     * {
+     *  acknowledged: true,
+     *  modifiedCount: 1,
+     *  upsertedId: null,
+     *  upsertedCount: 0,
+     *  matchedCount: 1
+     *  }
+     */
+    if (result.modifiedCount) return Promise.resolve(true);
+    return Promise.resolve(false);
+  }
+
+  async delete(id: string): Promise<boolean> {
+    // const result = await PatientModel.deleteOne({ _id: new Types.ObjectId(id)});
+    const result = await PatientModel.deleteOne({id});
+    // console.log(result)
+    /** { acknowledged: true, deletedCount: 1 } */
+    if ( result.deletedCount ) return Promise.resolve(true);
+    return Promise.resolve(false);
+  }
+
+  async list(): Promise<Patient[]> {
+    return await PatientModel.find();
+  }
+
+}

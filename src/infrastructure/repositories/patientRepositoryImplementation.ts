@@ -16,10 +16,10 @@ export class PatientRepoImplementation implements PatientRepository {
   save(patient: Patient): Promise<void> {
     return this.datasource.save(patient);
   }
-  update(patient: Patient): Promise<void> {
+  update(patient: Patient): Promise<boolean> {
     return this.datasource.update(patient);
   }
-  delete(id: string): Promise<void> {
+  delete(id: string): Promise<boolean> {
     return this.datasource.delete(id);
   }
   list(): Promise<Patient[]> {
