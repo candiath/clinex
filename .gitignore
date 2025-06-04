@@ -1,0 +1,17 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+
+# IDE specific files
+.vscode/
+
+# OS specific files
+.DS_Store
+
+# MongoDB data files
+mongo-data/
