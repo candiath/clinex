@@ -7,6 +7,8 @@ import { DeletePatientUseCase } from "./domain/usecases/deletePatient.useCase";
 import { ReadAllPatientsUseCase } from "./domain/usecases/readAllPatients.useCase";
 import { MongoPatientDatasource } from "./infrastructure/datasources/mongoPatientDatasource";
 import { PatientRepoImplementation } from "./infrastructure/repositories/patientRepositoryImplementation";
+import { AppRoutes } from "./presentation/routes";
+import { Server } from "./presentation/server";
 
 (()=>{main()})()
 
@@ -17,6 +19,16 @@ async function main() {
     mongoURL: envs.MONGO_URL,
     dbName: envs.MONGO_DB_NAME,
   });
+  
+  const server = new Server( {
+    port: envs.PORT,
+    routes: AppRoutes.routes,
+    publicPath: 'public'
+  });
+
+  server.start();
+
+
   
   // const patient = await PatientModel.create({
   //   id: '123',
@@ -38,33 +50,33 @@ async function main() {
   //   sex: 'female',
   // });
 
-  const patient3 = new Patient(
-    '789',
-    '87654321C',
-    'Damian',
-    'Teky',
-    new Date('1993-02-02'),
-    'daniteki@example.com',
-    'other',
-  );
+  // const patient3 = new Patient(
+  //   '789',
+  //   '87654321C',
+  //   'Damian',
+  //   'Teky',
+  //   new Date('1993-02-02'),
+  //   'daniteki@example.com',
+  //   'other',
+  // );
 
   // console.log('Patient created:', patient3);
 
-  const datasource = new MongoPatientDatasource;
-  const repo = new PatientRepoImplementation( datasource );
-  const createPatient = new CreatePatientUseCase( repo );
+  // const datasource = new MongoPatientDatasource;
+  // const repo = new PatientRepoImplementation( datasource );
+  // const createPatient = new CreatePatientUseCase( repo );
   // await createPatient.execute( patient3 );
 
-  const readPatients = new ReadAllPatientsUseCase( repo );
+  // const readPatients = new ReadAllPatientsUseCase( repo );
   // const list = await readPatients.execute();
   // console.log( list )
   // console.log('hola');
-  const paciente = await datasource.findById('789');
+  // const paciente = await datasource.findById('789');
   // const paciente = await datasource.findByDni('8765s4321C');
   // paciente!.email = 'JAIMITO@RISAS.COM';
-  datasource.update(paciente as Patient)
-  const deletePatient = new DeletePatientUseCase( repo );
-  await deletePatient.execute('789')
+  // datasource.update(paciente as Patient)
+  // const deletePatient = new DeletePatientUseCase( repo );
+  // await deletePatient.execute('789')
 
   // console.log( await datasource.update( paciente as Patient))
 }
