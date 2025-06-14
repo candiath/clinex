@@ -14,16 +14,25 @@ export class MongoPatientDatasource implements PatientDatasource {
   }
 
   async findByDni(dni: string): Promise<Patient | null> {
+    console.log('MongoDatasource: findByDni', dni);
     const result = await PatientModel.findOne({ dni });
+    console.log('MongoDatasource: findByDni', result);
     // console.log('|\n' + result + '|\n');
     if ( result ) return Promise.resolve( result as Patient );
     return Promise.resolve(null);
   }
 
   async save(patient: Patient): Promise<void> {
+    console.log('MongoDatasource: save', patient);
+    const found = await this.findByDni(patient.dni);
+    if (found) {
+      console.error('=> MongoDatasource: Patient already exists. Aborting save operation.');
+      return Promise.reject(new Error('Patient already exists'));
+    }
     const newPatient = await PatientModel.create( patient );
     // console.log('Patient created:', newPatient);
-    // await newPatient.save();
+    await newPatient.save();
+    console.log(newPatient);
   }
 
   async update(patient: Patient): Promise< boolean > {

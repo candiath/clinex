@@ -13,7 +13,7 @@ import { Server } from "./presentation/server";
 (()=>{main()})()
 
 async function main() {
-  console.log('Hello, World!!!');
+  // console.log('Hello, World!!!');
 
   await MongoDatabase.connect({
     mongoURL: envs.MONGO_URL,
