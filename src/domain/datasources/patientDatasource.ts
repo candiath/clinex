@@ -3,7 +3,7 @@ import { Patient } from "../entities/patient";
 export interface PatientDatasource {
   findById(id: string): Promise<Patient | null>;
   findByDni(dni: string): Promise<Patient | null>;
-  save(patient: Patient): Promise<void>;
+  save(patient: Patient): Promise<Patient | null>;
   update(patient: Patient): Promise<boolean>;
   delete(id: string): Promise<boolean>;
   list(): Promise<Patient[]>;

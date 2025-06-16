@@ -22,8 +22,8 @@ export class MongoPatientDatasource implements PatientDatasource {
     return Promise.resolve(null);
   }
 
-  async save(patient: Patient): Promise<void> {
-    console.log('MongoDatasource: save', patient);
+  async save(patient: Patient): Promise<Patient | null> {
+    // console.log('MongoDatasource: save', patient);
     const found = await this.findByDni(patient.dni);
     if (found) {
       console.error('=> MongoDatasource: Patient already exists. Aborting save operation.');
@@ -33,6 +33,7 @@ export class MongoPatientDatasource implements PatientDatasource {
     // console.log('Patient created:', newPatient);
     await newPatient.save();
     console.log(newPatient);
+    return Promise.resolve(newPatient as Patient);
   }
 
   async update(patient: Patient): Promise< boolean > {

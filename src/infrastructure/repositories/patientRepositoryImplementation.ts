@@ -13,7 +13,7 @@ export class PatientRepoImplementation implements PatientRepository {
   findByDni(dni: string): Promise<Patient | null> {
     return this.datasource.findByDni(dni);
   }
-  save(patient: Patient): Promise<void> {
+  save(patient: Patient): Promise<Patient | null> {
     return this.datasource.save(patient);
   }
   update(patient: Patient): Promise<boolean> {

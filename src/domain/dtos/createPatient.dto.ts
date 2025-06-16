@@ -12,7 +12,18 @@ export class CreatePatientDTO {
   ) {}
 
   static create( data: { [key: string]: any }): [ string?, CreatePatientDTO? ] {
-    const {dni, firstName, lastName, birthDate, email, sex, id } = data;
+    // TODO:
+    if (!data) {
+      console.warn('=> CreatePatientDTO.create called with null or undefined data');
+      return ['Patient data is required'];
+    }
+    if (typeof data !== 'object') {
+      console.warn('=> CreatePatientDTO.create called with non-object data');
+      return ['Data must be an object'];
+    }
+
+
+    const {dni, firstName, lastName, birthDate, email, sex, } = data;
 
     // Check what data is missing
     // TODO: improove this validation logic
@@ -43,7 +54,6 @@ export class CreatePatientDTO {
       new Date(birthDate),
       email ?? '', // email
       sex,
-      // id ?? undefined, // id is optional
     );
 
     return [undefined, patient];
