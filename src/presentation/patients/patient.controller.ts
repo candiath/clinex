@@ -1,4 +1,8 @@
 import { Request, Response } from "express";
+import { CreatePatientDTO } from "../../domain/dtos/createPatient.dto";
+import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
+import { MongoPatientDatasource } from "../../infrastructure/datasources/mongoPatientDatasource";
+import { Patient } from "../../domain/entities/patient";
 
 // const router = Router();
 
@@ -8,13 +12,42 @@ import { Request, Response } from "express";
 
 
 // export const PatientRouter = router;
-
+const repo = new PatientRepoImplementation(new MongoPatientDatasource());
 export class PatientController {
 
-  constructor(){}
+  // constructor(){}
 
   createPatient = async (req: Request, res: Response) => {
-    res.json({"source": "createPatients", "timestamp": new Date(),});
+// TODO: verificar if the request body is empty or not an object
+    const [error, patientDTO] = CreatePatientDTO.create(req.body);
+    // console.log('createPatient', patientDTO);
+    if (error) {
+      res.status(400).json({ error });
+      return;
+    }
+    const exists = await repo.findByDni(patientDTO!.dni);
+    if (exists) {
+      res.status(409).json({ error: `Patient with DNI ${patientDTO!.dni} already exists` });
+      return;
+    }
+    // console.log('patientDTO', patientDTO);
+    
+    let createPatient; 
+    try {
+      createPatient = await repo.save(patientDTO as Patient);
+    
+    } catch (error) {
+      // console.log('createPatient', typeof(createPatient));
+      // console.error("Error saving patient:", error);
+      if (error instanceof Error) {
+        res.status(502).json({ error: error.message });
+      } else {
+        res.status(501).json({ error: `${error}` });
+      }
+      return;
+    }
+    console.log('createPatient', createPatient);
+    res.status(201).json({ createPatient });
   }
 
   getPatients = async (req: Request, res: Response) => {

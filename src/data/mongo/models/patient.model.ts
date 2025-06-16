@@ -22,11 +22,6 @@ import mongoose from "mongoose";
 }
  */
 const patientSchema = new mongoose.Schema ({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   dni: {
     type: String,
     required: true,
