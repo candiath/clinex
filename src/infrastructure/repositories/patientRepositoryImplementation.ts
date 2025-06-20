@@ -1,4 +1,5 @@
 import { PatientDatasource } from "../../domain/datasources/patientDatasource";
+import { UpdatePatientDTO } from "../../domain/dtos/updatePatient.dto";
 import { Patient } from "../../domain/entities/patient";
 import { PatientRepository } from "../../domain/repositories/patientRepository";
 
@@ -16,14 +17,17 @@ export class PatientRepoImplementation implements PatientRepository {
   save(patient: Patient): Promise<Patient | null> {
     return this.datasource.save(patient);
   }
-  update(patient: Patient): Promise<boolean> {
-    return this.datasource.update(patient);
+  update(id: string, newPatientData: UpdatePatientDTO): Promise<boolean> {
+    return this.datasource.update(id, newPatientData);
   }
   delete(id: string): Promise<boolean> {
     return this.datasource.delete(id);
   }
   list(): Promise<Patient[]> {
     return this.datasource.list()
+  }
+  exists(dni: string): Promise<boolean> {
+    return this.datasource.exists(dni);
   }
 
 }

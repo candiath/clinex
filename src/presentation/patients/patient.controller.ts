@@ -3,6 +3,9 @@ import { CreatePatientDTO } from "../../domain/dtos/createPatient.dto";
 import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
 import { MongoPatientDatasource } from "../../infrastructure/datasources/mongoPatientDatasource";
 import { Patient } from "../../domain/entities/patient";
+import { UpdatePatientDTO } from "../../domain/dtos/updatePatient.dto";
+import { CreatePatientUseCase } from "../../domain/usecases/createPatient.useCase";
+import { CustomError } from "../../domain/errors/customErrors";
 
 // const router = Router();
 
@@ -10,47 +13,85 @@ import { Patient } from "../../domain/entities/patient";
 //   res.status(200).json({"message": "Hello World!"});
 // })
 
-
 // export const PatientRouter = router;
 const repo = new PatientRepoImplementation(new MongoPatientDatasource());
+const createPatientUseCase = new CreatePatientUseCase(repo);
 export class PatientController {
-
   // constructor(){}
 
   createPatient = async (req: Request, res: Response) => {
-// TODO: verificar if the request body is empty or not an object
-    const [error, patientDTO] = CreatePatientDTO.create(req.body);
-    // console.log('createPatient', patientDTO);
+
+    let result;
+    try {
+      result = await createPatientUseCase.execute(req);
+      await console.log('PatientController: createPatient result', result);
+    } catch (error) {
+      ( error instanceof CustomError )
+        ? res.status( error.statusCode ).json({ error: error.message })
+        // : res.status(501).json({ error: "Internal Server Error" });
+        : res.status(501).json({ error: error instanceof Error ? error.message : "Internal Server Error" });
+      return;
+    }
+
+    res.status(201).json(result);
+  };
+
+  getPatients = async (req: Request, res: Response) => {
+    const patients = await repo.list();
+    res.status(200).json(patients);
+  };
+
+  getPatientByDni = async (req: Request, res: Response) => {
+    const dni = req.params.dni;
+    // console.log('getPatientByDni', dni);
+    if (dni === "") {
+      res.status(400).json({ error: "DNI is required" });
+      return;
+    }
+    const patient = await repo.findByDni(dni);
+    if (!patient) {
+      res.status(404).json({ error: `Patient with DNI ${dni} not found` });
+      return;
+    }
+    res.status(200).json(patient);
+  };
+
+  deletePatientByDni = async (req: Request, res: Response) => {
+    const dni = req.params.dni;
+    // const exists = await repo.exists(dni);
+    const result = await repo.delete(dni);
+    if (result) {
+      res.status(204).json("Patient deleted"); // TODO: json doesnt get sent because of the status 204
+    } else {
+      res.status(404).json({ error: "Patient does not exist" });
+    }
+    // res.status(500).json({ error: 'Something went wrong on our side.'});
+  };
+
+  updatePatientByID = async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const [error, updatePatientDTO] = await UpdatePatientDTO.create(req.body);
     if (error) {
       res.status(400).json({ error });
       return;
     }
-    const exists = await repo.findByDni(patientDTO!.dni);
-    if (exists) {
-      res.status(409).json({ error: `Patient with DNI ${patientDTO!.dni} already exists` });
+    // console.log('updatePatientByDni', updatePatientDTO);
+    if (!updatePatientDTO) {
+      res.status(400).json({ error: "Update data is required" });
       return;
     }
-    // console.log('patientDTO', patientDTO);
-    
-    let createPatient; 
-    try {
-      createPatient = await repo.save(patientDTO as Patient);
-    
-    } catch (error) {
-      // console.log('createPatient', typeof(createPatient));
-      // console.error("Error saving patient:", error);
-      if (error instanceof Error) {
-        res.status(502).json({ error: error.message });
-      } else {
-        res.status(501).json({ error: `${error}` });
-      }
+    const patient = await repo.findById(id);
+    if (!patient) {
+      res.status(404).json({ error: `Patient with ID ${id} not found` });
       return;
     }
-    console.log('createPatient', createPatient);
-    res.status(201).json({ createPatient });
-  }
-
-  getPatients = async (req: Request, res: Response) => {
-    res.json({"source": "getPatients", "timestamp": new Date(),});
-  }
+    // console.log('updatePatientByDni', updatePatientDTO);
+    const updatedPatient = await repo.update(id, updatePatientDTO);
+    // console.log('updatedPatient', updatedPatient);
+    if (updatedPatient) {
+      res.status(200).json({ updatedPatient });
+    } else {
+      res.status(500).json({ error: "Failed to update patient" });
+    }
+  };
 }

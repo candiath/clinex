@@ -2,11 +2,13 @@ import { Types } from "mongoose";
 import { PatientModel } from "../../data/mongo/models/patient.model";
 import { PatientDatasource } from "../../domain/datasources/patientDatasource";
 import { Patient } from "../../domain/entities/patient";
+import { UpdatePatientDTO } from "../../domain/dtos/updatePatient.dto";
 
 
 export class MongoPatientDatasource implements PatientDatasource {
   async findById(id: string): Promise<Patient | null> {
-    const result = await PatientModel.findOne({id});
+    const result = await PatientModel.findOne({_id: id});
+    console.log('MongoDatasource: findById', id, result);
     if (result) {
       return Promise.resolve(result as Patient);
     } 
@@ -32,13 +34,14 @@ export class MongoPatientDatasource implements PatientDatasource {
     const newPatient = await PatientModel.create( patient );
     // console.log('Patient created:', newPatient);
     await newPatient.save();
-    console.log(newPatient);
+    // console.log(newPatient);
     return Promise.resolve(newPatient as Patient);
   }
 
-  async update(patient: Patient): Promise< boolean > {
-    const result = await PatientModel.updateOne( patient );
-    // console.log(result);
+  async update(id: string, newPatientData: UpdatePatientDTO): Promise< boolean > {
+    const result = await PatientModel.updateOne({ _id: id }, { $set: newPatientData });
+    console.log('MongoDatasource: update result', result);
+    console.log('MongoDatasource: update', id, newPatientData);
     /**
      * {
      *  acknowledged: true,
@@ -53,9 +56,9 @@ export class MongoPatientDatasource implements PatientDatasource {
   }
 
   async delete(id: string): Promise<boolean> {
-    // const result = await PatientModel.deleteOne({ _id: new Types.ObjectId(id)});
-    const result = await PatientModel.deleteOne({id});
-    // console.log(result)
+    console.log('MongoDatasource: delete', id);
+    const result = await PatientModel.deleteOne({dni: id});
+    console.log(result)
     /** { acknowledged: true, deletedCount: 1 } */
     if ( result.deletedCount ) return Promise.resolve(true);
     return Promise.resolve(false);
@@ -65,4 +68,13 @@ export class MongoPatientDatasource implements PatientDatasource {
     return await PatientModel.find();
   }
 
+  async exists(dni: string): Promise<boolean> {
+    console.log('MongoDatasource: exists', dni);
+    const result = await PatientModel.exists({ dni });
+    console.log('MongoDatasource: exists', result);
+    if (result) {
+      return Promise.resolve(true);
+    }
+    return Promise.resolve(false);
+  }
 }
