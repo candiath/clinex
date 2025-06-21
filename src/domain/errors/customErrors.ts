@@ -9,7 +9,7 @@ export class CustomError extends Error {
     Object.setPrototypeOf(this, CustomError.prototype);
   }
 
-  static badRequest(message: string): CustomError {
+  static badRequest(message?: string): CustomError {
     // 400: The server cannot process the request due to client error (e.g., malformed request syntax).
     return new CustomError(400, (message = message || "Bad Request"));
   }
@@ -89,7 +89,7 @@ export class CustomError extends Error {
     // 451: The server is denying access to the resource as a consequence of a legal demand.
     return new CustomError(451, message || "Unavailable For Legal Reasons");
   }
-  static internalServerError(message: string): CustomError {
+  static internalServerError(message?: string): CustomError {
     // 500: A generic error message, given when no more specific message is suitable.
     return new CustomError(500, message || "Internal Server Error");
   }

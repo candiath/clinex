@@ -6,6 +6,8 @@ import { Patient } from "../../domain/entities/patient";
 import { UpdatePatientDTO } from "../../domain/dtos/updatePatient.dto";
 import { CreatePatientUseCase } from "../../domain/usecases/createPatient.useCase";
 import { CustomError } from "../../domain/errors/customErrors";
+import { DeletePatientDTO } from "../../domain/dtos/deletePatient.dto";
+import { DeletePatientUseCase } from "../../domain/usecases/deletePatient.useCase";
 
 // const router = Router();
 
@@ -16,6 +18,8 @@ import { CustomError } from "../../domain/errors/customErrors";
 // export const PatientRouter = router;
 const repo = new PatientRepoImplementation(new MongoPatientDatasource());
 const createPatientUseCase = new CreatePatientUseCase(repo);
+const deletePatientUseCase = new DeletePatientUseCase(repo);
+
 export class PatientController {
   // constructor(){}
 
@@ -57,15 +61,25 @@ export class PatientController {
   };
 
   deletePatientByDni = async (req: Request, res: Response) => {
-    const dni = req.params.dni;
-    // const exists = await repo.exists(dni);
-    const result = await repo.delete(dni);
-    if (result) {
-      res.status(204).json("Patient deleted"); // TODO: json doesnt get sent because of the status 204
-    } else {
-      res.status(404).json({ error: "Patient does not exist" });
+    let result;
+    try {
+      console.log('deletePatientByDni', req.params);
+      result = await deletePatientUseCase.execute( req );
+      console.log('deletePatientByDni result', result);
+    } catch (error) {
+      if ( error instanceof CustomError ) {
+        res.status( error.statusCode ).json( {error: error.message} )
+        return;
+      } else {
+        res.status(501).json({ error: error instanceof Error ? error.message : 'Internal server error'})
+        return;
+      }
     }
-    // res.status(500).json({ error: 'Something went wrong on our side.'});
+    if ( result ) {
+      res.status(204).json({ message: "Patient deleted successfully" });
+    } else {
+      res.status(500).json({ error: "Failed to delete patient" });
+    }
   };
 
   updatePatientByID = async (req: Request, res: Response) => {

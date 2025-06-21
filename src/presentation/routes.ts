@@ -38,6 +38,9 @@ export class AppRoutes {
     });
 
     router.use('/api/patients', PatientRoutes.routes);
+    router.use('/', (req, res) => {
+      res.status(404).json({ error: "Resource not Found", url: req.originalUrl });
+    });
 
     return router;
   }

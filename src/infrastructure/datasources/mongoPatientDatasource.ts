@@ -71,7 +71,7 @@ export class MongoPatientDatasource implements PatientDatasource {
   async exists(dni: string): Promise<boolean> {
     console.log('MongoDatasource: exists', dni);
     const result = await PatientModel.exists({ dni });
-    console.log('MongoDatasource: exists', result);
+    // console.log('MongoDatasource: exists', result);
     if (result) {
       return Promise.resolve(true);
     }

@@ -1,12 +1,36 @@
+import { Request } from "express";
 import { PatientDatasource } from "../datasources/patientDatasource";
+import { DeletePatientDTO } from "../dtos/deletePatient.dto";
+import { CustomError } from "../errors/customErrors";
+import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
 
 export class DeletePatientUseCase {
-  constructor( private readonly repository: PatientDatasource ){}
+  constructor( private readonly repository: PatientRepoImplementation ){}
 
-  public async execute( id: string ): Promise< void > {
-    // console.log('deleting ', id)
+  public async execute( request: any ): Promise< boolean > {
     // TODO: if ( !acknowledged ) throw error;
-    //       return deletedCount ?
-    await this.repository.delete( id );
+    const [ error, dto ] = DeletePatientDTO.create(request);
+    if ( error ) {
+      console.error("=>UseCase: Error creating delete patient DTO:", error);
+      throw CustomError.badRequest(error);
+    }
+    console.log( "DTO: ", typeof dto);
+    const exists = await this.repository.exists( dto!.dni );
+    console.log("=>UseCase: Patient exists:", exists);
+    if ( !exists ) {
+      console.error("=>UseCase: Patient does not exist.");
+      throw CustomError.notFound(`Patient with DNI ${dto!.dni} not found`);
+    }
+    try {
+      const result = await this.repository.delete( dto!.dni );
+      if ( !result ) {
+        console.error("=>UseCase: Error deleting patient:", error);
+        throw CustomError.internalServerError();
+      }
+    } catch (error) {
+      console.error("=>UseCase: Error deleting patient:", error);
+      throw CustomError.internalServerError("Error deleting patient");
+    }
+    return Promise.resolve(true);
   }
 }
