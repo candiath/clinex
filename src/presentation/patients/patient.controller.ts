@@ -8,6 +8,7 @@ import { CreatePatientUseCase } from "../../domain/usecases/createPatient.useCas
 import { CustomError } from "../../domain/errors/customErrors";
 import { DeletePatientDTO } from "../../domain/dtos/deletePatient.dto";
 import { DeletePatientUseCase } from "../../domain/usecases/deletePatient.useCase";
+import { ReadAllPatientsUseCase } from "../../domain/usecases/readAllPatients.useCase";
 
 // const router = Router();
 
@@ -19,6 +20,7 @@ import { DeletePatientUseCase } from "../../domain/usecases/deletePatient.useCas
 const repo = new PatientRepoImplementation(new MongoPatientDatasource());
 const createPatientUseCase = new CreatePatientUseCase(repo);
 const deletePatientUseCase = new DeletePatientUseCase(repo);
+const readAllPatientsUseCase = new ReadAllPatientsUseCase(repo);
 
 export class PatientController {
   // constructor(){}
@@ -41,7 +43,11 @@ export class PatientController {
   };
 
   getPatients = async (req: Request, res: Response) => {
-    const patients = await repo.list();
+    const patients = await readAllPatientsUseCase.execute();
+    if ( !patients || patients.length === 0 ) {
+      res.status(204).json({ error: "No patients found" });
+      return;
+    }
     res.status(200).json(patients);
   };
 

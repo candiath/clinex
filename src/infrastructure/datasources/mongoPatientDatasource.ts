@@ -8,7 +8,7 @@ import { UpdatePatientDTO } from "../../domain/dtos/updatePatient.dto";
 export class MongoPatientDatasource implements PatientDatasource {
   async findById(id: string): Promise<Patient | null> {
     const result = await PatientModel.findOne({_id: id});
-    console.log('MongoDatasource: findById', id, result);
+    // console.log('MongoDatasource: findById', id, result);
     if (result) {
       return Promise.resolve(result as Patient);
     } 
@@ -16,9 +16,9 @@ export class MongoPatientDatasource implements PatientDatasource {
   }
 
   async findByDni(dni: string): Promise<Patient | null> {
-    console.log('MongoDatasource: findByDni', dni);
+    // console.log('MongoDatasource: findByDni', dni);
     const result = await PatientModel.findOne({ dni });
-    console.log('MongoDatasource: findByDni', result);
+    // console.log('MongoDatasource: findByDni', result);
     // console.log('|\n' + result + '|\n');
     if ( result ) return Promise.resolve( result as Patient );
     return Promise.resolve(null);
@@ -40,8 +40,8 @@ export class MongoPatientDatasource implements PatientDatasource {
 
   async update(id: string, newPatientData: UpdatePatientDTO): Promise< boolean > {
     const result = await PatientModel.updateOne({ _id: id }, { $set: newPatientData });
-    console.log('MongoDatasource: update result', result);
-    console.log('MongoDatasource: update', id, newPatientData);
+    // console.log('MongoDatasource: update result', result);
+    // console.log('MongoDatasource: update', id, newPatientData);
     /**
      * {
      *  acknowledged: true,
@@ -56,20 +56,24 @@ export class MongoPatientDatasource implements PatientDatasource {
   }
 
   async delete(id: string): Promise<boolean> {
-    console.log('MongoDatasource: delete', id);
+    // console.log('MongoDatasource: delete', id);
     const result = await PatientModel.deleteOne({dni: id});
-    console.log(result)
+    // console.log(result)
     /** { acknowledged: true, deletedCount: 1 } */
     if ( result.deletedCount ) return Promise.resolve(true);
     return Promise.resolve(false);
   }
 
   async list(): Promise<Patient[]> {
-    return await PatientModel.find();
+    const result = await PatientModel.find();
+    if (result && result.length > 0) {
+      return Promise.resolve(result as Patient[]);
+    }
+    return Promise.resolve([]);
   }
 
   async exists(dni: string): Promise<boolean> {
-    console.log('MongoDatasource: exists', dni);
+    // console.log('MongoDatasource: exists', dni);
     const result = await PatientModel.exists({ dni });
     // console.log('MongoDatasource: exists', result);
     if (result) {
