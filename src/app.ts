@@ -28,8 +28,8 @@ async function main() {
 
   server.start();
 
-
   
+
   // const patient = await PatientModel.create({
   //   id: '123',
   //   dni: '12345678A',

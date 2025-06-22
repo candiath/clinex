@@ -43,7 +43,7 @@ export class CreatePatientUseCase {
     const readPatientByDniUseCase = new ReadPatientByDniUseCase(
       this.repository
     );
-    const exists = await readPatientByDniUseCase.execute(patientDTO!.dni);
+    const exists = await readPatientByDniUseCase.execute(request);
     if (exists) {
       console.error(
         `=>UseCase: Patient with DNI ${patientDTO!.dni} already exists`

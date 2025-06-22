@@ -16,7 +16,8 @@ export class MongoPatientDatasource implements PatientDatasource {
   }
 
   async findByDni(dni: string): Promise<Patient | null> {
-    // console.log('MongoDatasource: findByDni', dni);
+    console.log('MongoDatasource: findByDni', dni);
+    console.log(typeof dni, dni);
     const result = await PatientModel.findOne({ dni });
     // console.log('MongoDatasource: findByDni', result);
     // console.log('|\n' + result + '|\n');
@@ -41,7 +42,7 @@ export class MongoPatientDatasource implements PatientDatasource {
   async update(id: string, newPatientData: UpdatePatientDTO): Promise< boolean > {
     const result = await PatientModel.updateOne({ _id: id }, { $set: newPatientData });
     // console.log('MongoDatasource: update result', result);
-    // console.log('MongoDatasource: update', id, newPatientData);
+    console.log('MongoDatasource: update', id, newPatientData);
     /**
      * {
      *  acknowledged: true,
@@ -51,7 +52,7 @@ export class MongoPatientDatasource implements PatientDatasource {
      *  matchedCount: 1
      *  }
      */
-    if (result.modifiedCount) return Promise.resolve(true);
+    if (result.acknowledged) return Promise.resolve(true);
     return Promise.resolve(false);
   }
 
@@ -65,7 +66,14 @@ export class MongoPatientDatasource implements PatientDatasource {
   }
 
   async list(): Promise<Patient[]> {
-    const result = await PatientModel.find();
+    const result = await PatientModel.find().lean();
+    // -----------------------------------------------
+    // const sanitizedResult = result.map((patient) => {
+    //   const { __v, ...sanitizedPatient } = patient;
+    //   return sanitizedPatient;
+    // });
+    //TODO: change this to a DTO
+    // -----------------------------------------------
     if (result && result.length > 0) {
       return Promise.resolve(result as Patient[]);
     }
