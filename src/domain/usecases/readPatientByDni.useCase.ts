@@ -5,23 +5,14 @@ import { Request } from "express";
 export class ReadPatientByDniUseCase {
   constructor( private readonly repository: PatientRepoImplementation ){}
 
-  public async execute( data: Request ): Promise<Patient | null> {
-    let dni: string;
-    if ( data.params ) console.log('TEST: data.params', data.params);
-    if ( data.body ) console.log('TEST: data.body', data.body);
+  public async execute( dni: string ): Promise<Patient | null> {
+    // if ( data.params ) console.log('TEST: data.params', data.params);
+    // if ( data.body ) console.log('TEST: data.body', data.body);
     try {
-      if (!data || !data.params.dni && !data.body.dni) {
+      if (!dni) {
         throw new Error('DNI parameter is missing');
       }
-      console.log('ReadPatientByDniUseCase: data.params.dni', data.params.dni);
-      // console.log('ReadPatientByDniUseCase: data.body.dni', data.body.dni);
-      console.log(typeof data.params.dni, data.params.dni);
-      // console.log(typeof data.body.dni, data.body.dni);
-      console.log('hola');
-      ( data.body && data.body.dni )
-        ? dni = data.body.dni
-        : dni = data.params.dni;
-      console.log('espludio');
+      console.log('ReadPatientByDniUseCase: dni', dni);
     } catch (error) {
       console.error('Error in ReadPatientByDniUseCase:', error);
       throw new Error('Failed to read patient by DNI');

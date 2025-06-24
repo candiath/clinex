@@ -13,6 +13,7 @@ import { ReadPatientByDniUseCase } from "../../domain/usecases/readPatientByDni.
 import { PublicPatientDTO } from "../../domain/dtos/publicPatient.dto";
 import { Types } from "mongoose";
 import { UpdatePatientUseCase } from "../../domain/usecases/updatePatient.useCase";
+import { ReadPatientByIdUseCase } from "../../domain/usecases/readPatientById.useCase";
 
 // const router = Router();
 
@@ -27,7 +28,9 @@ const deletePatientUseCase = new DeletePatientUseCase(repo);
 const readAllPatientsUseCase = new ReadAllPatientsUseCase(repo);
 const readPatientByDniUseCase = new ReadPatientByDniUseCase(repo);
 const updatePatientUseCase = new UpdatePatientUseCase(repo);
+const readPatientByIdUseCase = new ReadPatientByIdUseCase(repo); // Assuming this is the same as reading by DNI, adjust if needed
 
+  
 export class PatientController {
   // constructor(){}
 
@@ -49,70 +52,127 @@ export class PatientController {
   };
 
   getPatients = async (req: Request, res: Response) => {
-    // try body existence
-    if ( req.body && Object.keys(req.body).length > 0 ) {
-      res.status(400).json({ 
-        error: "GET method does not expect a body"
-      });
-      return;
-    }
-    let patients = await readAllPatientsUseCase.execute();
 
-
-    let publicPatients: PublicPatientDTO[];
-    if (patients && patients.length > 0) {
-      publicPatients = patients.map((patient: Patient) => PublicPatientDTO.fromPatient(patient));
-      res.status(200).json(publicPatients);
-      return;
-    } else {
-      publicPatients = [];
-      res.status(204).json({ error: "No patients found" });
-      return;
-    }
-
-    // const publicPatients = patients!.map((patient: any) => {
-    //   return {
-    //     id: patient._id,
-    //     dni: patient.dni,
-    //     firstName: patient.firstName,
-    //     lastName: patient.lastName,
-    //     birthDate: patient.birthDate,
-    //     email: patient.email,
-    //     sex: patient.sex,
-    //   };
-    // });
-  };
-
-  getPatientByDni = async (req: Request, res: Response) => {
-    // console.log('getPatientByDni', dni);
-    if ( req.body && Object.keys(req.body).length > 0 ) {
-      res.status(400).json({ 
-        error: "GET method does not expect a body"
-      });
-      return;
-    }
-
-    let result;
+    console.log('PatientController: getPatients called with query', req.query);
     try {
-      result = await readPatientByDniUseCase.execute( req );
-    } catch ( error ) {
-      if ( error instanceof CustomError ) {
-        res.status( error.statusCode ).json( {error: error.message} )
+      // console.log('req.body', req.body);
+      if ( req.body && Object.keys(req.body).length > 0 ) {
+        console.log('PatientController: getPatients called with body', req.body);
+        throw CustomError.badRequest('Get method does not accept body. Use query parameters instead');
+      }
+      } catch ( error ) {
+        if ( error instanceof CustomError ) {
+          res.status( error.statusCode ).json( error.message );
+          return;
+        } else {
+          console.log(error);
+          res.status(500).json('Internal server error');
+          return;
+        }
+      }
+    
+      // DNI
+    if ( req.query && req.query.dni && Object.keys(req).length > 0 ) {
+      // console.log('PatientController: getPatients called with query params', req.query);
+      let result;
+      try {
+        result = await readPatientByDniUseCase.execute( req.query.dni as string );
+      } catch ( error ) {
+        if ( error instanceof CustomError ) {
+          res.status( error.statusCode ).json( error.message );
+          return;
+        } else {
+          res.status(501).json({ error: error instanceof CustomError ? error.message : 'Internal server error'});
+          return;
+        }
+      }
+      if ( result ) {
+        const publicPatient = PublicPatientDTO.fromPatient(result)
+        res.status(200).json(publicPatient);
         return;
       } else {
-        res.status(501).json({ error: error instanceof Error ? error.message : 'Internal server error'})
+        //TODO: verificar si es DNI o ID
+        res.status(400).json({ error: `Patient with id ${req.params.dni} not found`});
         return;
       }
     }
-    if (result) {
-      // console.log('getPatientByDni result', result);
-      const publicPatient = PublicPatientDTO.fromPatient(result);
-      res.status(200).json(publicPatient);
+    // ID 
+    if ( req.query && req.query.id && Object.keys(req.query).length > 0 ) {
+      // console.log('PatientController: getPatients called with query params', req.query);
+      let result;
+      try {
+        result = await readPatientByIdUseCase.execute( req.query.id as string );
+      } catch ( error ) {
+        if ( error instanceof CustomError ) {
+          res.status( error.statusCode ).json( error.message );
+          return;
+        } else {
+          res.status(501).json({ error: error instanceof CustomError ? error.message : 'Internal server error'});
+          return;
+        }
+      }
+      if ( result ) {
+        const publicPatient = PublicPatientDTO.fromPatient(result)
+        res.status(200).json(publicPatient);
+        return;
+      } else {
+        //TODO: verificar si es DNI o ID
+        res.status(400).json({ error: `Patient with id ${req.params.dni} not found`});
+        return;
+      }
     }
-    else {
-      res.status(404).json({ error: `Patient with id ${req.params.dni} not found` });
+
+    // Get All Patients
+    console.log('PatientController: getPatients called');
+    let patients;
+    try {
+      patients = await readAllPatientsUseCase.execute();
+    } catch ( error ) {
+      if ( error instanceof CustomError ){
+        res.send( error.statusCode ).json( error.message );
+        return;
+      } else {
+        res.send(501).json({ error: 'Internal server error' });
+        return;
+      }
     }
+    const sanitizedPatients = patients!.map((patient: Patient) => 
+      PublicPatientDTO.fromPatient(patient));
+    res.status(200).json( sanitizedPatients );
+    return;
+
   };
+
+  // getPatientByDni = async (req: Request, res: Response) => {
+  //   // console.log('getPatientByDni', dni);
+  //   if ( req.body && Object.keys(req.body).length > 0 ) {
+  //     res.status(400).json({ 
+  //       error: "GET method does not expect a body"
+  //     });
+  //     return;
+  //   }
+
+  //   let result;
+  //   try {
+  //     result = await readPatientByDniUseCase.execute( req );
+  //   } catch ( error ) {
+  //     if ( error instanceof CustomError ) {
+  //       res.status( error.statusCode ).json( {error: error.message} )
+  //       return;
+  //     } else {
+  //       res.status(501).json({ error: error instanceof Error ? error.message : 'Internal server error'})
+  //       return;
+  //     }
+  //   }
+  //   if (result) {
+  //     // console.log('getPatientByDni result', result);
+  //     const publicPatient = PublicPatientDTO.fromPatient(result);
+  //     res.status(200).json(publicPatient);
+  //   }
+  //   else {
+  //     res.status(404).json({ error: `Patient with id ${req.params.dni} not found` });
+  //   }
+  // };
 
   deletePatientByDni = async (req: Request, res: Response) => {
     let result;
