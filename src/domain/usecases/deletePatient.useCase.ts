@@ -3,13 +3,14 @@ import { PatientDatasource } from "../datasources/patientDatasource";
 import { DeletePatientDTO } from "../dtos/deletePatient.dto";
 import { CustomError } from "../errors/customErrors";
 import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
+import { PatientInterface } from "../interfaces/patient.interface";
 
 export class DeletePatientUseCase {
   constructor( private readonly repository: PatientRepoImplementation ){}
 
-  public async execute( request: any ): Promise< boolean > {
+  public async execute( data: PatientInterface ): Promise< boolean > {
     // TODO: if ( !acknowledged ) throw error;
-    const [ error, dto ] = DeletePatientDTO.create(request);
+    const [ error, dto ] = DeletePatientDTO.create( data );
     if ( error ) {
       console.error("=>UseCase: Error creating delete patient DTO:", error);
       throw CustomError.badRequest(error);

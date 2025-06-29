@@ -17,7 +17,7 @@ export class MongoPatientDatasource implements PatientDatasource {
 
   async findByDni(dni: string): Promise<Patient | null> {
     console.log('MongoDatasource: findByDni', dni);
-    console.log(typeof dni, dni);
+    // console.log(typeof dni, dni);
     const result = await PatientModel.findOne({ dni });
     // console.log('MongoDatasource: findByDni', result);
     // console.log('|\n' + result + '|\n');
@@ -27,13 +27,13 @@ export class MongoPatientDatasource implements PatientDatasource {
 
   async save(patient: Patient): Promise<Patient | null> {
     // console.log('MongoDatasource: save', patient);
-    const found = await this.findByDni(patient.dni);
-    if (found) {
-      console.error('=> MongoDatasource: Patient already exists. Aborting save operation.');
-      return Promise.reject(new Error('Patient already exists'));
-    }
+    // const found = await this.findByDni(patient.dni);
+    // if (found) {
+      // console.error('=> MongoDatasource: Patient already exists. Aborting save operation.');
+      // return Promise.reject(new Error('Patient already exists'));
+    // }
     const newPatient = await PatientModel.create( patient );
-    // console.log('Patient created:', newPatient);
+    console.log('PatientMode.create:', newPatient);
     await newPatient.save();
     // console.log(newPatient);
     return Promise.resolve(newPatient as Patient);
