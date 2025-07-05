@@ -1,13 +1,18 @@
 {
   "devDependencies": {
     "@types/express": "^5.0.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.15.29",
+    "jest": "^30.0.3",
     "mongoose": "^8.15.1",
+    "ts-jest": "^29.4.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn --clear src/app.ts"
+    "dev": "ts-node-dev --respawn --clear src/app.ts",
+    "test": "jest",
+    "test:watch": "cls && jest --watch"
   },
   "dependencies": {
     "dotenv": "^16.5.0",
