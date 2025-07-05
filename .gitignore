@@ -15,3 +15,6 @@ dist/
 
 # MongoDB data files
 mongo-data/
+
+coverage/
+docs/
