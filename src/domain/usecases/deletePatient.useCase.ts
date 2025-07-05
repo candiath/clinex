@@ -15,21 +15,28 @@ export class DeletePatientUseCase {
       console.error("=>UseCase: Error creating delete patient DTO:", error);
       throw CustomError.badRequest(error);
     }
-    console.log( "DTO: ", typeof dto);
-    const exists = await this.repository.exists( dto!.dni );
-    console.log("=>UseCase: Patient exists:", exists);
+    // console.log( "DTO: ", typeof dto);
+    let exists;
+    try {
+      exists = await this.repository.exists( dto!.dni );
+    } catch (error) {
+      // console.error("=>UseCase: Error checking if patient exists:", error);
+      throw CustomError.internalServerError("Error checking if patient exists");
+    }
+    // console.log("=>UseCase: Patient exists:", exists);
     if ( !exists ) {
-      console.error("=>UseCase: Patient does not exist.");
+      // console.error("=>UseCase: Patient does not exist.");
       throw CustomError.notFound(`Patient with DNI ${dto!.dni} not found`);
     }
     try {
       const result = await this.repository.delete( dto!.dni );
+      console.log("==========>UseCase: Delete result:", result);
       if ( !result ) {
-        console.error("=>UseCase: Error deleting patient:", error);
+        // console.error("=>UseCase: Error deleting patient:", error);
         throw CustomError.internalServerError();
       }
     } catch (error) {
-      console.error("=>UseCase: Error deleting patient:", error);
+      // console.error("=>UseCase: Error deleting patient:", error);
       throw CustomError.internalServerError("Error deleting patient");
     }
     return Promise.resolve(true);
