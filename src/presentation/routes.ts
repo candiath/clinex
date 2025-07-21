@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { PatientRoutes } from "./patients/patients.routes";
+import { DoctorRoutes } from "./doctors/doctor.routes";
 
 
 export class AppRoutes {
@@ -38,6 +39,7 @@ export class AppRoutes {
     });
 
     router.use('/api/patients', PatientRoutes.routes);
+    router.use('/api/doctors', DoctorRoutes.routes);
     router.use('/', (req, res) => {
       res.status(404).json({ error: "Resource not Found", url: req.originalUrl });
     });
