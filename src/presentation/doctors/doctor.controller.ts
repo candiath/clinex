@@ -17,7 +17,7 @@ export class DoctorController {
     try {
       const [error, dto] = DoctorDTO.validate(req.body);
       if (error) {
-        res.status(400).json({ error });
+        res.status(400).json({ source: 'DoctorController.createDoctor', error });
         return;
       }
 

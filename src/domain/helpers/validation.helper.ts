@@ -27,11 +27,14 @@ export class ValidationHelper {
 
   public static validateEmail ( email: any ): string | null {
 
+    // console.log('Validating email:', email);
+    if ( email === undefined ) return 'Email is undefined';
+    if ( email === null ) return 'Email cannot be null';
     if ( typeof email !== 'string' ) return 'Email must be a string';
     if ( email.trim().length === 0 ) return 'Email cannot be empty';
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return 'Email is not valid';
+    if (!emailRegex.test(email)) return 'Email format is not valid';
 
     return null;
   }
@@ -57,6 +60,7 @@ export class ValidationHelper {
   }
 
   public static isValidMedicalSpecialty = ( value: any ): value is DoctorSpecialty => {
+    console.log('Validating DoctorSpecialty:', value);
     return Object.values( DoctorSpecialty ).includes( value );
   }
 }

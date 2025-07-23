@@ -9,12 +9,12 @@ import { EntityID } from "../../../domain/types/entityID.type";
 export class DoctorMySQLDatasource implements DoctorDatasource {
   async findById(id: string): Promise<Doctor | null> {
     try {
-      const databaseID = EntityIDHelper.isValidEntityID(id);
-      if (databaseID) return Promise.reject(null);
+      const validationError = EntityIDHelper.isValidEntityID(id);
+      if (validationError) return null; // ID inválido, retornar null
 
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM doctors WHERE id = ?",
-        [databaseID]
+        [id] // Usar el ID original
       );
 
       const doctors = rows as any[];
@@ -22,11 +22,11 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
 
       const row = doctors[0];
       const doc = Doctor.create(
-        row.id.toString(),
         row.name,
         row.specialty,
         row.email,
-        row.phone
+        row.phone,
+        row.id.toString() // ID va al final
       );
       return doc;
     } catch (error) {
@@ -38,10 +38,9 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
   findByEmail(email: string): Promise<Doctor | null> {
     throw new Error("Method not implemented.");
   }
+
   async save(doctor: Doctor): Promise<Doctor | null> {
     try {
-      console.log("MySQLDatasource: save", doctor);
-
       const [result] = await MySQLDatabase.pool.execute(
         "INSERT INTO doctors (name, specialty, email, phone) VALUES (?, ?, ?, ?)",
         [
@@ -56,28 +55,75 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
       const insertResult = result as any;
       const newId = insertResult.insertId;
 
-      return Doctor.create(
+      const createdDoctor = Doctor.fromDatabase(
         doctor.name,
         doctor.specialty,
         doctor.email,
         doctor.phone,
-        newId.toString(),
+        newId.toString() // Convertir a string para mantener consistencia
       );
+
+      return createdDoctor;
     } catch (error) {
-      console.error("MySQLDatasource: Error saving doctor:", error);
-      throw error;
+      throw CustomError.internalServerError((error as Error).message || "Error saving doctor in MySQL datasource");
     }
   }
-  update(id: EntityID, newDoctorData: DoctorDTO): Promise<Doctor | null> {
-    throw new Error("Method not implemented.");
+
+  async update(id: EntityID, newDoctorData: DoctorDTO): Promise<Doctor | null> {
+    const [result] = await MySQLDatabase.pool.execute(
+      "UPDATE doctors SET name = ?, specialty = ?, email = ?, phone = ? WHERE id = ?",
+      [
+        newDoctorData.name,
+        newDoctorData.specialty,
+        newDoctorData.email,
+        newDoctorData.phone,
+        id,
+      ]
+    );
+
+    const updateResult = result as any;
+    if (updateResult.affectedRows === 0) {
+      return null; // No se actualizó ningún registro
+    }
+    return Doctor.create(
+      newDoctorData.name,
+      newDoctorData.specialty,
+      newDoctorData.email,
+      newDoctorData.phone,
+      id
+    );
   }
-  delete(id: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+
+  async delete(id: string): Promise<boolean> {
+    const [result] = await MySQLDatabase.pool.execute(
+      "DELETE FROM doctors WHERE id = ?",
+      [id]
+    );
+    const deleteResult = result as any;
+    return deleteResult.affectedRows > 0; // Retorna true si se eliminó al menos un registro
   }
-  list(): Promise<Doctor[]> {
-    throw new Error("Method not implemented.");
+
+  async list(): Promise<Doctor[]> {
+    const [rows] = await MySQLDatabase.pool.execute("SELECT * FROM doctors");
+    const result = rows as any;
+    const mapresult = result.map((row: any) => {
+      return Doctor.create(
+        row.name,
+        row.specialty,
+        row.email,
+        row.phone,
+        row.id
+      );
+    });
+    return mapresult;
   }
-  exists(email: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+
+  async emailExists(email: string): Promise<boolean> {
+    const [rows] = await MySQLDatabase.pool.execute(
+      "SELECT COUNT(*) as count FROM doctors WHERE email = ?",
+      [email]
+    );
+    const count = (rows as any[])[0].count;
+    return count > 0;
   }
 }

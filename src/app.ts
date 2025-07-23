@@ -1,6 +1,7 @@
 import { envs } from "./config/plugins/envs.plugin";
 import { PatientModel } from "./data/mongo/models/patient.model";
 import { MongoDatabase } from "./data/mongo/mongo.init";
+import { MySQLDatabase } from "./data/mysql/mysql.init";
 import { Patient } from "./domain/entities/patient";
 import { CreatePatientUseCase } from "./domain/usecases/createPatient.useCase";
 import { DeletePatientUseCase } from "./domain/usecases/deletePatient.useCase";
@@ -15,10 +16,12 @@ import { Server } from "./presentation/server";
 async function main() {
   // console.log('Hello, World!!!');
 
-  await MongoDatabase.connect({
-    mongoURL: envs.MONGO_URL,
-    dbName: envs.MONGO_DB_NAME,
-  });
+  // await MongoDatabase.connect({
+  //   mongoURL: envs.MONGO_URL,
+  //   dbName: envs.MONGO_DB_NAME,
+  // });
+
+  await MySQLDatabase.connect();
   
   const server = new Server( {
     port: envs.PORT,

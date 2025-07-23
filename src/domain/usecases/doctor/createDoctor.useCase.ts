@@ -12,13 +12,14 @@ export class CreateDoctorUseCase {
   public async execute ( data: any ) {
 
     const [ error, dto ] = DoctorDTO.validate( data );
-    if ( error ) {
-      throw CustomError.badRequest(error);
-    }
-    if ( !dto!.name ) throw CustomError.badRequest('Doctor name is required');
-    if ( !dto!.specialty ) throw CustomError.badRequest('Doctor specialty is required');
-    if ( !dto!.email ) throw CustomError.badRequest('Doctor email is required');
-    if ( !dto!.phone ) throw CustomError.badRequest('Doctor phone is required');
+    if ( error ) throw CustomError.badRequest(error);
+    if ( dto === undefined || dto === null ) throw CustomError.internalServerError('Data transfer object sent null data');
+
+    console.log('DTO validated:', dto);
+    if ( dto!.name === null || dto!.name === undefined ) throw CustomError.badRequest('Doctor name is required');
+    if ( dto!.specialty === null || dto!.specialty === undefined ) throw CustomError.badRequest('Doctor specialty is required');
+    if ( dto!.email === null || dto!.email === undefined ) throw CustomError.badRequest('Doctor email is required');
+    if ( dto!.phone === null || dto!.phone === undefined ) throw CustomError.badRequest('Doctor phone is required');
 
     const doctor = Doctor.create(
       dto!.name,
