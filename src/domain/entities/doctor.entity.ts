@@ -16,6 +16,8 @@ export class Doctor {
     this.id = id;
   }
 
+  public static readonly mandatoryFields = ['name', 'specialty', 'email', 'phone'];
+
   static create( name: string, specialty: DoctorSpecialty, email: string, phone: string, id?: string ): Doctor {
     return new Doctor(name, specialty, email, phone, id);
   }
@@ -23,4 +25,9 @@ export class Doctor {
   static fromDatabase( name: string, specialty: DoctorSpecialty, email: string, phone: string, id: string ): Doctor {
     return new Doctor(name, specialty, email, phone, id);
   }
+
+  static getMandatoryFields(): string[] {
+    return this.mandatoryFields;
+  }
+  
 }
