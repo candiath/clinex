@@ -61,6 +61,13 @@ export class DoctorDTO {
         return [ 'ID must be a valid ID', null ];
     }
 
+    if ( (data.name      === undefined || data.name      === null) 
+      && (data.specialty === undefined || data.specialty === null) 
+      && (data.email     === undefined || data.email     === null) 
+      && (data.phone     === undefined || data.phone     === null)) {
+      return [ 'At least one field is mandatory', null ];
+    }
+
     return [ null, new DoctorDTO(
       data.name,
       data.specialty,

@@ -326,8 +326,8 @@ describe("DoctorDTO", () => {
         phone: null,
       });
 
-      expect( error ).toBe(null);
-      expect( dto ).toBeInstanceOf( DoctorDTO );
+      expect( error ).toBe('At least one field is mandatory');
+      expect( dto ).not.toBeInstanceOf( DoctorDTO );
     });
 
     // it("", () => {
