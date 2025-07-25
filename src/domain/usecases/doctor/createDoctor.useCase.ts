@@ -11,9 +11,9 @@ export class CreateDoctorUseCase {
 
   public async execute ( data: any ) {
 
+    // console.log(Doctor.getMandatoryFields().toString())
     const [ error, dto ] = DoctorDTO.validate( data );
     if ( error ) throw CustomError.badRequest(error);
-    if ( dto === undefined || dto === null ) throw CustomError.internalServerError('Data transfer object sent null data');
 
     console.log('DTO validated:', dto);
     if ( dto!.name === null || dto!.name === undefined ) throw CustomError.badRequest('Doctor name is required');
