@@ -15,16 +15,19 @@ const readAllDoctorsUseCase = new ReadAllDoctorsUseCase( repo );
 export class DoctorController {
   createDoctor = async (req: Request, res: Response) => {
     try {
-      const [error, dto] = DoctorDTO.validate(req.body);
-      if (error) {
-        res.status(400).json({ source: 'DoctorController.createDoctor', error });
-        return;
-      }
+      // const [error, dto] = DoctorDTO.validate(req.body);
+      // if (error) {
+      //   res.status(400).json({ source: 'DoctorController.createDoctor', error });
+      //   return;
+      // }
 
-      const result = await createDoctorUseCase.execute(dto);
+      const result = await createDoctorUseCase.execute(req.body);
       console.log(result);
       res.status(201).json({ doctor: result });
     } catch (error) {
+      if (error instanceof CustomError) {
+        res.status(error.statusCode).json(error.message);
+      }
       console.error("====> Controller: Error creating doctor:", error);
       res.status(500).json({ error: "Internal Server Error" });
     }
