@@ -64,8 +64,9 @@ export class DoctorDTO {
     if ( (data.name      === undefined || data.name      === null) 
       && (data.specialty === undefined || data.specialty === null) 
       && (data.email     === undefined || data.email     === null) 
-      && (data.phone     === undefined || data.phone     === null)) {
-      return [ 'At least one field is mandatory', null ];
+      && (data.phone     === undefined || data.phone     === null)
+      && (data.id        === undefined || data.id        === null)) {
+      return [ 'No data provided', null ];
     }
 
     return [ null, new DoctorDTO(
