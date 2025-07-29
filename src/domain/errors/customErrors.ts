@@ -1,17 +1,39 @@
+export interface CustomErrorOptions {
+  code?: string,
+  details?: any,
+  timestamp?: Date,
+  context?: any,
+  userFriendlyMessage?: string,
+}
+
 export class CustomError extends Error {
+
+  public readonly code?: string;
+  public readonly details?: any;
+  public readonly timestamp?: Date;
+  public readonly context?: any;
+  public readonly userFriendlyMessage?: string;
+
   constructor(
     public readonly statusCode: number = 500,
-    public readonly message: string
+    public readonly message: string,
+    options?: CustomErrorOptions,
   ) {
     super(message);
     this.name = "CustomError";
+    this.code = options?.code ?? undefined;
+    this.details = options?.details ?? undefined;
+    this.timestamp = options?.timestamp ?? undefined;
+    this.context = options?.context ?? undefined;
+    this.userFriendlyMessage = options?.userFriendlyMessage ?? undefined;
+
     // Set the prototype explicitly to maintain the correct prototype chain
     Object.setPrototypeOf(this, CustomError.prototype);
   }
 
-  static badRequest(message?: string): CustomError {
+  static badRequest(message?: string, options?: CustomErrorOptions): CustomError {
     // 400: The server cannot process the request due to client error (e.g., malformed request syntax).
-    return new CustomError(400, (message = message || "Bad Request"));
+    return new CustomError(400, (message = message || "Bad Request"), options);
   }
   static unauthorized(message?: string): CustomError {
     // 401: Authentication is required and has failed or has not yet been provided.
@@ -25,9 +47,9 @@ export class CustomError extends Error {
     // 403: The client does not have access rights to the content.
     return new CustomError(403, (message = message || "Forbidden"));
   }
-  static notFound(message?: string): CustomError {
+  static notFound(message?: string, options?: CustomErrorOptions): CustomError {
     // 404: The server can not find the requested resource.
-    return new CustomError(404, (message = message || "Not Found"));
+    return new CustomError(404, (message = message || "Not Found"), options);
   }
   static requestTimeout(message?: string): CustomError {
     // 408: The server timed out waiting for the request.
@@ -89,13 +111,13 @@ export class CustomError extends Error {
     // 451: The server is denying access to the resource as a consequence of a legal demand.
     return new CustomError(451, message || "Unavailable For Legal Reasons");
   }
-  static internalServerError(message?: string): CustomError {
+  static internalServerError(message?: string, options?: CustomErrorOptions): CustomError {
     // 500: A generic error message, given when no more specific message is suitable.
-    return new CustomError(500, message || "Internal Server Error");
+    return new CustomError(500, message || "Internal Server Error", options);
   }
-  static notImplemented(message?: string): CustomError {
+  static notImplemented(message?: string, options?: CustomErrorOptions): CustomError {
     // 501: The server either does not recognize the request method, or it lacks the ability to fulfill the request.
-    return new CustomError(501, message || "Not Implemented");
+    return new CustomError(501, message || "Not Implemented", options);
   }
   static badGateway(message?: string): CustomError {
     // 502: The server was acting as a gateway or proxy and received an invalid response from the upstream server.
@@ -110,14 +132,15 @@ export class CustomError extends Error {
     return new CustomError(504, message || "Gateway Timeout");
   }
 
-  static fromError(error: Error): CustomError {
+  static fromError(error: Error, options?: CustomErrorOptions): CustomError {
     if (error instanceof CustomError) {
       return error; // If it's already a CustomError, return it as is
     }
     // Otherwise, create a new CustomError with a generic message and status code 500
     return new CustomError(
       500,
-      error.message || "An unexpected error occurred"
+      error.message || "An unexpected error occurred",
+      options,
     );
   }
 }
