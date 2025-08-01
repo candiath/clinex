@@ -55,7 +55,7 @@ export class DoctorController {
 
   getAllDoctors = async (req: Request, res: Response) => {
     try {
-      const doctors = await readAllDoctorsUseCase.execute( req ); 
+      const doctors = await readAllDoctorsUseCase.execute( null ); 
       res.status(200).json(doctors);
     } catch (error) {
       console.error("Controller: Error fetching doctors:", error);
@@ -70,7 +70,7 @@ export class DoctorController {
         res.status(400).json({ error });
         return;
       }
-
+      // todo: sanitize req.params.id
       const result = await repo.update(req.params.id, dto!);
       if (!result) {
         res.status(404).json({ error: "Doctor not found" });
@@ -82,9 +82,11 @@ export class DoctorController {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
-
+  
   deleteDoctor = async (req: Request, res: Response) => {
     try {
+      // todo: this method should call the use case instead
+      // todo: sanitize req.params.id
       const result = await repo.delete(req.params.id);
       if (!result) {
         res.status(404).json({ error: "Doctor not found" });
