@@ -3,12 +3,12 @@ import { DoctorDTO } from "../../domain/dtos/doctor/doctor.dto";
 import { CreateDoctorUseCase } from "../../domain/usecases/doctor/createDoctor.useCase";
 import { DoctorRepositoryImplementation } from "../../infrastructure/repositories/doctor.repository.implementation";
 import { DoctorMySQLDatasource } from "../../infrastructure/datasources/MySQL/doctor.datasource.implementation";
-import { ReadDoctorByIdUseCase } from "../../domain/usecases/doctor/read-doctor-by-id.use-case";
-import { CustomError } from "../../domain/errors/customErrors";
+import { ReadDoctorByIdUseCase } from "../../domain/usecases/doctor/readDoctorById.useCase";
+import { CustomError } from "../../domain/errors/customError";
 import { ReadAllDoctorsUseCase } from "../../domain/usecases/doctor/readAllDoctors.useCase";
 import { ApiResponse } from "../../domain/helpers/apiResponse.helper";
 import { DeleteDoctorByIdUseCase } from "../../domain/usecases/doctor/deleteDoctorById.useCase";
-import { UpdateDoctorUseCase } from "../../domain/usecases/doctor/update-doctor.use-case";
+import { UpdateDoctorUseCase } from "../../domain/usecases/doctor/updateDoctor.useCase";
 
 const repo = new DoctorRepositoryImplementation(new DoctorMySQLDatasource());
 const createDoctorUseCase = new CreateDoctorUseCase(repo);
