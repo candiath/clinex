@@ -12,8 +12,12 @@ export class ReadDoctorByIdUseCase {
     const error = ValidationHelper.validateEntityID( data.id );
     if ( error ) throw CustomError.badRequest( error );
 
-
-    const existingDoctor = await this.repository.findById( data.id);
+    let existingDoctor;
+    try {
+      existingDoctor = await this.repository.findById( data.id);
+    } catch (error) {
+      throw CustomError.internalServerError("Error fetching doctor from DB");
+    }
 
     if ( !existingDoctor ) throw CustomError.notFound("Doctor not found");
     return existingDoctor;
