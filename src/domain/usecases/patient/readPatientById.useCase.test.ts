@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
-import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
+import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { ReadPatientByIdUseCase } from "./readPatientById.useCase";
-import { CustomError } from "../errors/customError";
-import { Patient } from "../entities/patient";
+import { CustomError } from "../../errors/customError";
+import { Patient } from "../../entities/patient";
 
 jest.mock("mongoose");
 
