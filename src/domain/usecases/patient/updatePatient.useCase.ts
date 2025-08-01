@@ -1,9 +1,9 @@
 import { Types } from "mongoose";
-import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
-import { UpdatePatientDTO } from "../dtos/updatePatient.dto";
-import { Patient } from "../entities/patient";
-import { CustomError } from "../errors/customError";
-import { PatientInterface } from "../interfaces/patient.interface";
+import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
+import { UpdatePatientDTO } from "../../dtos/updatePatient.dto";
+import { Patient } from "../../entities/patient";
+import { CustomError } from "../../errors/customError";
+import { PatientInterface } from "../../interfaces/patient.interface";
 
 
 export class UpdatePatientUseCase {

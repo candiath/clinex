@@ -4,16 +4,16 @@ import { PatientRepoImplementation } from "../../infrastructure/repositories/pat
 import { MongoPatientDatasource } from "../../infrastructure/datasources/mongoPatientDatasource";
 import { Patient } from "../../domain/entities/patient";
 import { UpdatePatientDTO } from "../../domain/dtos/updatePatient.dto";
-import { CreatePatientUseCase } from "../../domain/usecases/createPatient.useCase";
+import { CreatePatientUseCase } from "../../domain/usecases/patient/createPatient.useCase";
 import { CustomError } from "../../domain/errors/customError";
 import { DeletePatientDTO } from "../../domain/dtos/deletePatient.dto";
-import { DeletePatientUseCase } from "../../domain/usecases/deletePatient.useCase";
-import { ReadAllPatientsUseCase } from "../../domain/usecases/readAllPatients.useCase";
-import { ReadPatientByDniUseCase } from "../../domain/usecases/readPatientByDni.useCase";
+import { DeletePatientUseCase } from "../../domain/usecases/patient/deletePatient.useCase";
+import { ReadAllPatientsUseCase } from "../../domain/usecases/patient/readAllPatients.useCase";
+import { ReadPatientByDniUseCase } from "../../domain/usecases/patient/readPatientByDni.useCase";
 import { PublicPatientDTO } from "../../domain/dtos/publicPatient.dto";
 import { Types } from "mongoose";
-import { UpdatePatientUseCase } from "../../domain/usecases/updatePatient.useCase";
-import { ReadPatientByIdUseCase } from "../../domain/usecases/readPatientById.useCase";
+import { UpdatePatientUseCase } from "../../domain/usecases/patient/updatePatient.useCase";
+import { ReadPatientByIdUseCase } from "../../domain/usecases/patient/readPatientById.useCase";
 import { PatientInterface } from "../../domain/interfaces/patient.interface";
 
 // const router = Router();

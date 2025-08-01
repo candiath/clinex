@@ -1,5 +1,5 @@
-import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
-import { Patient } from "../entities/patient";
+import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
+import { Patient } from "../../entities/patient";
 
 
 export class ReadAllPatientsUseCase {

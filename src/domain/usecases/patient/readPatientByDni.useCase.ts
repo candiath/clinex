@@ -1,6 +1,6 @@
-import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
-import { Patient } from "../entities/patient";
-import { PatientInterface } from "../interfaces/patient.interface";
+import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
+import { Patient } from "../../entities/patient";
+import { PatientInterface } from "../../interfaces/patient.interface";
 
 export class ReadPatientByDniUseCase {
   constructor( private readonly repository: PatientRepoImplementation ){}
