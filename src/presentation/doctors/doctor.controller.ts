@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
 import { DoctorDTO } from "../../domain/dtos/doctor/doctor.dto";
 import { CreateDoctorUseCase } from "../../domain/usecases/doctor/createDoctor.useCase";
 import { DoctorRepositoryImplementation } from "../../infrastructure/repositories/doctor.repository.implementation";
@@ -6,20 +6,21 @@ import { DoctorMySQLDatasource } from "../../infrastructure/datasources/MySQL/do
 import { ReadDoctorByIdUseCase } from "../../domain/usecases/doctor/read-doctor-by-id.use-case";
 import { CustomError } from "../../domain/errors/customErrors";
 import { ReadAllDoctorsUseCase } from "../../domain/usecases/doctor/readAllDoctors.useCase";
+import { ApiResponse } from "../../domain/helpers/apiResponse.helper";
+import { DeleteDoctorByIdUseCase } from "../../domain/usecases/doctor/deleteDoctorById.useCase";
+import { UpdateDoctorUseCase } from "../../domain/usecases/doctor/update-doctor.use-case";
 
 const repo = new DoctorRepositoryImplementation(new DoctorMySQLDatasource());
 const createDoctorUseCase = new CreateDoctorUseCase(repo);
 const readDoctorByIdUseCase = new ReadDoctorByIdUseCase( repo );
 const readAllDoctorsUseCase = new ReadAllDoctorsUseCase( repo );
+const deleteDoctorByIdUseCase = new DeleteDoctorByIdUseCase( repo );
+const updateDoctorUseCase = new UpdateDoctorUseCase( repo );
+
 
 export class DoctorController {
   createDoctor = async (req: Request, res: Response) => {
     try {
-      // const [error, dto] = DoctorDTO.validate(req.body);
-      // if (error) {
-      //   res.status(400).json({ source: 'DoctorController.createDoctor', error });
-      //   return;
-      // }
 
       const result = await createDoctorUseCase.execute(req.body);
       console.log(result);
@@ -34,66 +35,85 @@ export class DoctorController {
   };
 
   getDoctorById = async (req: Request, res: Response) => {
+    let result;
+    let responseEnvelope;
     try {
-      const [ error, dto ] = DoctorDTO.validate( req.params );
-      if ( error ) {
-        res.status(400).json(error);
-        return;
-      }
-      const result = await readDoctorByIdUseCase.execute( dto );
-      res.status(200).json(result);
+      result = await readDoctorByIdUseCase.execute( req.params );
+
     } catch ( error ) {
+
+      responseEnvelope = ApiResponse.error(error, "Getting doctor by id");
+
       if ( error instanceof CustomError ) {
-        // todo: revisar error: error.message
-        res.status(error.statusCode).json({ error: error.message });
+        res.status(error.statusCode).json(responseEnvelope);
       } else {
-        console.error("====> Controller: Error fetching doctor by ID:", error);
-        res.status(500).json({ message: "Internal Server Error", error });
+        res.status(500).json(responseEnvelope);
       }
     }
+    responseEnvelope = ApiResponse.success(result, "Doctor fetched successfully");
+    res.status(200).json(responseEnvelope);
   }
 
   getAllDoctors = async (req: Request, res: Response) => {
+    let responseEnvelope;
     try {
-      const doctors = await readAllDoctorsUseCase.execute( req ); 
-      res.status(200).json(doctors);
+      const doctors = await readAllDoctorsUseCase.execute( req );
+      responseEnvelope = ApiResponse.success(doctors, "Doctors retrieved successfully");
+      res.status(200).json(responseEnvelope);
     } catch (error) {
-      console.error("Controller: Error fetching doctors:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      responseEnvelope = ApiResponse.error(error);
+      if (error instanceof CustomError) {
+        res.status(error.statusCode).json(responseEnvelope);
+      } else {
+        res.status(500).json(responseEnvelope);
+      }
     }
   };
 
   updateDoctor = async (req: Request, res: Response) => {
-    try {
-      const [error, dto] = DoctorDTO.validate(req.body);
-      if (error) {
-        res.status(400).json({ error });
-        return;
-      }
+    let result;
+    let responseEnvelope;
 
-      const result = await repo.update(req.params.id, dto!);
-      if (!result) {
-        res.status(404).json({ error: "Doctor not found" });
-        return;
-      }
-      res.status(200).json({ success: true, doctor: result });
+    try {
+      result = await updateDoctorUseCase.execute( req );
+
     } catch (error) {
-      console.error("Controller: Error updating doctor:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      responseEnvelope = ApiResponse.error(error, "Error updating doctor");
+      if (error instanceof CustomError) {
+        res.status(error.statusCode).json(responseEnvelope);
+      } else {
+        res.status(500).json(responseEnvelope);
+      }
     }
+    if (!result) {
+      responseEnvelope = ApiResponse.error(CustomError.notFound("Doctor not found"));
+      res.status(404).json(responseEnvelope);
+      return;
+    }
+    res.status(200).json(ApiResponse.success(result, "Doctor updated successfully"));
+
   };
 
   deleteDoctor = async (req: Request, res: Response) => {
+    let result;
+    let responseEnvelope;
     try {
-      const result = await repo.delete(req.params.id);
+      result = await deleteDoctorByIdUseCase.execute( req.params );
       if (!result) {
-        res.status(404).json({ error: "Doctor not found" });
+        responseEnvelope = ApiResponse.error(CustomError.notFound(), `Doctor with id ${req.params} not found`)
+        res.status(404).json(responseEnvelope);
         return;
       }
-      res.status(200).json({ success: true });
+      responseEnvelope = ApiResponse.success(null, "Doctor deleted successfully")
+      res.status(200).json(responseEnvelope);
+
     } catch (error) {
-      console.error("Controller: Error deleting doctor:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      responseEnvelope = ApiResponse.error(error);
+      if (error instanceof CustomError) {
+        res.status(error.statusCode).json(responseEnvelope);
+      } else {
+        res.status(500).json(responseEnvelope);
+      }
     }
   };
 }
