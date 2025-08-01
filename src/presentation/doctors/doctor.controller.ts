@@ -57,7 +57,7 @@ export class DoctorController {
   getAllDoctors = async (req: Request, res: Response) => {
     let responseEnvelope;
     try {
-      const doctors = await readAllDoctorsUseCase.execute( req );
+      const doctors = await readAllDoctorsUseCase.execute( null );
       responseEnvelope = ApiResponse.success(doctors, "Doctors retrieved successfully");
       res.status(200).json(responseEnvelope);
     } catch (error) {
@@ -93,7 +93,7 @@ export class DoctorController {
     res.status(200).json(ApiResponse.success(result, "Doctor updated successfully"));
 
   };
-
+  
   deleteDoctor = async (req: Request, res: Response) => {
     let result;
     let responseEnvelope;
