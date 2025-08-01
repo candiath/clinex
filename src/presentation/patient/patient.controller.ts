@@ -5,7 +5,7 @@ import { MongoPatientDatasource } from "../../infrastructure/datasources/mongoPa
 import { Patient } from "../../domain/entities/patient";
 import { UpdatePatientDTO } from "../../domain/dtos/updatePatient.dto";
 import { CreatePatientUseCase } from "../../domain/usecases/createPatient.useCase";
-import { CustomError } from "../../domain/errors/customErrors";
+import { CustomError } from "../../domain/errors/customError";
 import { DeletePatientDTO } from "../../domain/dtos/deletePatient.dto";
 import { DeletePatientUseCase } from "../../domain/usecases/deletePatient.useCase";
 import { ReadAllPatientsUseCase } from "../../domain/usecases/readAllPatients.useCase";

@@ -4,7 +4,7 @@ import { DoctorMySQLDatasource } from "../../../infrastructure/datasources/MySQL
 import { DoctorDatasource } from "../../datasources/doctor.datasource";
 import { after } from "node:test";
 import { Doctor } from "../../entities/doctor.entity";
-import { CustomError } from "../../errors/customErrors";
+import { CustomError } from "../../errors/customError";
 import { ValidationHelper } from "../../helpers/validation.helper";
 import { DoctorDTO } from "../../dtos/doctor/doctor.dto";
 

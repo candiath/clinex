@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
 import { Patient } from "../entities/patient";
-import { CustomError } from "../errors/customErrors";
+import { CustomError } from "../errors/customError";
 
 
 export class ReadPatientByIdUseCase {

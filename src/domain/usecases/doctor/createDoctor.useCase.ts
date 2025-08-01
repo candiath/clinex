@@ -1,5 +1,5 @@
 import { Doctor } from "../../entities/doctor.entity";
-import { CustomError } from "../../errors/customErrors";
+import { CustomError } from "../../errors/customError";
 import { DoctorRepository } from "../../repositories/doctorRepository";
 import { DoctorDTO } from "../../dtos/doctor/doctor.dto";
 

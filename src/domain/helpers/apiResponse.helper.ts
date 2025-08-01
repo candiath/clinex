@@ -1,4 +1,4 @@
-import { CustomError } from "../errors/customErrors";
+import { CustomError } from "../errors/customError";
 
 // export interface ApiError {
 //   code: string;

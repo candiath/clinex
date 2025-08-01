@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ApiResponse } from "../../domain/helpers/apiResponse.helper";
-import { CustomError } from "../../domain/errors/customErrors";
+import { CustomError } from "../../domain/errors/customError";
 
 
 export function responseEnvelope(req: Request, res: Response, next: Function) {

@@ -1,7 +1,7 @@
 import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
 import { PatientInterface } from "../interfaces/patient.interface";
 import { DeletePatientUseCase } from "./deletePatient.useCase";
-import { CustomError } from "../errors/customErrors"; // ✅ ADDED: Import CustomError
+import { CustomError } from "../errors/customError"; // ✅ ADDED: Import CustomError
 import { DeletePatientDTO } from "../dtos/deletePatient.dto";
 import { mock } from "node:test";
 

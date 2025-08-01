@@ -1,4 +1,4 @@
-import { CustomError } from "../../errors/customErrors";
+import { CustomError } from "../../errors/customError";
 import { ValidationHelper } from "../../helpers/validation.helper";
 import { DoctorRepository } from "../../repositories/doctorRepository";
 

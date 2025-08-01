@@ -1,7 +1,7 @@
 import { Request } from "express";
 import { PatientDatasource } from "../datasources/patientDatasource";
 import { DeletePatientDTO } from "../dtos/deletePatient.dto";
-import { CustomError } from "../errors/customErrors";
+import { CustomError } from "../errors/customError";
 import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
 import { PatientInterface } from "../interfaces/patient.interface";
 

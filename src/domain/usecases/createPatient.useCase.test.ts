@@ -1,7 +1,7 @@
 import { CreatePatientUseCase } from './createPatient.useCase';
 import { PatientRepoImplementation } from '../../infrastructure/repositories/patientRepositoryImplementation';
 import { Patient } from '../entities/patient';
-import { CustomError } from '../errors/customErrors';
+import { CustomError } from '../errors/customError';
 import { PatientInterface } from '../interfaces/patient.interface';
 import { PatientDatasource } from '../datasources/patientDatasource';
 

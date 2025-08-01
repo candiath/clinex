@@ -2,7 +2,7 @@ import { MySQLDatabase } from "../../../data/mysql/mysql.init";
 import { DoctorDatasource } from "../../../domain/datasources/doctor.datasource";
 import { DoctorDTO } from "../../../domain/dtos/doctor/doctor.dto";
 import { Doctor } from "../../../domain/entities/doctor.entity";
-import { CustomError } from "../../../domain/errors/customErrors";
+import { CustomError } from "../../../domain/errors/customError";
 import { EntityIDHelper } from "../../../domain/helpers/entityID.helper";
 import { EntityID } from "../../../domain/types/entityID.type";
 
