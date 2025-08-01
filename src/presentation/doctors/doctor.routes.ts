@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { DoctorController } from "./doctor.controller";
+import { responseEnvelope } from "../middlewares/responseEnvelope.middleware";
 
 
 
@@ -9,6 +10,8 @@ export class DoctorRoutes {
 
     const router = Router();
     const controller = new DoctorController();
+
+    router.use(responseEnvelope); // Middleware to wrap responses
 
     router.get('/:id', controller.getDoctorById);
     router.get('/', controller.getAllDoctors);

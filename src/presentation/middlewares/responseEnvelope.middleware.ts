@@ -9,24 +9,23 @@ export function responseEnvelope(req: Request, res: Response, next: Function) {
   
   res.json = function (data: any) {
     if (data instanceof ApiResponse) {
-      console.log("DATA ENVIADA AL ENVELOPE:", data);
-      console.log("first call")
+      console.log("data is instance of ApiResponse")
       return originalJson.call(this, data)
     }
 
     if (data instanceof CustomError) {
-      console.log("from custom error")
+      console.log("data is instance of CustomError")
       const errorResponse = ApiResponse.fromCustomError(data);
       return originalJson.call(this, errorResponse);
     }
 
     if (data instanceof Error) {
-      console.log("from error")
+      console.log("data is instance of Error")
       const errorResponse = ApiResponse.error(data, "An error occurred");
       return originalJson.call(this, errorResponse);
     }
 
-    console.log("from success")
+    console.log("calling success")
     const wrapped = ApiResponse.success(data, "Success");
     return originalJson.call(this, wrapped);
   }
