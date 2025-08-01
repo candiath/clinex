@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { PatientRoutes } from "./patients/patients.routes";
 import { DoctorRoutes } from "./doctors/doctor.routes";
+import { responseEnvelope } from "./middlewares/responseEnvelope.middleware";
+import { errorHandler } from "./middlewares/errorHandler.middleware";
 
 
 export class AppRoutes {
@@ -43,7 +45,9 @@ export class AppRoutes {
     router.use('/', (req, res) => {
       res.status(404).json({ error: "Resource not Found", url: req.originalUrl });
     });
-
+    router.use(responseEnvelope);
+    router.use(errorHandler); // <-- Esto captura errores no manejados
+    
     return router;
   }
 
