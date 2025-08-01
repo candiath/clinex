@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { PatientRoutes } from "./patients/patients.routes";
-import { DoctorRoutes } from "./doctors/doctor.routes";
+import { PatientRoutes } from "./patient/patient.routes";
+import { DoctorRoutes } from "./doctor/doctor.routes";
 import { responseEnvelope } from "./middlewares/responseEnvelope.middleware";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 
