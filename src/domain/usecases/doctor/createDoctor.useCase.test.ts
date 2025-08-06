@@ -244,7 +244,7 @@ describe("Create doctor use case", () => {
   describe("Repository errors", () => {
     it("Should throw internal server error when repository save fails", () => {
       mockRepository.save.mockRejectedValue(
-        new CustomError(500, "Internal server error")
+        CustomError.internalServerError("Internal server error")
       );
 
       return expect(

@@ -158,17 +158,18 @@ describe("Delete doctor by ID use case", () => {
   describe("Validations", () => {
     it("Should throw error when ID is missing", async() => {
       const errorMessageMock = `ID must be a ${EntityIDHelper.getFormatDescription()}`;
-      (ValidationHelper.validateEntityID as jest.Mock).mockResolvedValue(errorMessageMock);
+      (ValidationHelper.validateEntityID as jest.Mock).mockReturnValue(errorMessageMock);
 
+      const testError = CustomError.badRequest();
       let result;
       try {
-        result = await usecase.execute(VALID_ID);
+        result = await usecase.execute(INVALID_ID);
         fail("Should have thrown an error");
       } catch (error) {
         expect(result).toBe(undefined);
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).userFriendlyMessage).toBe(errorMessageMock);
+        expect((error as CustomError).message).toBe(errorMessageMock);
       }
     })
   });
