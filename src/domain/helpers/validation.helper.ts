@@ -5,9 +5,10 @@ export class ValidationHelper {
 
   public static validateEntityID ( id: any ): string | null {
 
-    const validation = EntityIDHelper.isValidEntityID( id );
-    if ( !validation ) return null;
-
+    if ( id !== undefined ) {
+      const validation = EntityIDHelper.isValidEntityID( id );
+      if ( !validation ) return null;
+    }
     return `ID must be a ${EntityIDHelper.getFormatDescription()}`;
 
   }
