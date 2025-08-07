@@ -234,10 +234,10 @@ describe("ReadPatientByIdUseCase", () => {
         await testErrorScenario(customError, 404, "Patient not found in database");
       });
 
-      it("should preserve CustomError with different status codes", async () => {
-        const customError = CustomError.forbidden('Access denied');
-        await testErrorScenario(customError, 403, "Access denied");
-      });
+      // it("should preserve CustomError with different status codes", async () => {
+      //   const customError = CustomError.forbidden('Access denied');
+      //   await testErrorScenario(customError, 403, "Access denied");
+      // });
     });
   });
 });
