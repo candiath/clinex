@@ -6,7 +6,7 @@ import { PatientInterface } from '../../interfaces/patient.interface';
 import { PatientDatasource } from '../../datasources/patientDatasource';
 
 // Mock the repository
-jest.mock('../../infrastructure/repositories/patientRepositoryImplementation');
+jest.mock('../../../infrastructure/repositories/patientRepositoryImplementation');
 
 describe('CreatePatientUseCase', () => {
   let createPatientUseCase: CreatePatientUseCase;
