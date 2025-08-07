@@ -6,16 +6,16 @@ import { DoctorRepository } from "../../repositories/doctorRepository";
 export class DeleteDoctorByIdUseCase {
   constructor( readonly repository: DoctorRepository ){}
 
-  public async execute ( data: any ) {
+  public async execute ( id: any ) {
 
-    const validation = ValidationHelper.validateEntityID( data.id );
+    const validation = ValidationHelper.validateEntityID( id );
 
     if ( validation ) throw CustomError.badRequest( validation ); 
 
-    const existingDoctor = await this.repository.findById(data.id);
+    const existingDoctor = await this.repository.findById(id);
     if (!existingDoctor) throw CustomError.notFound("Doctor not found");
 
-    const deleted = await this.repository.delete(data.id);
+    const deleted = await this.repository.delete(id);
 
     return deleted;
   }
