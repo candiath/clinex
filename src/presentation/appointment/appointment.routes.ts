@@ -8,8 +8,8 @@ export class AppointmentRoutes {
     const router = Router();
     const controller = new AppointmentController();
     
-    router.get('/', controller.getAllAppointments);
     router.use(responseEnvelope);
+    router.get('/', controller.getAllAppointments);
 
     return router;
   }
