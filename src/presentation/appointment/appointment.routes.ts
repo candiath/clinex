@@ -9,7 +9,11 @@ export class AppointmentRoutes {
     const controller = new AppointmentController();
     
     router.use(responseEnvelope);
-    router.get('/', controller.getAllAppointments);
+    router.get('/', controller.getAll);
+    router.get('/:id', controller.getById);
+    router.post('/', controller.create);
+    router.put('/:id', controller.update);
+    router.delete('/', controller.getAll);
 
     return router;
   }
