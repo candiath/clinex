@@ -12,14 +12,8 @@ export class GetAllAppointmentsUseCase {
   constructor(repository: AppointmentRepository) {
     this.repository = repository;
   }
-/**
- * 
- * @param data valid appointment id
- */
-  public async execute (data: any) {
-
-    const error = ValidationHelper.validateEntityID(data);
-    if (error) throw CustomError.badRequest(error);
+  //todo: decidir si execute necesita alguna data o no
+  public async execute () {
 
     return this.repository.getAll();
 
