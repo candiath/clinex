@@ -28,8 +28,9 @@ export class AppointmentDTO {
       }
     }
     if (data.dateTime !== undefined && data.dateTime !== null) {
-      if (!(data.dateTime instanceof Date)) {
-        return ['Date and time must be a Date object', null];
+      if (!isNaN(new Date(data.dateTime).getTime())) {
+        // return ['Date and time must be a valid Date', null];
+        
       }
     }
     if (data.status !== undefined && data.status !== null) {

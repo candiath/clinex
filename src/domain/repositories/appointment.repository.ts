@@ -7,5 +7,5 @@ export interface AppointmentRepository {
   getAll(): Promise<Appointment[] | null>;
   getById(id: EntityID): Promise<Appointment | null>;
   update(appointment: Appointment): Promise<Appointment | null>;
-  delete(id: EntityID): Promise<Appointment | null>;
+  delete(id: EntityID): Promise<boolean>;
 }

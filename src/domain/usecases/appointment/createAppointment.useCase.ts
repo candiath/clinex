@@ -38,14 +38,12 @@ export class CreateAppointmentUseCase {
       dto!.reason,
       dto!.notes,
     )
+
+    try {
+      
+      return this.repository.create(appointment);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
-/**
- *   public patientId: string,
-     public doctorId: string,
-     public dateTime: Date,
-     public status: AppointmentStatus,
-     public reason?: string,
-     public notes?: string,
-     public id?: string,
- */

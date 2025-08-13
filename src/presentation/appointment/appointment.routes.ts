@@ -13,7 +13,7 @@ export class AppointmentRoutes {
     router.get('/:id', controller.getById);
     router.post('/', controller.create);
     router.put('/:id', controller.update);
-    router.delete('/', controller.getAll);
+    router.delete('/:id', controller.delete);
 
     return router;
   }

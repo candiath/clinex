@@ -21,7 +21,7 @@ export class AppointmentRepositoryImplementation implements AppointmentRepositor
   update(appointment: Appointment): Promise<Appointment | null> {
     return this.datasource.update(appointment);
   }
-  delete(id: EntityID): Promise<Appointment | null> {
+  delete(id: EntityID): Promise<boolean> {
     return this.datasource.delete(id);
   }
 }
