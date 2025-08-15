@@ -4,7 +4,7 @@ import { CustomError } from "../../errors/customError";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
 
 export class CreateAppointmentUseCase {
-  private repository: AppointmentRepository;
+  public readonly repository: AppointmentRepository;
   
   constructor(repository: AppointmentRepository) {
     this.repository = repository;
