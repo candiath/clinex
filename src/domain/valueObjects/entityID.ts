@@ -1,14 +1,19 @@
 export class EntityID {
-  // TODO: Se espera que el ID sea string?
-  constructor(id: string) {
+  private constructor(private readonly id: any) {}
+
+  static create(id: string): EntityID {
     if (Number.isInteger(id)) {
-      // Validar que sea positivo
-      // Validar que sea entero
-      if (!(parseInt(id) > 0)) {
+      const intValue = parseInt(id);
+      if (!( intValue > 0)) {
         // TODO: review messages
         throw "ID must be a positive integer";
       }
+      return new EntityID(intValue);
     }
     throw "ID is not a number";
+  }
+
+  getValue() {
+    return this.id;
   }
 }
