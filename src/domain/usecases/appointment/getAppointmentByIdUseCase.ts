@@ -1,6 +1,7 @@
 import { CustomError } from "../../errors/customError";
 import { ValidationHelper } from "../../helpers/validation.helper";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
+import { EntityID } from "../../valueObjects/entityID";
 
 
 export class GetAppointmentByIdUseCase {
@@ -12,9 +13,13 @@ export class GetAppointmentByIdUseCase {
   }
 
   public async execute (id: any) {
-    const error = ValidationHelper.validateEntityID(id);
-    if (error) throw CustomError.badRequest(error);
+    let validID: EntityID;
+    try {
+      validID = EntityID.create(id);
+    } catch (error) {
+      throw CustomError.badRequest((error as CustomError).message);
+    }
 
-    return this.repository.getById(id);
+    return this.repository.getById(validID);
   }
 }

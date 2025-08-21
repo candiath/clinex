@@ -1,16 +1,18 @@
+import { CustomError } from "../errors/customError";
+
 export class EntityID {
   private constructor(private readonly id: any) {}
 
   static create(id: string): EntityID {
-    if (Number.isInteger(id)) {
-      const intValue = parseInt(id);
-      if (!( intValue > 0)) {
-        // TODO: review messages
-        throw "ID must be a positive integer";
+    const intValue = parseInt(id);
+
+    if (Number.isInteger(intValue)) {
+      if (!(intValue > 0)) {
+        throw CustomError.badRequest("ID must be a positive integer");
       }
       return new EntityID(intValue);
     }
-    throw "ID is not a number";
+    throw CustomError.badRequest("ID is not a number");
   }
 
   getValue() {

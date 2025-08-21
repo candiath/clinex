@@ -1,7 +1,7 @@
 import { AppointmentDatasource } from "../../domain/datasources/appointment.datasource";
 import { Appointment } from "../../domain/entities/appointment.entity";
 import { AppointmentRepository } from "../../domain/repositories/appointment.repository";
-import { EntityID } from "../../domain/types/entityID.type";
+import { EntityID } from "../../domain/valueObjects/entityID";
 
 export class AppointmentRepositoryImplementation implements AppointmentRepository {
 

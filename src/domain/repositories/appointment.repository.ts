@@ -1,5 +1,5 @@
 import { Appointment } from "../entities/appointment.entity";
-import { EntityID } from "../types/entityID.type";
+import { EntityID } from "../valueObjects/entityID";
 
 export interface AppointmentRepository {
 

@@ -1,10 +1,11 @@
-import { AppointmentStatus } from '../types/appointmentStatus.type';
+import { AppointmentStatus } from '../valueObjects/appointmentStatus';
+import { EntityID } from '../valueObjects/entityID';
 
 export class Appointment {
 
   private constructor(
-    public patientId: string,
-    public doctorId: string,
+    public patientId: EntityID,
+    public doctorId: EntityID,
     public dateTime: Date,
     public status: AppointmentStatus,
     public reason?: string,
@@ -22,8 +23,8 @@ export class Appointment {
 
 
   static create(
-    patientId: string,
-    doctorId: string, 
+    patientId: EntityID,
+    doctorId: EntityID, 
     dateTime: Date,
     status: AppointmentStatus,
     reason?: string,
@@ -33,8 +34,8 @@ export class Appointment {
   }
 
   static fromDatabase(
-    patientId: string,
-    doctorId: string,
+    patientId: EntityID,
+    doctorId: EntityID,
     dateTime: Date,
     status: AppointmentStatus,
     reason: string,

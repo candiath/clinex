@@ -3,19 +3,19 @@ import { AppointmentDatasource } from "../../../domain/datasources/appointment.d
 import { Appointment } from "../../../domain/entities/appointment.entity";
 import { CustomError } from "../../../domain/errors/customError";
 import { ValidationHelper } from "../../../domain/helpers/validation.helper";
-import { EntityID } from "../../../domain/types/entityID.type";
+import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class AppointmentMySQLDatasource implements AppointmentDatasource {
   async getById(id: EntityID): Promise<Appointment | null> {
     try {
-      const validationError = ValidationHelper.validateEntityID(id);
-      if (validationError)
-        throw CustomError.internalServerError(validationError);
+      // const validationError = ValidationHelper.validateEntityID(id);
+      // if (validationError)
+      //   throw CustomError.internalServerError(validationError);
 
       // console.log(`SELECT * FROM appointments where id = ${id}`)
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM appointments where id = ?",
-        [id]
+        [id.getValue()]
       );
 
       const appointments = rows as any[];
@@ -44,10 +44,10 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
       const [result] = await MySQLDatabase.pool.execute(
         "INSERT INTO appointments (patientId, doctorId, dateTime, status, reason, notes) VALUES (?, ?, ?, ?, ?, ?)",
         [
-          appointment.patientId,
-          appointment.doctorId,
+          appointment.patientId.getValue(),
+          appointment.doctorId.getValue(),
           appointment.dateTime,
-          appointment.status,
+          appointment.status.getValue(),
           appointment.reason ?? null,  // ✅ Convertir undefined a null
           appointment.notes ?? null,   // ✅ Convertir undefined a null
         ]
@@ -76,21 +76,21 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
 
   async delete(id: EntityID): Promise<boolean> {
     try {
-      const validationError = ValidationHelper.validateEntityID(id);
-      if (validationError)
-        throw CustomError.internalServerError(validationError);
+      // const validationError = ValidationHelper.validateEntityID(id);
+      // if (validationError)
+      //   throw CustomError.internalServerError(validationError);
 
       // console.log(`DELETE FROM appointments WHERE id = ${id}`);
       const [result] = await MySQLDatabase.pool.execute(
         "DELETE FROM appointments WHERE id = ?",
-        [id]
+        [id.getValue()]
       );
 
       const deletedResult = result as any;
       if (deletedResult.affectedRows === 1) {
         return true;
       }
-      // NO ME DIGAS NADA
+
       throw CustomError.internalServerError(
         "Something went wrong while deleting an appointment"
       );
@@ -106,10 +106,10 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
       const [result] = await MySQLDatabase.pool.execute(
         "UPDATE appointments SET patientId = ?, doctorId = ?, dateTime = ?, status = ?, reason = ?, notes = ? WHERE id = ?",
         [
-          appointment.patientId,
-          appointment.doctorId,
+          appointment.patientId.getValue(),
+          appointment.doctorId.getValue(),
           appointment.dateTime,
-          appointment.status,
+          appointment.status.getValue(),
           appointment.reason ?? null,  // ✅ Convertir undefined a null
           appointment.notes ?? null,   // ✅ Convertir undefined a null
           appointment.id,
