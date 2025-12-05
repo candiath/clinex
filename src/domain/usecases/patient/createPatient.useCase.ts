@@ -10,7 +10,6 @@ export class CreatePatientUseCase {
     const [error, dto] = PatientDTO.validate(data);
     if (error) throw CustomError.badRequest(error);
 
-    console.log('DTO validated:', dto);
     if (dto!.dni == null) throw CustomError.badRequest('Patient DNI is required');
     if (dto!.firstName == null) throw CustomError.badRequest('Patient first name is required');
     if (dto!.lastName == null) throw CustomError.badRequest('Patient last name is required');
