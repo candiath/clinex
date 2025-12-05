@@ -1,15 +1,16 @@
-import { Types } from "mongoose";
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { CustomError } from "../../errors/customError";
+import { EntityIDHelper } from "../../helpers/entityID.helper";
 
 export class UpdatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
   public async execute(data: any): Promise<boolean> {
-    // MongoDB-specific validation
-    if (!data.id || !Types.ObjectId.isValid(data.id)) {
-      throw CustomError.badRequest("Invalid ID format");
+    // Database-agnostic ID validation
+    const validationError = EntityIDHelper.isValidEntityID(data?.id);
+    if (!data.id || validationError) {
+      throw CustomError.badRequest(validationError || "Invalid ID format");
     }
 
     const existingPatient = await this.repository.findById(data.id);

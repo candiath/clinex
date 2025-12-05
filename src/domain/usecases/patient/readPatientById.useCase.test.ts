@@ -1,19 +1,15 @@
-import { Types } from "mongoose";
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { ReadPatientByIdUseCase } from "./readPatientById.useCase";
 import { CustomError } from "../../errors/customError";
 import { Patient } from "../../entities/patient.entity";
 import { Genres } from "../../types/genres.type";
 
-jest.mock("mongoose");
-
 describe("ReadPatientByIdUseCase", () => {
   let mockRepository: PatientRepoImplementation;
   let useCase: ReadPatientByIdUseCase;
-  const mockIsValid = jest.fn();
 
   // Test constants
-  const VALID_OBJECT_ID = "507f1f77bcf86cd799439011";
+  const VALID_ID = '123';
   const INVALID_ID = "ABC";
   const EMPTY_ID = "";
   
@@ -24,7 +20,7 @@ describe("ReadPatientByIdUseCase", () => {
     birthDate: new Date("1990-01-01"),
     email: "john@example.com",
     sex: Genres.MALE,
-    id: VALID_OBJECT_ID
+    id: VALID_ID
   };
 
   // Helper function to create Mongoose-like errors
@@ -40,11 +36,10 @@ describe("ReadPatientByIdUseCase", () => {
     expectedStatusCode: number,
     expectedMessage: string
   ) => {
-    mockIsValid.mockReturnValue(true);
     (mockRepository.findById as jest.Mock).mockRejectedValue(error);
 
     try {
-      await useCase.execute({ id: VALID_OBJECT_ID });
+      await useCase.execute({ id: VALID_ID });
       fail("Should have thrown an error");
     } catch (thrownError) {
       expect(thrownError).toBeInstanceOf(CustomError);
@@ -52,7 +47,7 @@ describe("ReadPatientByIdUseCase", () => {
       expect((thrownError as CustomError).message).toBe(expectedMessage);
     }
 
-    expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
+    expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
     expect(mockRepository.findById).toHaveBeenCalledTimes(1);
   };
 
@@ -67,9 +62,6 @@ describe("ReadPatientByIdUseCase", () => {
     // Mock console methods
     jest.spyOn(console, "log").mockImplementation();
     jest.spyOn(console, "error").mockImplementation();
-    
-    // Mock Mongoose
-    (Types.ObjectId.isValid as jest.Mock) = mockIsValid;
   });
 
   afterEach(() => {
@@ -79,8 +71,6 @@ describe("ReadPatientByIdUseCase", () => {
 
   describe("Successful operations", () => {
     it("should return a patient when found by ID", async () => {
-      mockIsValid.mockReturnValue(true);
-
       const mockPatient = new Patient(
         MOCK_PATIENT_DATA.dni,
         MOCK_PATIENT_DATA.firstName,
@@ -93,20 +83,18 @@ describe("ReadPatientByIdUseCase", () => {
 
       (mockRepository.findById as jest.Mock).mockResolvedValue(mockPatient);
 
-      const result = await useCase.execute({ id: VALID_OBJECT_ID });
+      const result = await useCase.execute({ id: VALID_ID });
 
       expect(result).toEqual(mockPatient);
-      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
+      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
       expect(mockRepository.findById).toHaveBeenCalledTimes(1);
     });
 
     it("should return NULL if patient does NOT exist", async () => {
-      mockIsValid.mockReturnValue(true);
-
       (mockRepository.findById as jest.Mock).mockResolvedValue(null);
 
       try {
-        await useCase.execute({ id: VALID_OBJECT_ID });
+        await useCase.execute({ id: VALID_ID });
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
@@ -114,37 +102,33 @@ describe("ReadPatientByIdUseCase", () => {
         expect((error as CustomError).message).toBe("Patient not found");
       }
 
-      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
+      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
       expect(mockRepository.findById).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("Input validation", () => {
     it("should throw CustomError with correct status code for invalid ID", async () => {
-      mockIsValid.mockReturnValue(false);
-
       try {
         await useCase.execute({ id: INVALID_ID });
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe("Invalid ID format");
+        expect((error as CustomError).message).toContain('ID must be a positive integer');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();
     });
 
     it("should throw CustomError with correct status code for empty ID", async () => {
-      mockIsValid.mockReturnValue(false);
-
       try {
         await useCase.execute({ id: EMPTY_ID });
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe("Invalid ID format");
+        expect((error as CustomError).message).toContain('ID must be a positive integer');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();
@@ -152,15 +136,13 @@ describe("ReadPatientByIdUseCase", () => {
 
     // Edge case: null/undefined IDs
     it("should handle null ID gracefully", async () => {
-      mockIsValid.mockReturnValue(false);
-
       try {
         await useCase.execute({ id: null });
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe("Invalid ID format");
+        expect((error as CustomError).message).toContain('ID must be a positive integer');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();
@@ -171,12 +153,11 @@ describe("ReadPatientByIdUseCase", () => {
     describe("Repository errors", () => {
       it("should handle generic repository errors with 500 status", async () => {
         // Arrange
-        mockIsValid.mockReturnValue(true);
         (mockRepository.findById as jest.Mock).mockRejectedValue(new Error('Generic database error'));
 
         // Act & Assert
         try {
-          await useCase.execute({ id: VALID_OBJECT_ID });
+          await useCase.execute({ id: VALID_ID });
           fail("Should have thrown an error");
         } catch (error) {
           expect(error).toBeInstanceOf(CustomError);
@@ -184,18 +165,17 @@ describe("ReadPatientByIdUseCase", () => {
           expect((error as CustomError).message).toBe("Error fetching patient from DB");
         }
 
-        expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
+        expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
         expect(mockRepository.findById).toHaveBeenCalledTimes(1);
       });
 
       it("should handle unknown error types with 500 status", async () => {
         // Arrange
-        mockIsValid.mockReturnValue(true);
         (mockRepository.findById as jest.Mock).mockRejectedValue("String error");
 
         // Act & Assert
         try {
-          await useCase.execute({ id: VALID_OBJECT_ID });
+          await useCase.execute({ id: VALID_ID });
           fail("Should have thrown an error");
         } catch (error) {
           expect(error).toBeInstanceOf(CustomError);
@@ -203,7 +183,7 @@ describe("ReadPatientByIdUseCase", () => {
           expect((error as CustomError).message).toBe("Error fetching patient from DB");
         }
 
-        expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
+        expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
         expect(mockRepository.findById).toHaveBeenCalledTimes(1);
       });
     });

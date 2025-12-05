@@ -1,11 +1,10 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { DeletePatientUseCase } from "./deletePatient.useCase";
 import { CustomError } from "../../errors/customError";
-import { Types } from "mongoose";
 import { Patient } from "../../entities/patient.entity";
 
 describe('DeletePatientUseCase', () => {
-  const VALID_OBJECT_ID = '507f1f77bcf86cd799439011';
+  const VALID_ID = '123';
   const INVALID_ID = 'invalid-id';
   
   const MOCK_PATIENT = new Patient(
@@ -15,12 +14,11 @@ describe('DeletePatientUseCase', () => {
     new Date('1990-01-01'),
     'john@example.com',
     'male',
-    VALID_OBJECT_ID
+    VALID_ID
   );
 
   let mockRepository: jest.Mocked<PatientRepoImplementation>;
   let useCase: DeletePatientUseCase;
-  const mockIsValid = jest.fn();
 
   beforeEach(() => {
     mockRepository = {
@@ -32,33 +30,26 @@ describe('DeletePatientUseCase', () => {
 
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'log').mockImplementation(() => {});
-    
-    // Mock Mongoose
-    (Types.ObjectId.isValid as jest.Mock) = mockIsValid;
   });
 
   describe('Successful deletion', () => {
     it('should return true when patient is successfully deleted', async () => {
       // Arrange
-      mockIsValid.mockReturnValue(true);
       mockRepository.findById.mockResolvedValue(MOCK_PATIENT);
       mockRepository.delete.mockResolvedValue(true);
 
       // Act
-      const result = await useCase.execute({ id: VALID_OBJECT_ID });
+      const result = await useCase.execute({ id: VALID_ID });
 
       // Assert
       expect(result).toBe(true);
-      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
-      expect(mockRepository.delete).toHaveBeenCalledWith(VALID_OBJECT_ID);
+      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
+      expect(mockRepository.delete).toHaveBeenCalledWith(VALID_ID);
     });
   });
 
   describe('Input validation', () => {
     it('should throw BadRequest error when ID is missing', async () => {
-      // Arrange
-      mockIsValid.mockReturnValue(false);
-
       // Act & Assert
       try {
         await useCase.execute({ id: undefined });
@@ -66,7 +57,7 @@ describe('DeletePatientUseCase', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe('Invalid ID format');
+        expect((error as CustomError).message).toContain('ID must be a positive integer');
       }
 
       // Verify repository methods were not called
@@ -75,15 +66,13 @@ describe('DeletePatientUseCase', () => {
     });
 
     it('should throw BadRequest error when ID is invalid', async () => {
-      mockIsValid.mockReturnValue(false);
-
       try {
         await useCase.execute({ id: INVALID_ID });
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe('Invalid ID format');
+        expect((error as CustomError).message).toContain('ID must be a positive integer');
       }
 
       expect(mockRepository.findById).not.toHaveBeenCalled();
@@ -91,8 +80,6 @@ describe('DeletePatientUseCase', () => {
     });
 
     it('should throw BadRequest error when patient data is null', async () => {
-      mockIsValid.mockReturnValue(false);
-
       try {
         await useCase.execute(null);
         fail('Should have thrown an error');
@@ -108,11 +95,10 @@ describe('DeletePatientUseCase', () => {
 
   describe('Error handling', () => {
     it('should throw NotFound error when patient does not exist', async () => {
-      mockIsValid.mockReturnValue(true);
       mockRepository.findById.mockResolvedValue(null);
 
       try {
-        await useCase.execute({ id: VALID_OBJECT_ID });
+        await useCase.execute({ id: VALID_ID });
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
@@ -120,16 +106,15 @@ describe('DeletePatientUseCase', () => {
         expect((error as CustomError).message).toBe('Patient not found');
       }
 
-      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
+      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
       expect(mockRepository.delete).not.toHaveBeenCalled();
     });
 
     it('should handle repository errors', async () => {
-      mockIsValid.mockReturnValue(true);
       mockRepository.findById.mockRejectedValue(new Error('Database error'));
 
       try {
-        await useCase.execute({ id: VALID_OBJECT_ID });
+        await useCase.execute({ id: VALID_ID });
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
@@ -138,16 +123,14 @@ describe('DeletePatientUseCase', () => {
   });
 
   describe('Edge cases and data validation', () => {
-    it('should validate MongoDB ObjectId format', async () => {
-      mockIsValid.mockReturnValue(false);
-      
+    it('should validate ID format', async () => {
       try {
         await useCase.execute({ id: INVALID_ID });
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe('Invalid ID format');
+        expect((error as CustomError).message).toContain('ID must be a positive integer');
       }
       
       // Verify repository methods were not called
