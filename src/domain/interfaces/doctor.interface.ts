@@ -1,10 +1,12 @@
 import { DoctorSpecialty } from '../types/doctorSpecialty.type';
-import { EntityID } from '../types/entityID.type';
+import { Email } from '../valueObjects/email';
+import { EntityID } from '../valueObjects/entityID';
+import { Phone } from '../valueObjects/phone';
 
 export interface Doctor {
   id?: EntityID;
   name: string;
   specialty: DoctorSpecialty;
-  email: string;
-  phone: string;
+  email: Email;
+  phone: Phone;
 }

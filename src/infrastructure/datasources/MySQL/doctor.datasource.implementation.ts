@@ -4,7 +4,7 @@ import { DoctorDTO } from "../../../domain/dtos/doctor/doctor.dto";
 import { Doctor } from "../../../domain/entities/doctor.entity";
 import { CustomError } from "../../../domain/errors/customError";
 import { EntityIDHelper } from "../../../domain/helpers/entityID.helper";
-import { EntityID } from "../../../domain/types/entityID.type";
+import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class DoctorMySQLDatasource implements DoctorDatasource {
   async findById(id: string): Promise<Doctor | null> {
@@ -90,7 +90,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
       newDoctorData.specialty,
       newDoctorData.email,
       newDoctorData.phone,
-      id
+      id.getValue()
     );
   }
 

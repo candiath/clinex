@@ -2,7 +2,8 @@ import { DoctorDatasource } from "../../domain/datasources/doctor.datasource";
 import { DoctorDTO } from "../../domain/dtos/doctor/doctor.dto";
 import { Doctor } from "../../domain/entities/doctor.entity";
 import { DoctorRepository } from "../../domain/repositories/doctorRepository";
-import { EntityID } from "../../domain/types/entityID.type";
+import { Email } from "../../domain/valueObjects/email";
+import { EntityID } from "../../domain/valueObjects/entityID";
 
 
 export class DoctorRepositoryImplementation implements DoctorRepository {
@@ -13,7 +14,7 @@ export class DoctorRepositoryImplementation implements DoctorRepository {
   findById(id: EntityID): Promise<Doctor | null> {
     return this.datasource.findById(id);
   }
-  findByEmail(email: string): Promise<Doctor | null> {
+  findByEmail(email: Email): Promise<Doctor | null> {
     return this.datasource.findByEmail(email);
   }
   save(doctor: Doctor): Promise<Doctor | null> {
@@ -28,7 +29,7 @@ export class DoctorRepositoryImplementation implements DoctorRepository {
   list(): Promise<Doctor[]> {
     return this.datasource.list();
   }
-  emailExists(email: string): Promise<boolean> {
+  emailExists(email: Email): Promise<boolean> {
     return this.datasource.emailExists(email);
   }
 
