@@ -93,7 +93,7 @@ describe("DoctorDTO", () => {
     });
 
     it("Should return a Doctor DTO with doctor and ID data", () => {
-      mockValidationHelper.validateEntityID.mockReturnValue(null);
+      mockValidationHelper.isEntityIDNotValid.mockReturnValue(null);
       const [error, dto] = DoctorDTO.validate(VALID_DOCTOR_DATA_WITH_ID);
 
       expect(error).toBe(null);
@@ -304,7 +304,7 @@ describe("DoctorDTO", () => {
     });
 
     it("Should throw an error when ID is invalid", () => {
-      mockValidationHelper.validateEntityID.mockReturnValue(
+      mockValidationHelper.isEntityIDNotValid.mockReturnValue(
         'ID must be a valid ID' );
 
       const [ error, dto ] = DoctorDTO.validate({

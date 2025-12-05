@@ -9,7 +9,7 @@ export class ReadDoctorByIdUseCase {
 
   public async execute ( data: any ) {
 
-    const error = ValidationHelper.validateEntityID( data.id );
+    const error = ValidationHelper.isEntityIDNotValid( data.id );
     if ( error ) throw CustomError.badRequest( error );
 
     let existingDoctor;

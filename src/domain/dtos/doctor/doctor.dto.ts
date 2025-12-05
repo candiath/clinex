@@ -57,7 +57,7 @@ export class DoctorDTO {
     if ( data.id !== undefined && data.id !== null) {
       // console.log('Validating ID:', data.id);
       // console.log(typeof data.id, data.id);
-      if ( ValidationHelper.validateEntityID( data.id ) )
+      if ( ValidationHelper.isEntityIDNotValid( data.id ) )
         return [ 'ID must be a valid ID', null ];
     }
 

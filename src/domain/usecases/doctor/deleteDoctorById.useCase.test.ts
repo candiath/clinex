@@ -51,20 +51,20 @@ describe("Delete doctor by ID use case", () => {
 
   describe("Successful operations", () => {
     it("Should delete doctor successfully with valid ID", async () => {
-      (ValidationHelper.validateEntityID as jest.Mock).mockReturnValue(null);
+      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
       mockRepository.findById.mockResolvedValue(VALID_DOCTOR);
       mockRepository.delete.mockResolvedValue(true);
 
       const result = await usecase.execute(VALID_ID);
 
       expect(result).toBeTruthy();
-      expect(ValidationHelper.validateEntityID).toHaveBeenCalledWith(VALID_ID);
+      expect(ValidationHelper.isEntityIDNotValid).toHaveBeenCalledWith(VALID_ID);
       expect(mockRepository.findById).toHaveBeenCalledWith(VALID_DOCTOR.id);
       expect(mockRepository.delete).toHaveBeenCalledWith(VALID_DOCTOR.id);
     });
 
     it("Should handle empty doctor list", async () => {
-      (ValidationHelper.validateEntityID as jest.Mock).mockReturnValue(null);
+      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
       mockRepository.findById.mockResolvedValue(null);
 
       let result;
@@ -81,7 +81,7 @@ describe("Delete doctor by ID use case", () => {
 
   describe("Error handling", () => {
     it("Should throw CustomError when repository search fails", async () => {
-      (ValidationHelper.validateEntityID as jest.Mock).mockReturnValue(null);
+      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
 
       mockRepository.findById.mockRejectedValue(
         CustomError.serviceUnavailable()
@@ -101,7 +101,7 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository deletion fails", async () => {
-      (ValidationHelper.validateEntityID as jest.Mock).mockReturnValue(null);
+      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
 
       mockRepository.findById.mockResolvedValue(VALID_DOCTOR);
       mockRepository.delete.mockRejectedValue(CustomError.serviceUnavailable());
@@ -120,7 +120,7 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository search throws unknown error", async () => {
-      (ValidationHelper.validateEntityID as jest.Mock).mockReturnValue(null);
+      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
 
       mockRepository.findById.mockRejectedValue(new Error());
 
@@ -137,7 +137,7 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository deletion throws unknown error", async () => {
-      (ValidationHelper.validateEntityID as jest.Mock).mockReturnValue(null);
+      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
 
       mockRepository.findById.mockResolvedValue(VALID_DOCTOR);
       mockRepository.delete.mockRejectedValue(new Error);
@@ -158,7 +158,7 @@ describe("Delete doctor by ID use case", () => {
   describe("Validations", () => {
     it("Should throw error when ID is missing", async() => {
       const errorMessageMock = `ID must be a ${EntityIDHelper.getFormatDescription()}`;
-      (ValidationHelper.validateEntityID as jest.Mock).mockReturnValue(errorMessageMock);
+      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(errorMessageMock);
 
       const testError = CustomError.badRequest();
       let result;
