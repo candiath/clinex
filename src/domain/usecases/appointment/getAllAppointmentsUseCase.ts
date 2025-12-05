@@ -1,8 +1,4 @@
-import { AppointmentDTO } from "../../dtos/appointment.dto";
-import { CustomError } from "../../errors/customError";
-import { ValidationHelper } from "../../helpers/validation.helper";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
-import { EntityID } from "../../types/entityID.type";
 
 
 export class GetAllAppointmentsUseCase {

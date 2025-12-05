@@ -14,39 +14,49 @@ export class CreateAppointmentUseCase {
   public async execute(data: any) {
     const [error, dto] = AppointmentDTO.validate(data);
     if (error) throw CustomError.badRequest(error);
+    if (!dto) throw CustomError.internalServerError("DTO validation failed");
 
-    try {
-      EntityID.create(data.id);
-    } catch (error) {}
-
-    if (dto!.patientId === null || dto!.patientId === undefined) {
+    // Validar reglas de negocio: campos obligatorios para crear una cita
+    if (!dto.patientId) {
       throw CustomError.badRequest("Patient ID is required");
     }
-    if (dto!.doctorId === null || dto!.doctorId === undefined) {
+    
+    if (!dto.doctorId) {
       throw CustomError.badRequest("Doctor ID is required");
     }
-
-    if (dto!.dateTime === null || dto!.dateTime === undefined) {
+    
+    if (!dto.dateTime) {
       throw CustomError.badRequest("Date and time are required");
     }
-
-    if (dto!.status === null || dto!.status === undefined) {
+    
+    if (!dto.status) {
       throw CustomError.badRequest("Status is required");
     }
 
+    // Validar reglas de negocio adicionales
+    if (dto.dateTime < new Date()) {
+      throw CustomError.badRequest("Appointment date cannot be in the past");
+    }
+
+    // Log de propiedades opcionales presentes
+    // const hasReason = dto.reason !== undefined && dto.reason !== null;
+    // const hasNotes = dto.notes !== undefined && dto.notes !== null;
+    // console.log(`Creating appointment - Reason: ${hasReason}, Notes: ${hasNotes}`);
+
     const appointment = Appointment.create(
-      dto!.patientId,
-      dto!.doctorId,
-      dto!.dateTime,
-      dto!.status,
-      dto!.reason,
-      dto!.notes
+      dto.patientId,
+      dto.doctorId,
+      dto.dateTime,
+      dto.status,
+      // dto.reason,
+      // dto.notes
     );
 
     try {
-      return this.repository.create(appointment);
+      return await this.repository.create(appointment);
     } catch (error) {
-      console.log(error);
+      console.log("Repository error:", error);
+      throw CustomError.internalServerError("Failed to create appointment");
     }
   }
 }

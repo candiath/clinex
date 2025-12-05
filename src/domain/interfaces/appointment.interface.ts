@@ -1,10 +1,10 @@
 import { AppointmentStatus } from '../types/appointmentStatus.type';
-import { EntityID } from '../types/entityID.type';
+import { EntityID } from '../valueObjects/entityID';
 
 export interface Appointment {
   id?: EntityID;
-  patientId: string;
-  doctorId: string;
+  patientId: EntityID;
+  doctorId: EntityID;
   dateTime: Date;
   status: AppointmentStatus;
   reason?: string;

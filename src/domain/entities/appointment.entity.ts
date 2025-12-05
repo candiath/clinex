@@ -10,7 +10,7 @@ export class Appointment {
     public status: AppointmentStatus,
     public reason?: string,
     public notes?: string,
-    public id?: string,
+    public id?: EntityID,
   ) {
     this.patientId = patientId;
     this.doctorId = doctorId;
@@ -40,7 +40,7 @@ export class Appointment {
     status: AppointmentStatus,
     reason: string,
     notes: string,
-    id: string
+    id: EntityID
   ): Appointment {
     return new Appointment(patientId, doctorId, dateTime, status, reason, notes, id);
   }
