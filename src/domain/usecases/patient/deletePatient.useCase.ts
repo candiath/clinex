@@ -7,7 +7,7 @@ export class DeletePatientUseCase {
 
   public async execute(data: any): Promise<boolean> {
     // MongoDB-specific validation
-    if (!data || !data.id || !Types.ObjectId.isValid(data.id)) {
+    if (!data || !data.id ) {
       throw CustomError.badRequest("Invalid ID format");
     }
 

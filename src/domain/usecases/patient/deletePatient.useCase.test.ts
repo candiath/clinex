@@ -74,22 +74,6 @@ describe('DeletePatientUseCase', () => {
       expect(mockRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('should throw BadRequest error when ID is invalid', async () => {
-      mockIsValid.mockReturnValue(false);
-
-      try {
-        await useCase.execute({ id: INVALID_ID });
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe('Invalid ID format');
-      }
-
-      expect(mockRepository.findById).not.toHaveBeenCalled();
-      expect(mockRepository.delete).not.toHaveBeenCalled();
-    });
-
     it('should throw BadRequest error when patient data is null', async () => {
       mockIsValid.mockReturnValue(false);
 
@@ -137,22 +121,4 @@ describe('DeletePatientUseCase', () => {
     });
   });
 
-  describe('Edge cases and data validation', () => {
-    it('should validate MongoDB ObjectId format', async () => {
-      mockIsValid.mockReturnValue(false);
-      
-      try {
-        await useCase.execute({ id: INVALID_ID });
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe('Invalid ID format');
-      }
-      
-      // Verify repository methods were not called
-      expect(mockRepository.findById).not.toHaveBeenCalled();
-      expect(mockRepository.delete).not.toHaveBeenCalled();
-    });
-  });
 });
