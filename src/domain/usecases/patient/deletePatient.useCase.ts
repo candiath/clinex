@@ -1,44 +1,21 @@
-import { Request } from "express";
-import { PatientDatasource } from "../../datasources/patientDatasource";
-import { DeletePatientDTO } from "../../dtos/deletePatient.dto";
-import { CustomError } from "../../errors/customError";
+import { Types } from "mongoose";
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
-import { PatientInterface } from "../../interfaces/patient.interface";
+import { CustomError } from "../../errors/customError";
 
 export class DeletePatientUseCase {
-  constructor( private readonly repository: PatientRepoImplementation ){}
+  constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute( data: PatientInterface ): Promise< boolean > {
-    // TODO: if ( !acknowledged ) throw error;
-    const [ error, dto ] = DeletePatientDTO.create( data );
-    if ( error ) {
-      console.error("=>UseCase: Error creating delete patient DTO:", error);
-      throw CustomError.badRequest(error);
+  public async execute(data: any): Promise<boolean> {
+    // MongoDB-specific validation
+    if (!data || !data.id || !Types.ObjectId.isValid(data.id)) {
+      throw CustomError.badRequest("Invalid ID format");
     }
-    // console.log( "DTO: ", typeof dto);
-    let exists;
-    try {
-      exists = await this.repository.exists( dto!.dni );
-    } catch (error) {
-      // console.error("=>UseCase: Error checking if patient exists:", error);
-      throw CustomError.internalServerError("Error checking if patient exists");
-    }
-    // console.log("=>UseCase: Patient exists:", exists);
-    if ( !exists ) {
-      // console.error("=>UseCase: Patient does not exist.");
-      throw CustomError.notFound(`Patient with DNI ${dto!.dni} not found`);
-    }
-    try {
-      const result = await this.repository.delete( dto!.dni );
-      console.log("==========>UseCase: Delete result:", result);
-      if ( !result ) {
-        // console.error("=>UseCase: Error deleting patient:", error);
-        throw CustomError.internalServerError();
-      }
-    } catch (error) {
-      // console.error("=>UseCase: Error deleting patient:", error);
-      throw CustomError.internalServerError("Error deleting patient");
-    }
-    return Promise.resolve(true);
+
+    const existingPatient = await this.repository.findById(data.id);
+    if (!existingPatient) throw CustomError.notFound("Patient not found");
+
+    const deleted = await this.repository.delete(data.id);
+
+    return deleted;
   }
 }

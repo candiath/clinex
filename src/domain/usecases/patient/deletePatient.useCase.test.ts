@@ -1,199 +1,158 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
-import { PatientInterface } from "../../interfaces/patient.interface";
 import { DeletePatientUseCase } from "./deletePatient.useCase";
-import { CustomError } from "../../errors/customError"; // ✅ ADDED: Import CustomError
-import { DeletePatientDTO } from "../../dtos/deletePatient.dto";
-import { mock } from "node:test";
-
+import { CustomError } from "../../errors/customError";
+import { Types } from "mongoose";
+import { Patient } from "../../entities/patient.entity";
 
 describe('DeletePatientUseCase', () => {
-  const VALID_PATIENT_DNI = '30123456';
-  const INVALID_PATIENT_DNI = 'invalid-dni';
-  const VALID_PATIENT_DATA: PatientInterface = {
-    dni: VALID_PATIENT_DNI, // ✅ FIXED: Consistencia con la constante
-    name: 'John',
-    surname: 'Doe',
-    birthDate: new Date('1990-01-01'),
-    email: 'john.doe@example.com',
-    // sex: 'male' as const
-  };
+  const VALID_OBJECT_ID = '507f1f77bcf86cd799439011';
+  const INVALID_ID = 'invalid-id';
+  
+  const MOCK_PATIENT = new Patient(
+    '12345678',
+    'John',
+    'Doe',
+    new Date('1990-01-01'),
+    'john@example.com',
+    'male',
+    VALID_OBJECT_ID
+  );
 
   let mockRepository: jest.Mocked<PatientRepoImplementation>;
-  let useCase: DeletePatientUseCase; // ✅ FIXED: Moved to top level
-  let deletePatientDTO: DeletePatientDTO;
+  let useCase: DeletePatientUseCase;
+  const mockIsValid = jest.fn();
 
   beforeEach(() => {
     mockRepository = {
-      delete: jest.fn(), // ✅ FIXED: Correct method name
-      exists: jest.fn(), // ✅ FIXED: Added missing method
+      delete: jest.fn(),
+      findById: jest.fn(),
     } as unknown as jest.Mocked<PatientRepoImplementation>;
 
-    useCase = new DeletePatientUseCase(mockRepository); // ✅ FIXED: Moved here
+    useCase = new DeletePatientUseCase(mockRepository);
 
-    jest.spyOn(console, 'error').mockImplementation(() => {}); // Mock console.error to avoid cluttering test output
-    jest.spyOn(console, 'log').mockImplementation(() => {}); // Mock console.log
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    
+    // Mock Mongoose
+    (Types.ObjectId.isValid as jest.Mock) = mockIsValid;
   });
 
-  describe('Successful deletion', () => { // ✅ FIXED: Spelling
+  describe('Successful deletion', () => {
     it('should return true when patient is successfully deleted', async () => {
       // Arrange
-      mockRepository.exists.mockResolvedValue(true);
+      mockIsValid.mockReturnValue(true);
+      mockRepository.findById.mockResolvedValue(MOCK_PATIENT);
       mockRepository.delete.mockResolvedValue(true);
 
       // Act
-      const result = await useCase.execute(VALID_PATIENT_DATA);
+      const result = await useCase.execute({ id: VALID_OBJECT_ID });
 
       // Assert
       expect(result).toBe(true);
-      expect(mockRepository.exists).toHaveBeenCalledWith(VALID_PATIENT_DNI);
-      expect(mockRepository.delete).toHaveBeenCalledWith(VALID_PATIENT_DNI);
+      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
+      expect(mockRepository.delete).toHaveBeenCalledWith(VALID_OBJECT_ID);
     });
   });
 
   describe('Input validation', () => {
-    it('should throw BadRequest error when DNI is missing', async () => {
+    it('should throw BadRequest error when ID is missing', async () => {
       // Arrange
-      const invalidPatientData = { ...VALID_PATIENT_DATA, dni: undefined } as any;
+      mockIsValid.mockReturnValue(false);
 
       // Act & Assert
       try {
-        await useCase.execute(invalidPatientData);
+        await useCase.execute({ id: undefined });
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe('DNI is not a string');
+        expect((error as CustomError).message).toBe('Invalid ID format');
       }
 
       // Verify repository methods were not called
-      expect(mockRepository.exists).not.toHaveBeenCalled();
+      expect(mockRepository.findById).not.toHaveBeenCalled();
       expect(mockRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('should throw BadRequest error when DNI is empty string', async () => {
-      // Tu implementación aquí
-      const invalidPatientData = { ...VALID_PATIENT_DATA, dni: '' } as any;
+    it('should throw BadRequest error when ID is invalid', async () => {
+      mockIsValid.mockReturnValue(false);
 
       try {
-        await useCase.execute( invalidPatientData );
-        fail('Should have thrown an error');
-      } catch ( error ) {
-        expect( (error as CustomError) ).toBeInstanceOf( CustomError );
-        expect( (error as CustomError).statusCode ).toBe( 400 );
-        expect( (error as CustomError).message ).toBe('DNI is not a string');
-      }
-
-      expect(mockRepository.exists).not.toHaveBeenCalled();
-      expect(mockRepository.delete).not.toHaveBeenCalled();
-
-    });
-
-    it('should throw BadRequest error when DNI format is invalid', async () => {
-      // Tu implementación aquí
-      const invalidPatientData = { ...VALID_PATIENT_DATA, dni: INVALID_PATIENT_DNI } as any;
-      try {
-        await useCase.execute(invalidPatientData);
+        await useCase.execute({ id: INVALID_ID });
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).message).toBe('DNI must contain only numbers');
         expect((error as CustomError).statusCode).toBe(400);
+        expect((error as CustomError).message).toBe('Invalid ID format');
       }
-      expect(mockRepository.exists).not.toHaveBeenCalled();
+
+      expect(mockRepository.findById).not.toHaveBeenCalled();
       expect(mockRepository.delete).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequest error when patient data is null', async () => {
-      // Tu implementación aquí
-      const invalidPatientData = null as any;
+      mockIsValid.mockReturnValue(false);
+
       try {
-        await useCase.execute(invalidPatientData);
+        await useCase.execute(null);
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe('DNI is missing');
       }
-      expect(mockRepository.exists).not.toHaveBeenCalled();
-      expect(mockRepository.delete).not.toHaveBeenCalled();
 
+      expect(mockRepository.findById).not.toHaveBeenCalled();
+      expect(mockRepository.delete).not.toHaveBeenCalled();
     });
   });
 
   describe('Error handling', () => {
     it('should throw NotFound error when patient does not exist', async () => {
-      // Tu implementación aquí
-      mockRepository.exists.mockResolvedValue(false);
+      mockIsValid.mockReturnValue(true);
+      mockRepository.findById.mockResolvedValue(null);
 
       try {
-        await useCase.execute(VALID_PATIENT_DATA)
+        await useCase.execute({ id: VALID_OBJECT_ID });
         fail('Should have thrown an error');
       } catch (error) {
-        expect(error).toBeInstanceOf( CustomError );
-        expect( (error as CustomError).statusCode ).toBe( 404 );
-        // expect( (error as CustomError).message ).toBe( )
+        expect(error).toBeInstanceOf(CustomError);
+        expect((error as CustomError).statusCode).toBe(404);
+        expect((error as CustomError).message).toBe('Patient not found');
       }
-    })
 
-    it('should throw InternalServerError when repository.exists throws error', async () => {
-      // Tu implementación aquí
-      mockRepository.exists.mockRejectedValue(new Error('Database error'));
-      try {
-        await useCase.execute(VALID_PATIENT_DATA);
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect( error ).toBeInstanceOf( CustomError );
-        expect( (error as CustomError).statusCode ).toBe( 500 );
-        expect( (error as CustomError).message ).toBe('Error checking if patient exists');
-      }
+      expect(mockRepository.findById).toHaveBeenCalledWith(VALID_OBJECT_ID);
+      expect(mockRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('should throw InternalServerError when repository.delete returns false', async () => {
-      // Tu implementación aquí
-      mockRepository.delete.mockReturnValue( Promise.resolve(false) );
-      mockRepository.exists.mockResolvedValue(true);
-      try {
-        await useCase.execute(VALID_PATIENT_DATA);
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect( (error as CustomError).statusCode ).toBe( 500 );
-        expect( (error as CustomError).message ).toBe('Error deleting patient');
-        expect( error ).toBeInstanceOf( CustomError );
-      }
-    });
+    it('should handle repository errors', async () => {
+      mockIsValid.mockReturnValue(true);
+      mockRepository.findById.mockRejectedValue(new Error('Database error'));
 
-    it('should throw InternalServerError when repository.delete throws error', async () => {
-      // Tu implementación aquí
-      mockRepository.exists.mockResolvedValue(true);
-      mockRepository.delete.mockRejectedValue(new Error('Error deleting patient'));
       try {
-        await useCase.execute(VALID_PATIENT_DATA);
+        await useCase.execute({ id: VALID_OBJECT_ID });
         fail('Should have thrown an error');
       } catch (error) {
-        expect( error ).toBeInstanceOf( CustomError );
-        expect( (error as CustomError).statusCode ).toBe( 500 );
-        expect( (error as CustomError).message ).toBe('Error deleting patient');
+        expect(error).toBeInstanceOf(Error);
       }
     });
   });
 
   describe('Edge cases and data validation', () => {
-    it('should handle DNI with leading/trailing spaces', async () => {
-      // Tu implementación aquí
-      const patientDataWithSpaces = { ...VALID_PATIENT_DATA, dni: '  30123456  ' };
+    it('should validate MongoDB ObjectId format', async () => {
+      mockIsValid.mockReturnValue(false);
       
       try {
-        await useCase.execute(patientDataWithSpaces);
+        await useCase.execute({ id: INVALID_ID });
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe('DNI must contain only numbers');
+        expect((error as CustomError).message).toBe('Invalid ID format');
       }
       
       // Verify repository methods were not called
-      expect(mockRepository.exists).not.toHaveBeenCalled();
+      expect(mockRepository.findById).not.toHaveBeenCalled();
       expect(mockRepository.delete).not.toHaveBeenCalled();
     });
   });
-})
+});

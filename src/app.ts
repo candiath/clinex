@@ -2,7 +2,7 @@ import { envs } from "./config/plugins/envs.plugin";
 import { PatientModel } from "./data/mongo/models/patient.model";
 import { MongoDatabase } from "./data/mongo/mongo.init";
 import { MySQLDatabase } from "./data/mysql/mysql.init";
-import { Patient } from "./domain/entities/patient";
+import { Patient } from "./domain/entities/patient.entity";
 import { CreatePatientUseCase } from "./domain/usecases/patient/createPatient.useCase";
 import { DeletePatientUseCase } from "./domain/usecases/patient/deletePatient.useCase";
 import { ReadAllPatientsUseCase } from "./domain/usecases/patient/readAllPatients.useCase";

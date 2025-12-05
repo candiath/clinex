@@ -1,5 +1,6 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
-import { Patient } from "../../entities/patient";
+import { Patient } from "../../entities/patient.entity";
+import { Genres } from "../../types/genres.type";
 import { ReadAllPatientsUseCase } from "./readAllPatients.useCase";
 
 describe("ReadAllPatientsUseCase", () => {
@@ -32,7 +33,7 @@ describe("ReadAllPatientsUseCase", () => {
           "Doe",
           new Date("1990-01-01"),
           "john@example.com",
-          "male",
+          Genres.MALE,
           "1"
         ),
       ];
