@@ -37,7 +37,7 @@ export class ApiResponse<T = any> {
     this.message = options.message ?? null;
     this.error = options.error ?? null;
     this.pagination = options.pagination ?? null;
-    this.timestamp = new Date().toString();
+    this.timestamp = new Date().toISOString();
     // this.meta = options.meta;
   }
 

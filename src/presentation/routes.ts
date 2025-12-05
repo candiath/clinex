@@ -3,6 +3,7 @@ import { PatientRoutes } from "./patient/patient.routes";
 import { DoctorRoutes } from "./doctor/doctor.routes";
 import { responseEnvelope } from "./middlewares/responseEnvelope.middleware";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
+import { AppointmentRoutes } from "./appointment/appointment.routes";
 
 
 export class AppRoutes {
@@ -42,6 +43,7 @@ export class AppRoutes {
 
     router.use('/api/patients', PatientRoutes.routes);
     router.use('/api/doctors', DoctorRoutes.routes);
+    router.use('/api/appointments', AppointmentRoutes.routes);
     router.use('/', (req, res) => {
       res.status(404).json({ error: "Resource not Found", url: req.originalUrl });
     });

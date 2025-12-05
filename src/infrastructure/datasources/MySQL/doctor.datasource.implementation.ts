@@ -4,17 +4,19 @@ import { DoctorDTO } from "../../../domain/dtos/doctor/doctor.dto";
 import { Doctor } from "../../../domain/entities/doctor.entity";
 import { CustomError } from "../../../domain/errors/customError";
 import { EntityIDHelper } from "../../../domain/helpers/entityID.helper";
-import { EntityID } from "../../../domain/types/entityID.type";
+import { Email } from "../../../domain/valueObjects/email";
+import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class DoctorMySQLDatasource implements DoctorDatasource {
-  async findById(id: string): Promise<Doctor | null> {
+  async findById(id: EntityID): Promise<Doctor | null> {
     try {
-      const validationError = EntityIDHelper.isValidEntityID(id);
-      if (validationError) return null; // ID inválido, retornar null
+      // const validationError = EntityIDHelper.isValidEntityID(id);
+      // if (validationError) return null; // ID inválido, retornar null
+      
 
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM doctors WHERE id = ?",
-        [id] // Usar el ID original
+        [id.getValue()] // Usar el ID original
       );
 
       const doctors = rows as any[];
@@ -35,7 +37,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
       );
     }
   }
-  findByEmail(email: string): Promise<Doctor | null> {
+  findByEmail(email: Email): Promise<Doctor | null> {
     throw new Error("Method not implemented.");
   }
 
@@ -90,14 +92,14 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
       newDoctorData.specialty,
       newDoctorData.email,
       newDoctorData.phone,
-      id
+      id.getValue()
     );
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: EntityID): Promise<boolean> {
     const [result] = await MySQLDatabase.pool.execute(
       "DELETE FROM doctors WHERE id = ?",
-      [id]
+      [id.getValue()]
     );
     const deleteResult = result as any;
     return deleteResult.affectedRows > 0; // Retorna true si se eliminó al menos un registro
@@ -118,10 +120,10 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     return mapresult;
   }
 
-  async emailExists(email: string): Promise<boolean> {
+  async emailExists(email: Email): Promise<boolean> {
     const [rows] = await MySQLDatabase.pool.execute(
       "SELECT COUNT(*) as count FROM doctors WHERE email = ?",
-      [email]
+      [email.getValue()]
     );
     const count = (rows as any[])[0].count;
     return count > 0;
