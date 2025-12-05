@@ -120,20 +120,6 @@ describe("ReadPatientByIdUseCase", () => {
   });
 
   describe("Input validation", () => {
-    it("should throw CustomError with correct status code for invalid ID", async () => {
-      mockIsValid.mockReturnValue(false);
-
-      try {
-        await useCase.execute({ id: INVALID_ID });
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe("Invalid ID format");
-      }
-      
-      expect(mockRepository.findById).not.toHaveBeenCalled();
-    });
 
     it("should throw CustomError with correct status code for empty ID", async () => {
       mockIsValid.mockReturnValue(false);

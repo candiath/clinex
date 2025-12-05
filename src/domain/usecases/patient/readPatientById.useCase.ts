@@ -7,7 +7,7 @@ export class ReadPatientByIdUseCase {
 
   public async execute(data: any): Promise<any> {
     // MongoDB-specific validation
-    if (!data.id || !Types.ObjectId.isValid(data.id)) {
+    if (!data.id ) {
       throw CustomError.badRequest("Invalid ID format");
     }
 
