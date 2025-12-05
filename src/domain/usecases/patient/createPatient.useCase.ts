@@ -11,11 +11,11 @@ export class CreatePatientUseCase {
     if (error) throw CustomError.badRequest(error);
 
     console.log('DTO validated:', dto);
-    if (dto!.dni === null || dto!.dni === undefined) throw CustomError.badRequest('Patient DNI is required');
-    if (dto!.firstName === null || dto!.firstName === undefined) throw CustomError.badRequest('Patient first name is required');
-    if (dto!.lastName === null || dto!.lastName === undefined) throw CustomError.badRequest('Patient last name is required');
-    if (dto!.birthDate === null || dto!.birthDate === undefined) throw CustomError.badRequest('Patient birth date is required');
-    if (dto!.sex === null || dto!.sex === undefined) throw CustomError.badRequest('Patient sex is required');
+    if (dto!.dni == null) throw CustomError.badRequest('Patient DNI is required');
+    if (dto!.firstName == null) throw CustomError.badRequest('Patient first name is required');
+    if (dto!.lastName == null) throw CustomError.badRequest('Patient last name is required');
+    if (dto!.birthDate == null) throw CustomError.badRequest('Patient birth date is required');
+    if (dto!.sex == null) throw CustomError.badRequest('Patient sex is required');
 
     const patient = new Patient(
       dto!.dni,
