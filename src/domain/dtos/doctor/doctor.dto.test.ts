@@ -37,7 +37,6 @@ describe("DoctorDTO", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
-    // jest.spyOn(console, "log").mockImplementation();
     jest.spyOn(console, "error").mockImplementation();
     jest.spyOn(Email, 'create');
     jest.spyOn(Phone, 'create');
