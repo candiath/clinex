@@ -11,9 +11,6 @@ describe("DoctorDTO", () => {
   const mockValidationHelper = ValidationHelper as jest.Mocked<
     typeof ValidationHelper
   >;
-  // const mockEmail = Email as jest.Mocked<typeof Email>;
-  // const mockPhone = Phone as jest.Mocked<typeof Phone>;
-  // const mockEntityID = EntityID as jest.Mocked<typeof EntityID>;
 
   const VALID_DOCTOR_DATA = {
     name: "Test name",
