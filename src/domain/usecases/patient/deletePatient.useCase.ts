@@ -1,6 +1,5 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { CustomError } from "../../errors/customError";
-import { EntityIDHelper } from "../../helpers/entityID.helper";
 
 interface DeletePatientInput {
   id?: string;
@@ -10,7 +9,6 @@ export class DeletePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
   public async execute(data: DeletePatientInput): Promise<boolean> {
-    // MongoDB-specific validation
     if (!data?.id) {
       throw CustomError.badRequest("Invalid ID format");
     }
