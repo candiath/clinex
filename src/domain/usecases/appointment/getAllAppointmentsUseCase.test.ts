@@ -1,10 +1,11 @@
 import { Appointment } from "../../entities/appointment.entity";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
 import { AppointmentRepositoryImplementation } from "../../../infrastructure/repositories/appointment.repository.implementation";
-import { AppointmentStatus } from "../../types/appointmentStatus.type";
 import { GetAllAppointmentsUseCase } from "./getAllAppointmentsUseCase";
 import { AppointmentDatasource } from "../../datasources/appointment.datasource";
 import { CustomError } from "../../errors/customError";
+import { EntityID } from "../../valueObjects/entityID";
+import { AppointmentStatus } from "../../valueObjects/appointmentStatus";
 
 jest.mock(
   "../../../infrastructure/repositories/appointment.repository.implementation"
@@ -31,22 +32,22 @@ describe("GetAllAppointments", () => {
     getAllAppointmentsUseCase = new GetAllAppointmentsUseCase(mockRepository);
   });
 
-  const VALID_PATIENT_ID1 = "123";
-  const VALID_PATIENT_ID2 = "234";
-  const VALID_DOCTOR_ID1 = "456";
-  const VALID_DOCTOR_ID2 = "567";
+  const VALID_PATIENT_ID1 = EntityID.create("123");
+  const VALID_PATIENT_ID2 = EntityID.create("234");
+  const VALID_DOCTOR_ID1 = EntityID.create("456");
+  const VALID_DOCTOR_ID2 = EntityID.create("567");
   const MOCK_APPOINTMENT_1 = Appointment.create(
     VALID_PATIENT_ID1,
     VALID_DOCTOR_ID1,
     new Date(),
-    AppointmentStatus.SCHEDULED
+    AppointmentStatus.create("SCHEDULED")
   );
 
   const MOCK_APPOINTMENT_2 = Appointment.create(
     VALID_PATIENT_ID2,
     VALID_DOCTOR_ID2,
     new Date(),
-    AppointmentStatus.SCHEDULED
+    AppointmentStatus.create("SCHEDULED")
   );
   const appointmentList = [MOCK_APPOINTMENT_1, MOCK_APPOINTMENT_2];
 

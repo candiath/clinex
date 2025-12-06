@@ -1,5 +1,8 @@
+import { CustomError } from "../../errors/customError";
 import { ValidationHelper } from "../../helpers/validation.helper";
 import { Genres } from "../../types/genres.type";
+import { Email } from "../../valueObjects/email";
+import { EntityID } from "../../valueObjects/entityID";
 
 export class PatientDTO {
   private constructor(
@@ -38,9 +41,14 @@ export class PatientDTO {
         return ['DTO: Birth date must be a string or Date', null];
     }
 
-    if (data.email !== undefined && data.email !== null) {
-      if (typeof data.email !== 'string')
-        return ['DTO: Email must be a string', null];
+    let email;
+    try {
+      (data.email == null ) 
+        ? email = null
+        : ( data.email === "" ) ? email = null : email = Email.create(data.email);
+    } catch (error) {
+      return [(error as CustomError).message, null];
+
     }
 
     // if (data.sex !== undefined && data.sex !== null) {
@@ -48,9 +56,12 @@ export class PatientDTO {
     //     return ['DTO: Sex must be a string', null];
     // }
 
-    if (data.id !== undefined && data.id !== null) {
-      if ( ValidationHelper.isEntityIDNotValid( data.id ) )
-        return ['DTO: ID must be a string', null];
+    let id;
+    try {
+      id = EntityID.createOptional(data.id);
+    } catch (error) {
+      return [(error as CustomError).message, null];
+
     }
 
     // Convert birthDate to Date if it's a string

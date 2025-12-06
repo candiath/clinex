@@ -4,6 +4,9 @@ import { DoctorDatasource } from "../../datasources/doctor.datasource";
 import { Doctor } from "../../entities/doctor.entity";
 import { CustomError } from "../../errors/customError";
 import { DoctorSpecialty } from "../../types/doctorSpecialty.type";
+import { Email } from "../../valueObjects/email";
+import { Phone } from "../../valueObjects/phone";
+import { EntityID } from "../../valueObjects/entityID";
 
 jest.mock(
   "../../../infrastructure/repositories/doctor.repository.implementation"
@@ -38,17 +41,17 @@ describe("ReadAllDoctorsUseCase", () => {
   const MOCK_DOCTOR_1 = Doctor.create(
     "Dr. John Smith",
     DoctorSpecialty.CARDIOLOGY,
-    "john.smith@clinex.com",
-    "123-456-7890",
-    "123"
+    Email.create("john.smith@clinex.com"),
+    Phone.create("123-456-7890"),
+    EntityID.create("123")
   );
 
   const MOCK_DOCTOR_2 = Doctor.create(
     "Dr. Jane Doe",
     DoctorSpecialty.DERMATOLOGY,
-    "jane.doe@clinex.com",
-    "098-765-4321",
-    "456"
+    Email.create("jane.doe@clinex.com"),
+    Phone.create("098-765-4321"),
+    EntityID.create("456")
   );
 
   const MOCK_DOCTORS_LIST = [MOCK_DOCTOR_1, MOCK_DOCTOR_2];
