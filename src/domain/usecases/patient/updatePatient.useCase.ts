@@ -1,7 +1,6 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { CustomError } from "../../errors/customError";
-import { EntityIDHelper } from "../../helpers/entityID.helper";
 
 interface UpdatePatientInput {
   id?: string; // Can be undefined from Express
