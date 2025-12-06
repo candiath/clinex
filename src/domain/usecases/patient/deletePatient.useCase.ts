@@ -2,12 +2,16 @@ import { Types } from "mongoose";
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { CustomError } from "../../errors/customError";
 
+interface DeletePatientInput {
+  id?: string;
+}
+
 export class DeletePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute(data: any): Promise<boolean> {
+  public async execute(data: DeletePatientInput): Promise<boolean> {
     // MongoDB-specific validation
-    if (!data || !data.id ) {
+    if (!data?.id) {
       throw CustomError.badRequest("Invalid ID format");
     }
 

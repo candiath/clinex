@@ -1,11 +1,16 @@
 import { Types } from "mongoose";
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { CustomError } from "../../errors/customError";
+import { Patient } from "../../entities/patient.entity";
+
+interface ReadPatientByIdInput {
+  id?: string;
+}
 
 export class ReadPatientByIdUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute(data: any): Promise<any> {
+  public async execute(data: ReadPatientByIdInput): Promise<Patient> {
     // MongoDB-specific validation
     if (!data.id ) {
       throw CustomError.badRequest("Invalid ID format");

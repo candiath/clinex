@@ -141,7 +141,7 @@ describe("ReadPatientByIdUseCase", () => {
       mockIsValid.mockReturnValue(false);
 
       try {
-        await useCase.execute({ id: null });
+        await useCase.execute({ id: null as any });
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);

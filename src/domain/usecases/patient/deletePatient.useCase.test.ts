@@ -78,7 +78,7 @@ describe('DeletePatientUseCase', () => {
       mockIsValid.mockReturnValue(false);
 
       try {
-        await useCase.execute(null);
+        await useCase.execute(null as any);
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
