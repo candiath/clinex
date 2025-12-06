@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
 import { PatientModel } from "../../data/mongo/models/patient.model";
 import { PatientDatasource } from "../../domain/datasources/patientDatasource";
-import { Patient } from "../../domain/entities/patient";
-import { UpdatePatientDTO } from "../../domain/dtos/updatePatient.dto";
+import { Patient } from "../../domain/entities/patient.entity";
+import { PatientDTO } from "../../domain/dtos/patient/patient.dto";
 
 
 export class MongoPatientDatasource implements PatientDatasource {
@@ -39,7 +39,7 @@ export class MongoPatientDatasource implements PatientDatasource {
     return Promise.resolve(newPatient as Patient);
   }
 
-  async update(id: string, newPatientData: UpdatePatientDTO): Promise< boolean > {
+  async update(id: string, newPatientData: PatientDTO): Promise< boolean > {
     const result = await PatientModel.updateOne({ _id: id }, { $set: newPatientData });
     // console.log('MongoDatasource: update result', result);
     console.log('MongoDatasource: update', id, newPatientData);

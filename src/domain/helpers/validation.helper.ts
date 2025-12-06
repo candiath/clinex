@@ -3,7 +3,7 @@ import { EntityIDHelper } from "./entityID.helper";
 
 export class ValidationHelper {
 
-  public static validateEntityID ( id: any ): string | null {
+  public static isEntityIDNotValid ( id: any ): string | null {
 
     if ( id !== undefined ) {
       const validation = EntityIDHelper.isValidEntityID( id );

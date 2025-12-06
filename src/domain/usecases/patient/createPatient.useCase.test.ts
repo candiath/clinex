@@ -1,9 +1,10 @@
 import { CreatePatientUseCase } from './createPatient.useCase';
 import { PatientRepoImplementation } from '../../../infrastructure/repositories/patientRepositoryImplementation';
-import { Patient } from '../../entities/patient';
+import { Patient } from '../../entities/patient.entity';
 import { CustomError } from '../../errors/customError';
 import { PatientInterface } from '../../interfaces/patient.interface';
 import { PatientDatasource } from '../../datasources/patientDatasource';
+import { Genres } from '../../types/genres.type';
 
 // Mock the repository
 jest.mock('../../../infrastructure/repositories/patientRepositoryImplementation');
@@ -141,33 +142,33 @@ describe('CreatePatientUseCase', () => {
   describe('Input validation', () => {
     describe('DTO validation errors', () => {
       it('should throw CustomError when data is null', async () => {
-        await testValidationError(null, 'No patient data provided');
+        await testValidationError(null, 'PatientDTO no data provided or wrong format');
       });
 
       it('should throw CustomError when data is empty object', async () => {
-        await testValidationError({}, 'No patient data provided');
+        await testValidationError({}, 'PatientDTO no data provided or wrong format');
       });
     });
 
     describe('Required field validations', () => {
       it('should throw CustomError when DNI is missing', async () => {
-        await testMissingFieldError(VALID_PATIENT_DATA, 'dni', 'DNI is required!!!');
+        await testMissingFieldError(VALID_PATIENT_DATA, 'dni', 'Patient DNI is required');
       });
 
       it('should throw CustomError when firstName is missing', async () => {
-        await testMissingFieldError(VALID_PATIENT_DATA, 'firstName', 'First name is required!!!');
+        await testMissingFieldError(VALID_PATIENT_DATA, 'firstName', 'Patient first name is required');
       });
 
       it('should throw CustomError when lastName is missing', async () => {
-        await testMissingFieldError(VALID_PATIENT_DATA, 'lastName', 'Last name is required!!!');
+        await testMissingFieldError(VALID_PATIENT_DATA, 'lastName', 'Patient last name is required');
       });
 
       it('should throw CustomError when birthDate is missing', async () => {
-        await testMissingFieldError(VALID_PATIENT_DATA, 'birthDate', 'Date of birth is required!!!');
+        await testMissingFieldError(VALID_PATIENT_DATA, 'birthDate', 'Patient birth date is required');
       });
 
       it('should throw CustomError when sex is missing', async () => {
-        await testMissingFieldError(VALID_PATIENT_DATA, 'sex', 'Sex is required!!!');
+        await testMissingFieldError(VALID_PATIENT_DATA, 'sex', 'Patient sex is required');
       });
     });
   });
@@ -176,51 +177,39 @@ describe('CreatePatientUseCase', () => {
     describe('Database errors', () => {
       it('should throw CustomError.conflict when patient with same DNI already exists', async () => {
         // Arrange
-        const duplicateKeyError = {
-          code: 11000,
-          keyPattern: { dni: 1 },
-          message: 'Duplicate key error'
-        };
-        mockRepository.save.mockRejectedValue(duplicateKeyError);
+        const duplicateError = CustomError.conflict(`Patient with DNI ${VALID_PATIENT_DATA.dni} already exists`);
+        mockRepository.save.mockRejectedValue(duplicateError);
 
         // Act & Assert
-        try {
-          await createPatientUseCase.execute(VALID_PATIENT_DATA as any);
-          fail('Should have thrown an error');
-        } catch (error) {
-          expect(error).toBeInstanceOf(CustomError);
-          expect((error as CustomError).statusCode).toBe(409);
-          expect((error as CustomError).message).toContain(`Patient with DNI ${VALID_PATIENT_DATA.dni} already exists`);
-        }
+        await expect(createPatientUseCase.execute(VALID_PATIENT_DATA as any))
+          .rejects
+          .toThrow(duplicateError);
 
         expect(mockRepository.save).toHaveBeenCalledTimes(1);
       });
 
-      it('should throw generic Error for other database errors', async () => {
+      it('should throw CustomError.internalServerError for other database errors', async () => {
         // Arrange
-        const genericError = new Error('Database connection failed');
+        const genericError = CustomError.internalServerError('Database connection failed');
         mockRepository.save.mockRejectedValue(genericError);
 
         // Act & Assert
         await expect(createPatientUseCase.execute(VALID_PATIENT_DATA as any))
           .rejects
-          .toThrow('Error saving patient: Error: Database connection failed');
+          .toThrow(genericError);
 
         expect(mockRepository.save).toHaveBeenCalledTimes(1);
       });
 
       it('should handle database errors that are not duplicate key errors', async () => {
         // Arrange
-        const otherError = {
-          code: 12345,
-          message: 'Some other database error'
-        };
+        const otherError = CustomError.internalServerError('Some other database error');
         mockRepository.save.mockRejectedValue(otherError);
 
         // Act & Assert
         await expect(createPatientUseCase.execute(VALID_PATIENT_DATA as any))
           .rejects
-          .toThrow(/Error saving patient:/);
+          .toThrow(otherError);
 
         expect(mockRepository.save).toHaveBeenCalledTimes(1);
       });
@@ -266,7 +255,8 @@ describe('CreatePatientUseCase', () => {
 
       // Assert
       expect(result).toBeInstanceOf(Patient);
-      expect(result?.birthDate).toBe('1990-01-01');
+      // birthDate is stored as provided in the Patient entity
+      expect(result?.birthDate).toBe(patientData.birthDate);
       expect(result?.dni).toBe(VALID_PATIENT_DATA.dni);
       expect(mockRepository.save).toHaveBeenCalledTimes(1);
     });
@@ -303,7 +293,7 @@ describe('CreatePatientUseCase', () => {
     it('should handle different birthDate formats consistently', async () => {
       // Arrange
       const birthDateFormats = [
-        '1990-01-01',
+        '1990-01-01T00:00:00.000Z',
         '1985-12-25',
         '2000-06-15'
       ];

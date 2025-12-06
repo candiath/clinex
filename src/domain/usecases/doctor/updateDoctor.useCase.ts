@@ -9,7 +9,7 @@ export class UpdateDoctorUseCase {
 
   public async execute ( data: any ) {
 
-    const validationError = ValidationHelper.validateEntityID( data.id );
+    const validationError = ValidationHelper.isEntityIDNotValid( data.id );
     if ( validationError ) throw CustomError.badRequest( validationError );
 
     const existingDoctor = await this.repository.findById( data.id );

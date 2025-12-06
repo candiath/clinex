@@ -1,65 +1,39 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
-import { CreatePatientDTO } from "../../dtos/createPatient.dto";
-import { Patient } from "../../entities/patient";
+import { PatientDTO } from "../../dtos/patient/patient.dto";
+import { Patient } from "../../entities/patient.entity";
 import { CustomError } from "../../errors/customError";
-import { PatientInterface } from "../../interfaces/patient.interface";
-// import { PatientRepository } from "../repositories/patientRepository";
-// import { ReadPatientByDniUseCase } from "./readPatientByDni.useCase";
+
+interface CreatePatientInput {
+  dni?: string;
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string | Date;
+  email?: string;
+  sex?: string;
+}
 
 export class CreatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute( data: PatientInterface ): Promise<Patient | null> {
-    // Validate the patient object
-    const [error, patientDTO] = CreatePatientDTO.create( data );
-    if (error) {
-      console.error("=>UseCase: Error creating patient DTO:", error);
-      throw CustomError.badRequest(error);
-    }
+  public async execute(data: CreatePatientInput): Promise<Patient | null> {
+    const [error, dto] = PatientDTO.validate(data);
+    if (error) throw CustomError.badRequest(error);
 
-    // console.log("=>UseCase: Creating patient with DTO:", patientDTO);
+    if (dto!.dni == null) throw CustomError.badRequest('Patient DNI is required');
+    if (dto!.firstName == null) throw CustomError.badRequest('Patient first name is required');
+    if (dto!.lastName == null) throw CustomError.badRequest('Patient last name is required');
+    if (dto!.birthDate == null) throw CustomError.badRequest('Patient birth date is required');
+    if (dto!.sex == null) throw CustomError.badRequest('Patient sex is required');
 
-    if (!patientDTO!.dni) {
-      throw CustomError.badRequest("DNI is required!!!");
-    }
-    if (!patientDTO!.firstName) {
-      throw CustomError.badRequest("First name is required!!!");
-    }
-    if (!patientDTO!.lastName) {
-      throw CustomError.badRequest("Last name is required!!!");
-    }
-    if (!patientDTO!.birthDate) {
-      throw CustomError.badRequest("Date of birth is required!!!");
-    }
-    if (!patientDTO!.sex) {
-      throw CustomError.badRequest("Sex is required!!!");
-    }
-
-    // No se consulta previamente si existe el paciente, se maneja el error de clave duplicada
     const patient = new Patient(
-      patientDTO!.dni,
-      patientDTO!.firstName,
-      patientDTO!.lastName,
-      patientDTO!.birthDate,
-      patientDTO!.email ?? "",
-      patientDTO!.sex
+      dto!.dni,
+      dto!.firstName,
+      dto!.lastName,
+      dto!.birthDate,
+      dto!.email ?? "",
+      dto!.sex
     );
-    try {
-      await this.repository.save(patient);
-      console.log("=>UseCase: Patient created successfullyyyyyyy");
-      return patient;
-    } catch (error: any) {
-      // Manejo de error de clave duplicada (DNI único)
-      if (error.code === 11000 && error.keyPattern && error.keyPattern.dni) {
-        console.error(`=>UseCase: Patient with DNI ${patientDTO!.dni} already exists`);
-        throw CustomError.conflict(`Patient with DNI ${patientDTO!.dni} already exists`);
-      }
-      console.log(`========> Error: \n ${error}`);
-      console.log();
-      console.log();
-      console.log();
-      console.error("=>UseCase: Error saving patient:", error);
-      throw new Error(`Error saving patient: ${error}`);  
-    }
+
+    return await this.repository.save(patient);
   }
 }

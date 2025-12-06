@@ -8,7 +8,7 @@ export class DeleteDoctorByIdUseCase {
 
   public async execute ( id: any ) {
 
-    const validation = ValidationHelper.validateEntityID( id );
+    const validation = ValidationHelper.isEntityIDNotValid( id );
 
     if ( validation ) throw CustomError.badRequest( validation ); 
 
