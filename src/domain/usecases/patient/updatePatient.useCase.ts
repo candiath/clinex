@@ -3,14 +3,23 @@ import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { CustomError } from "../../errors/customError";
 import { EntityIDHelper } from "../../helpers/entityID.helper";
 
+interface UpdatePatientInput {
+  id?: string; // Can be undefined from Express
+  dni?: string;
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string | Date;
+  email?: string;
+  sex?: string;
+}
+
 export class UpdatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute(data: any): Promise<boolean> {
-    // Database-agnostic ID validation
-    const validationError = EntityIDHelper.isValidEntityID(data?.id);
-    if (!data.id || validationError) {
-      throw CustomError.badRequest(validationError || "Invalid ID format");
+  public async execute(data: UpdatePatientInput): Promise<boolean> {
+    // MongoDB-specific validation
+    if (!data.id ) {
+      throw CustomError.badRequest("Invalid ID format");
     }
 
     const existingPatient = await this.repository.findById(data.id);

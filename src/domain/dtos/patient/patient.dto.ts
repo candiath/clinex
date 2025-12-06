@@ -49,7 +49,7 @@ export class PatientDTO {
     // }
 
     if (data.id !== undefined && data.id !== null) {
-      if ( ValidationHelper.validateEntityID( data.id ) )
+      if ( ValidationHelper.isEntityIDNotValid( data.id ) )
         return ['DTO: ID must be a string', null];
     }
 

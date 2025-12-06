@@ -16,10 +16,10 @@ export class CreateDoctorUseCase {
     if ( error ) throw CustomError.badRequest(error);
 
     console.log('DTO validated:', dto);
-    if ( dto!.name === null || dto!.name === undefined ) throw CustomError.badRequest('Doctor name is required');
-    if ( dto!.specialty === null || dto!.specialty === undefined ) throw CustomError.badRequest('Doctor specialty is required');
-    if ( dto!.email === null || dto!.email === undefined ) throw CustomError.badRequest('Doctor email is required');
-    if ( dto!.phone === null || dto!.phone === undefined ) throw CustomError.badRequest('Doctor phone is required');
+    if ( dto!.name == null ) throw CustomError.badRequest('Doctor name is required');
+    if ( dto!.specialty == null ) throw CustomError.badRequest('Doctor specialty is required');
+    if ( dto!.email == null ) throw CustomError.badRequest('Doctor email is required');
+    if ( dto!.phone == null ) throw CustomError.badRequest('Doctor phone is required');
 
     const doctor = Doctor.create(
       dto!.name,

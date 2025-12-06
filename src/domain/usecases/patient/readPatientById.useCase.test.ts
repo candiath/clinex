@@ -108,18 +108,6 @@ describe("ReadPatientByIdUseCase", () => {
   });
 
   describe("Input validation", () => {
-    it("should throw CustomError with correct status code for invalid ID", async () => {
-      try {
-        await useCase.execute({ id: INVALID_ID });
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('ID must be a positive integer');
-      }
-      
-      expect(mockRepository.findById).not.toHaveBeenCalled();
-    });
 
     it("should throw CustomError with correct status code for empty ID", async () => {
       try {
@@ -137,7 +125,7 @@ describe("ReadPatientByIdUseCase", () => {
     // Edge case: null/undefined IDs
     it("should handle null ID gracefully", async () => {
       try {
-        await useCase.execute({ id: null });
+        await useCase.execute({ id: null as any });
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);

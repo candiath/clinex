@@ -3,19 +3,27 @@ import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { Patient } from "../../entities/patient.entity";
 import { CustomError } from "../../errors/customError";
 
+interface CreatePatientInput {
+  dni?: string;
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string | Date;
+  email?: string;
+  sex?: string;
+}
+
 export class CreatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute(data: any) {
+  public async execute(data: CreatePatientInput): Promise<Patient | null> {
     const [error, dto] = PatientDTO.validate(data);
     if (error) throw CustomError.badRequest(error);
 
-    console.log('DTO validated:', dto);
-    if (dto!.dni === null || dto!.dni === undefined) throw CustomError.badRequest('Patient DNI is required');
-    if (dto!.firstName === null || dto!.firstName === undefined) throw CustomError.badRequest('Patient first name is required');
-    if (dto!.lastName === null || dto!.lastName === undefined) throw CustomError.badRequest('Patient last name is required');
-    if (dto!.birthDate === null || dto!.birthDate === undefined) throw CustomError.badRequest('Patient birth date is required');
-    if (dto!.sex === null || dto!.sex === undefined) throw CustomError.badRequest('Patient sex is required');
+    if (dto!.dni == null) throw CustomError.badRequest('Patient DNI is required');
+    if (dto!.firstName == null) throw CustomError.badRequest('Patient first name is required');
+    if (dto!.lastName == null) throw CustomError.badRequest('Patient last name is required');
+    if (dto!.birthDate == null) throw CustomError.badRequest('Patient birth date is required');
+    if (dto!.sex == null) throw CustomError.badRequest('Patient sex is required');
 
     const patient = new Patient(
       dto!.dni,

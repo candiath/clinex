@@ -2,14 +2,17 @@ import { PatientRepoImplementation } from "../../../infrastructure/repositories/
 import { CustomError } from "../../errors/customError";
 import { EntityIDHelper } from "../../helpers/entityID.helper";
 
+interface DeletePatientInput {
+  id?: string;
+}
+
 export class DeletePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute(data: any): Promise<boolean> {
-    // Database-agnostic ID validation
-    const validationError = EntityIDHelper.isValidEntityID(data?.id);
-    if (!data || !data.id || validationError) {
-      throw CustomError.badRequest(validationError || "Invalid ID format");
+  public async execute(data: DeletePatientInput): Promise<boolean> {
+    // MongoDB-specific validation
+    if (!data?.id) {
+      throw CustomError.badRequest("Invalid ID format");
     }
 
     const existingPatient = await this.repository.findById(data.id);

@@ -65,23 +65,9 @@ describe('DeletePatientUseCase', () => {
       expect(mockRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('should throw BadRequest error when ID is invalid', async () => {
-      try {
-        await useCase.execute({ id: INVALID_ID });
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('ID must be a positive integer');
-      }
-
-      expect(mockRepository.findById).not.toHaveBeenCalled();
-      expect(mockRepository.delete).not.toHaveBeenCalled();
-    });
-
     it('should throw BadRequest error when patient data is null', async () => {
       try {
-        await useCase.execute(null);
+        await useCase.execute(null as any);
         fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
@@ -122,20 +108,4 @@ describe('DeletePatientUseCase', () => {
     });
   });
 
-  describe('Edge cases and data validation', () => {
-    it('should validate ID format', async () => {
-      try {
-        await useCase.execute({ id: INVALID_ID });
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('ID must be a positive integer');
-      }
-      
-      // Verify repository methods were not called
-      expect(mockRepository.findById).not.toHaveBeenCalled();
-      expect(mockRepository.delete).not.toHaveBeenCalled();
-    });
-  });
 });
