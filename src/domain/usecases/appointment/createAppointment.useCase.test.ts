@@ -9,7 +9,7 @@ jest.mock(
   "../../../infrastructure/repositories/appointment.repository.implementation"
 );
 
-describe("GetAllAppointments", () => {
+describe("CreateAppointmentUseCase", () => {
   let createAppointmentUseCase: CreateAppointmentUseCase;
   let mockRepository: jest.Mocked<AppointmentRepositoryImplementation>;
   let mockDatasource: jest.Mocked<AppointmentDatasource>;
