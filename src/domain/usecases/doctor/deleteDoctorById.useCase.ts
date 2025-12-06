@@ -1,6 +1,7 @@
 import { CustomError } from "../../errors/customError";
 import { ValidationHelper } from "../../helpers/validation.helper";
 import { DoctorRepository } from "../../repositories/doctorRepository";
+import { EntityID } from "../../valueObjects/entityID";
 
 
 export class DeleteDoctorByIdUseCase {
@@ -8,14 +9,12 @@ export class DeleteDoctorByIdUseCase {
 
   public async execute ( id: any ) {
 
-    const validation = ValidationHelper.isEntityIDNotValid( id );
+    const sanitizedData = EntityID.create(id);
 
-    if ( validation ) throw CustomError.badRequest( validation ); 
+    const existingDoctor = await this.repository.findById(sanitizedData);
+    if (existingDoctor == null) throw CustomError.notFound("Doctor not found");
 
-    const existingDoctor = await this.repository.findById(id);
-    if (!existingDoctor) throw CustomError.notFound("Doctor not found");
-
-    const deleted = await this.repository.delete(id);
+    const deleted = await this.repository.delete(sanitizedData);
 
     return deleted;
   }

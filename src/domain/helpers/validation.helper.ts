@@ -1,17 +1,7 @@
 import { DoctorSpecialty } from "../types/doctorSpecialty.type";
-import { EntityIDHelper } from "./entityID.helper";
 
 export class ValidationHelper {
 
-  public static isEntityIDNotValid ( id: any ): string | null {
-
-    if ( id !== undefined ) {
-      const validation = EntityIDHelper.isValidEntityID( id );
-      if ( !validation ) return null;
-    }
-    return `ID must be a ${EntityIDHelper.getFormatDescription()}`;
-
-  }
 
   public static validateUUID ( id: any ): string | null {
 
@@ -61,7 +51,7 @@ export class ValidationHelper {
   }
 
   public static isValidMedicalSpecialty = ( value: any ): value is DoctorSpecialty => {
-    console.log('Validating DoctorSpecialty:', value);
+    // console.log('Validating DoctorSpecialty:', value);
     return Object.values( DoctorSpecialty ).includes( value );
   }
 }

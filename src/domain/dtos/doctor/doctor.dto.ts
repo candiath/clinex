@@ -9,8 +9,8 @@ export class DoctorDTO {
   private constructor(
     public name: string,
     public specialty: DoctorSpecialty,
-    public email: Email,
-    public phone: Phone,
+    public email: Email | null,
+    public phone: Phone | null,
     public id?: EntityID
   ) {}
 
@@ -43,21 +43,22 @@ export class DoctorDTO {
     // TODO: strict type email variable
     let email;
     try {
-      email = Email.create(data.email);
+      ( data.email == null) ? email = null : email = Email.create(data.email);
     } catch (error) {
       return [(error as CustomError).message, null];
     }
 
     let phone;
     try {
-      phone = Phone.create(data.phone);
+      ( data.phone == null ) ? phone = null : phone = Phone.create(data.phone);
     } catch (error) {
       return [(error as CustomError).message, null];
     }
 
     let id;
     try {
-      id = EntityID.create(data.id);
+      if (data.id != null)
+      id = EntityID.createOptional(data.id);
     } catch (error) {
       return [(error as CustomError).message, null];
     }

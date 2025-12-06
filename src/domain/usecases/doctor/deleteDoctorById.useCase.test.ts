@@ -5,7 +5,9 @@ import { CustomError } from "../../errors/customError";
 import { ValidationHelper } from "../../helpers/validation.helper";
 import { Doctor } from "../../entities/doctor.entity";
 import { DoctorSpecialty } from "../../types/doctorSpecialty.type";
-import { EntityIDHelper } from "../../helpers/entityID.helper";
+import { Email } from "../../valueObjects/email";
+import { Phone } from "../../valueObjects/phone";
+import { EntityID } from "../../valueObjects/entityID";
 
 jest.mock(
   "../../../infrastructure/repositories/doctor.repository.implementation"
@@ -39,40 +41,38 @@ describe("Delete doctor by ID use case", () => {
     usecase = new DeleteDoctorByIdUseCase(mockRepository);
   });
 
-  const VALID_ID: string = "123";
+  const VALID_ID: EntityID = EntityID.create("123");
   const INVALID_ID = "ABC";
   const VALID_DOCTOR: Doctor = Doctor.create(
     "John",
     DoctorSpecialty.CARDIOLOGY,
-    "john@clinex.com",
-    "123456789",
+    Email.create("john@clinex.com"),
+    Phone.create("123456789"),
     VALID_ID
   );
 
   describe("Successful operations", () => {
     it("Should delete doctor successfully with valid ID", async () => {
-      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
       mockRepository.findById.mockResolvedValue(VALID_DOCTOR);
       mockRepository.delete.mockResolvedValue(true);
 
       const result = await usecase.execute(VALID_ID);
 
       expect(result).toBeTruthy();
-      expect(ValidationHelper.isEntityIDNotValid).toHaveBeenCalledWith(VALID_ID);
       expect(mockRepository.findById).toHaveBeenCalledWith(VALID_DOCTOR.id);
       expect(mockRepository.delete).toHaveBeenCalledWith(VALID_DOCTOR.id);
     });
 
-    it("Should handle empty doctor list", async () => {
-      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
-      mockRepository.findById.mockResolvedValue(null);
 
+    it("Should handle empty doctor list", async () => {
+      mockRepository.findById.mockResolvedValue(null);
       let result;
       try {
-        result = await usecase.execute(VALID_ID);
+        result = await usecase.execute(VALID_ID.getValue());
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
+        expect((error as CustomError).message).toBe('Doctor not found');
         expect((error as CustomError).statusCode).toBe(404);
         expect(mockRepository.delete).not.toHaveBeenCalled();
       }
@@ -81,7 +81,6 @@ describe("Delete doctor by ID use case", () => {
 
   describe("Error handling", () => {
     it("Should throw CustomError when repository search fails", async () => {
-      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
 
       mockRepository.findById.mockRejectedValue(
         CustomError.serviceUnavailable()
@@ -101,7 +100,6 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository deletion fails", async () => {
-      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
 
       mockRepository.findById.mockResolvedValue(VALID_DOCTOR);
       mockRepository.delete.mockRejectedValue(CustomError.serviceUnavailable());
@@ -120,7 +118,6 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository search throws unknown error", async () => {
-      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
 
       mockRepository.findById.mockRejectedValue(new Error());
 
@@ -137,7 +134,6 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository deletion throws unknown error", async () => {
-      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(null);
 
       mockRepository.findById.mockResolvedValue(VALID_DOCTOR);
       mockRepository.delete.mockRejectedValue(new Error);
@@ -156,21 +152,19 @@ describe("Delete doctor by ID use case", () => {
   });
 
   describe("Validations", () => {
-    it("Should throw error when ID is missing", async() => {
-      const errorMessageMock = `ID must be a ${EntityIDHelper.getFormatDescription()}`;
-      (ValidationHelper.isEntityIDNotValid as jest.Mock).mockReturnValue(errorMessageMock);
+    it("Should throw error when ID is invalid", async() => {
+      const errorMessageMock = "ID is not a number";
 
-      const testError = CustomError.badRequest();
       let result;
       try {
         result = await usecase.execute(INVALID_ID);
         fail("Should have thrown an error");
       } catch (error) {
-        expect(result).toBe(undefined);
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
         expect((error as CustomError).message).toBe(errorMessageMock);
       }
+      expect(result).toBeUndefined();
     })
   });
 });

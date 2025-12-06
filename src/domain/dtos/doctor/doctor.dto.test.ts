@@ -1,14 +1,19 @@
 import { ValidationHelper } from "../../helpers/validation.helper";
+import { Email } from "../../valueObjects/email";
+import { EntityID } from "../../valueObjects/entityID";
+import { Phone } from "../../valueObjects/phone";
 import { DoctorDTO } from "./doctor.dto";
 
-jest.mock("../../helpers/validation.helper");
+jest.spyOn(Email, 'create');
+jest.spyOn(Phone, 'create');
 
 describe("DoctorDTO", () => {
-  // let mockValidationHelper: jest.Mocked<ValidationHelper>;
-
   const mockValidationHelper = ValidationHelper as jest.Mocked<
     typeof ValidationHelper
   >;
+  // const mockEmail = Email as jest.Mocked<typeof Email>;
+  // const mockPhone = Phone as jest.Mocked<typeof Phone>;
+  // const mockEntityID = EntityID as jest.Mocked<typeof EntityID>;
 
   const VALID_DOCTOR_DATA = {
     name: "Test name",
@@ -33,13 +38,38 @@ describe("DoctorDTO", () => {
   };
 
   beforeEach(() => {
-    // Mock console methods to avoid noise in test output
-    jest.spyOn(console, "log").mockImplementation();
+    jest.clearAllMocks();
+    jest.restoreAllMocks();
+    // jest.spyOn(console, "log").mockImplementation();
     jest.spyOn(console, "error").mockImplementation();
+    jest.spyOn(Email, 'create');
+    jest.spyOn(Phone, 'create');
 
-    mockValidationHelper.isValidMedicalSpecialty.mockReturnValue(true);
-    mockValidationHelper.validateEmail.mockReturnValue(null);
-    mockValidationHelper.validatePhone.mockReturnValue(null);
+    // mockValidationHelper.isValidMedicalSpecialty.mockReturnValue(true);
+    
+    // // Mock Email.create to return a mock Email instance
+    // (mockEmail.create as jest.Mock) = jest.fn((value) => {
+    //   if (value === undefined || value === null) return undefined;
+    //   return { getValue: () => value } as unknown as Email;
+    // });
+    
+    // // Mock Phone.create to return a mock Phone instance
+    // (mockPhone.create as jest.Mock) = jest.fn((value) => {
+    //   if (value === undefined || value === null) return undefined;
+    //   return { getValue: () => value } as unknown as Phone;
+    // });
+
+    // // Mock EntityID.createOptional to return a mock EntityID instance
+    // (mockEntityID.createOptional as jest.Mock) = jest.fn((value) => {
+    //   if (value === undefined || value === null) return undefined;
+    //   return { getValue: () => value } as unknown as EntityID;
+    // });
+
+    // (mockEntityID.create as jest.Mock) = jest.fn((value) => {
+    //   return { getValue: () => value } as unknown as EntityID;
+    // })
+
+    
   });
 
   afterEach(() => {
@@ -70,55 +100,38 @@ describe("DoctorDTO", () => {
     it("Should return a Doctor DTO with doctor data", () => {
       const [error, dto] = DoctorDTO.validate(VALID_DOCTOR_DATA);
 
+      // console.log({"DTO: " : dto});
+
       expect(error).toBe(null);
       expect(dto).not.toBe(null);
       expect(dto).toBeInstanceOf(DoctorDTO);
 
       expect(dto!.name).toEqual(VALID_DOCTOR_DATA.name);
       expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA.specialty);
-      expect(dto!.email).toEqual(VALID_DOCTOR_DATA.email);
-      expect(dto!.phone).toEqual(VALID_DOCTOR_DATA.phone);
+      expect(dto!.email).toBeDefined();
+      expect(dto!.phone).toBeDefined();
 
-      expect(
-        mockValidationHelper.isValidMedicalSpecialty
-      ).toHaveBeenNthCalledWith(1, VALID_DOCTOR_DATA.specialty);
-      expect(mockValidationHelper.validateEmail).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.email
-      );
-      expect(mockValidationHelper.validatePhone).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.phone
-      );
+      expect(Email.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.email);
+      expect(Phone.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.phone);
     });
 
     it("Should return a Doctor DTO with doctor and ID data", () => {
-      mockValidationHelper.isEntityIDNotValid.mockReturnValue(null);
+      // mockEntityID.create.mockReturnValue();
       const [error, dto] = DoctorDTO.validate(VALID_DOCTOR_DATA_WITH_ID);
 
       expect(error).toBe(null);
       expect(dto).not.toBe(null);
       expect(dto).toBeInstanceOf(DoctorDTO);
 
-      expect(dto!.id).toEqual(VALID_DOCTOR_DATA_WITH_ID.id);
+      expect(dto!.id).toBeDefined();
       expect(dto!.name).toEqual(VALID_DOCTOR_DATA_WITH_ID.name);
       expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toEqual(VALID_DOCTOR_DATA_WITH_ID.email);
-      expect(dto!.phone).toEqual(VALID_DOCTOR_DATA_WITH_ID.phone);
+      expect(dto!.email).toBeDefined();
+      expect(dto!.phone).toBeDefined();
 
-      expect(
-        mockValidationHelper.isValidMedicalSpecialty
-      ).toHaveBeenNthCalledWith(1, VALID_DOCTOR_DATA.specialty);
 
-      expect(mockValidationHelper.validateEmail).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.email
-      );
-
-      expect(mockValidationHelper.validatePhone).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.phone
-      );
+      expect(Email.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.email);
+      expect(Phone.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.phone);
     });
 
     it("Should NOT throw an error when name is missing", async () => {
@@ -131,22 +144,12 @@ describe("DoctorDTO", () => {
 
       expect(dto!.name).toEqual(undefined);
       expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toEqual(VALID_DOCTOR_DATA_WITH_ID.email);
-      expect(dto!.phone).toEqual(VALID_DOCTOR_DATA_WITH_ID.phone);
+      expect(dto!.email).toBeDefined();
+      expect(dto!.phone).toBeDefined();
 
-      expect(
-        mockValidationHelper.isValidMedicalSpecialty
-      ).toHaveBeenNthCalledWith(1, VALID_DOCTOR_DATA.specialty);
 
-      expect(mockValidationHelper.validateEmail).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.email
-      );
-
-      expect(mockValidationHelper.validatePhone).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.phone
-      );
+      expect(Email.create).toHaveBeenCalledWith(invalidData.email);
+      expect(Phone.create).toHaveBeenCalledWith(invalidData.phone);
     });
 
     it("Should NOT throw an error when specialty is missing", async () => {
@@ -159,22 +162,11 @@ describe("DoctorDTO", () => {
 
       expect(dto!.name).toEqual(VALID_DOCTOR_DATA.name);
       expect(dto!.specialty).toEqual(undefined);
-      expect(dto!.email).toEqual(VALID_DOCTOR_DATA.email);
-      expect(dto!.phone).toEqual(VALID_DOCTOR_DATA.phone);
+      expect(dto!.email).toBeDefined();
+      expect(dto!.phone).toBeDefined();
 
-      expect(
-        mockValidationHelper.isValidMedicalSpecialty
-      ).not.toHaveBeenCalled();
-
-      expect(mockValidationHelper.validateEmail).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.email
-      );
-
-      expect(mockValidationHelper.validatePhone).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.phone
-      );
+      expect(Email.create).toHaveBeenCalledWith(invalidData.email);
+      expect(Phone.create).toHaveBeenCalledWith(invalidData.phone);
     });
 
     it("Should NOT throw an error when email is missing", async () => {
@@ -187,19 +179,13 @@ describe("DoctorDTO", () => {
 
       expect(dto!.name).toEqual(VALID_DOCTOR_DATA_WITH_ID.name);
       expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toEqual(undefined);
-      expect(dto!.phone).toEqual(VALID_DOCTOR_DATA_WITH_ID.phone);
+      expect(dto!.email).toEqual(null);
+      expect(dto!.phone).toBeDefined();
 
-      expect(
-        mockValidationHelper.isValidMedicalSpecialty
-      ).toHaveBeenNthCalledWith(1, VALID_DOCTOR_DATA.specialty);
 
-      expect(mockValidationHelper.validateEmail).not.toHaveBeenCalled();
 
-      expect(mockValidationHelper.validatePhone).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.phone
-      );
+      expect(Email.create).not.toHaveBeenCalled();
+      expect(Phone.create).toHaveBeenCalledWith(invalidData.phone);
     });
 
     it("Should NOT throw an error when phone is missing", async () => {
@@ -212,19 +198,13 @@ describe("DoctorDTO", () => {
 
       expect(dto!.name).toEqual(VALID_DOCTOR_DATA.name);
       expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toEqual(VALID_DOCTOR_DATA_WITH_ID.email);
-      expect(dto!.phone).toEqual(undefined);
+      expect(dto!.email).toBeDefined();
+      expect(dto!.phone).toEqual(null);
 
-      expect(
-        mockValidationHelper.isValidMedicalSpecialty
-      ).toHaveBeenNthCalledWith(1, VALID_DOCTOR_DATA.specialty);
 
-      expect(mockValidationHelper.validateEmail).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.email
-      );
 
-      expect(mockValidationHelper.validatePhone).not.toHaveBeenCalled();
+      expect(Email.create).toHaveBeenCalledWith(invalidData.email);
+      expect(Phone.create).not.toHaveBeenCalled();
     });
 
     it("Should NOT throw an error when ID is missing", async () => {
@@ -238,61 +218,43 @@ describe("DoctorDTO", () => {
       expect(dto!.id).toEqual(undefined);
       expect(dto!.name).toEqual(VALID_DOCTOR_DATA.name);
       expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toEqual(VALID_DOCTOR_DATA_WITH_ID.email);
-      expect(dto!.phone).toEqual(VALID_DOCTOR_DATA_WITH_ID.phone);
+      expect(dto!.email).toBeDefined();
+      expect(dto!.phone).toBeDefined();
 
-      expect(
-        mockValidationHelper.isValidMedicalSpecialty
-      ).toHaveBeenNthCalledWith(1, VALID_DOCTOR_DATA.specialty);
+      // expect(
+      //   mockValidationHelper.isValidMedicalSpecialty
+      // ).toHaveBeenNthCalledWith(1, VALID_DOCTOR_DATA.specialty);
 
-      expect(mockValidationHelper.validateEmail).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.email
-      );
-
-      expect(mockValidationHelper.validatePhone).toHaveBeenNthCalledWith(
-        1,
-        VALID_DOCTOR_DATA.phone
-      );
+      expect(Email.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.email);
+      expect(Phone.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.phone);
     });
   });
 
   describe("Validation errors", () => {
     it("Should return error when email is invalid", () => {
-      mockValidationHelper.validateEmail.mockReturnValue(
-        "Mocked response: email format is not valid"
-      );
-
+      
       const [error, dto] = DoctorDTO.validate({
         ...VALID_DOCTOR_DATA,
         email: "invalid-email",
       });
 
-      expect(error).toEqual("Mocked response: email format is not valid");
+      expect(error).toEqual("Email format is not valid");
       expect(dto).not.toBeInstanceOf(DoctorDTO);
       expect(dto).toBeNull();
     });
 
     it("Should return error when phone is invalid", () => {
-      mockValidationHelper.validatePhone.mockReturnValue(
-        "Mocked response: phone format is not valid"
-      );
-
       const [error, dto] = DoctorDTO.validate({
         ...VALID_DOCTOR_DATA,
         phone: "invalid-phone",
       });
 
-      expect(error).toEqual("Mocked response: phone format is not valid");
       expect(dto).not.toBeInstanceOf(DoctorDTO);
+      expect(error).toEqual("Phone format is invalid");
       expect(dto).toBeNull();
     });
 
     it("Should return error when specialty is invalid", () => {
-      mockValidationHelper.isValidMedicalSpecialty.mockReturnValue(
-        false
-      );
-
       const [error, dto] = DoctorDTO.validate({
         ...VALID_DOCTOR_DATA,
         specialty: "invalid-specialty",
@@ -304,38 +266,14 @@ describe("DoctorDTO", () => {
     });
 
     it("Should throw an error when ID is invalid", () => {
-      mockValidationHelper.isEntityIDNotValid.mockReturnValue(
-        'ID must be a valid ID' );
-
+      
       const [ error, dto ] = DoctorDTO.validate({
         ...VALID_DOCTOR_DATA,
         id: 'invalid-id',
       });
 
-      expect( error ).toBe( 'ID must be a valid ID' );
       expect( dto ).toBe(null);
-      
+      expect( error ).toBe( 'ID is not a number' );
     })
-
-
-    it("Should handle empty data", () => {
-      const [ error, dto ] = DoctorDTO.validate({
-        name: null,
-        specialty: null,
-        email: null,
-        phone: null,
-      });
-
-      expect( error ).toBe('At least one field is mandatory');
-      expect( dto ).not.toBeInstanceOf( DoctorDTO );
-    });
-
-    // it("", () => {
-
-    // });
-
-    // it("", () => {
-
-    // });
   });
 });

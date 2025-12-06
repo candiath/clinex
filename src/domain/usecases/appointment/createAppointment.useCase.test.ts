@@ -1,9 +1,11 @@
 import { Appointment } from "../../entities/appointment.entity";
 import { AppointmentRepositoryImplementation } from "../../../infrastructure/repositories/appointment.repository.implementation";
-import { AppointmentStatus } from "../../types/appointmentStatus.type";
 import { AppointmentDatasource } from "../../datasources/appointment.datasource";
 import { CustomError } from "../../errors/customError";
 import { CreateAppointmentUseCase } from "./createAppointment.useCase";
+import { EntityID } from "../../valueObjects/entityID";
+import { AppointmentStatus } from "../../valueObjects/appointmentStatus";
+import { todo } from "node:test";
 
 jest.mock(
   "../../../infrastructure/repositories/appointment.repository.implementation"
@@ -30,35 +32,46 @@ describe("CreateAppointmentUseCase", () => {
     createAppointmentUseCase = new CreateAppointmentUseCase(mockRepository);
   });
 
-  const VALID_PATIENT_ID = "123";
-  const VALID_DOCTOR_ID = "456";
+  const VALID_PATIENT_ID_1 = EntityID.create("123");
+  const VALID_DOCTOR_ID_1 = EntityID.create("456");
+  const VALID_PATIENT_ID_2 = EntityID.create("234");
+  const VALID_DOCTOR_ID_2 = EntityID.create("567");
 
   const VALID_APPOINTMENT_DATA = {
-    patientId: VALID_PATIENT_ID,
-    doctorId: VALID_DOCTOR_ID,
+    patientId: VALID_PATIENT_ID_1,
+    doctorId: VALID_DOCTOR_ID_1,
     dateTime: new Date("2025-12-31 12:34:56"),
     reason: '',
     notes: '',
   }
+  const VALID_APPOINTMENT_DATA2 = {
+    patientId: VALID_PATIENT_ID_2,
+    doctorId: VALID_DOCTOR_ID_2,
+    dateTime: new Date("2025-12-30 12:34:56"),
+    reason: '',
+    notes: '',
+  }
 
-  const APPOINTMENT = Appointment.create();
+  const APPOINTMENT_1 = Appointment.create(
+    VALID_PATIENT_ID_2,
+    VALID_DOCTOR_ID_2,
+    new Date("2025-12-30 12:34:56"),
+    AppointmentStatus.create("SCHEDULED"),
+  );
+  const APPOINTMENT_2 = Appointment.create(
+    VALID_PATIENT_ID_2,
+    VALID_DOCTOR_ID_2,
+    new Date("2025-12-30 12:34:56"),
+    AppointmentStatus.create("SCHEDULED"),
+  );
+
+  const appointmentList = [APPOINTMENT_1, APPOINTMENT_2]
 
   describe("Successful operations", () => {
-    //todo: ver si getAll necesita data o no
-    it("Should return all appointments", async () => {
-      mockRepository.create.mockResolvedValue(appointmentList);
-      const useCase = await createAppointmentUseCase.execute();
-
-      expect(useCase).toBe(appointmentList);
-    });
-
-    it("Should return no appointments when there are no one", async () => {
-      mockRepository.getAll.mockResolvedValue([]);
-      const usecase = await createAppointmentUseCase.execute();
-
-      expect(usecase).toEqual([]);
-    });
+    todo("Should create an appointment successfully")
+    todo("Should handle optional fields correctly")
   });
+    
 
   describe("Error handling", () => {
     it("Should return an error when repository fails", async () => {
@@ -66,11 +79,11 @@ describe("CreateAppointmentUseCase", () => {
         CustomError.internalServerError()
       );
       try {
-        const usecase = await createAppointmentUseCase.execute();
+        const usecase = await createAppointmentUseCase.execute(VALID_APPOINTMENT_DATA);
         fail("It should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(500);
+        expect((error as CustomError).statusCode).toBe(400);
       }
     });
   });

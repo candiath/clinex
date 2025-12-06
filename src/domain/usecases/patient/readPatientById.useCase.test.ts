@@ -116,7 +116,7 @@ describe("ReadPatientByIdUseCase", () => {
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('ID must be a positive integer');
+        expect((error as CustomError).message).toContain('Invalid ID format');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();
@@ -130,7 +130,7 @@ describe("ReadPatientByIdUseCase", () => {
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('ID must be a positive integer');
+        expect((error as CustomError).message).toContain('Invalid ID format');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();
