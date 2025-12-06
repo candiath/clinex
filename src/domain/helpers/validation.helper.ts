@@ -51,7 +51,7 @@ export class ValidationHelper {
   }
 
   public static isValidMedicalSpecialty = ( value: any ): value is DoctorSpecialty => {
-    // console.log('Validating DoctorSpecialty:', value);
+
     return Object.values( DoctorSpecialty ).includes( value );
   }
 }

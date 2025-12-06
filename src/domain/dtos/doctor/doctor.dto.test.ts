@@ -1,6 +1,6 @@
 import { ValidationHelper } from "../../helpers/validation.helper";
 import { Email } from "../../valueObjects/email";
-import { EntityID } from "../../valueObjects/entityID";
+
 import { Phone } from "../../valueObjects/phone";
 import { DoctorDTO } from "./doctor.dto";
 
@@ -96,7 +96,7 @@ describe("DoctorDTO", () => {
     it("Should return a Doctor DTO with doctor data", () => {
       const [error, dto] = DoctorDTO.validate(VALID_DOCTOR_DATA);
 
-      // console.log({"DTO: " : dto});
+
 
       expect(error).toBe(null);
       expect(dto).not.toBe(null);
@@ -217,9 +217,7 @@ describe("DoctorDTO", () => {
       expect(dto!.email).toBeDefined();
       expect(dto!.phone).toBeDefined();
 
-      // expect(
-      //   mockValidationHelper.isValidMedicalSpecialty
-      // ).toHaveBeenNthCalledWith(1, VALID_DOCTOR_DATA.specialty);
+      
 
       expect(Email.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.email);
       expect(Phone.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.phone);

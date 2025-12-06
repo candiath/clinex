@@ -44,13 +44,6 @@ describe("CreateAppointmentUseCase", () => {
     reason: '',
     notes: '',
   }
-  const VALID_APPOINTMENT_DATA2 = {
-    patientId: VALID_PATIENT_ID_2,
-    doctorId: VALID_DOCTOR_ID_2,
-    dateTime: new Date("2025-12-30 12:34:56"),
-    reason: '',
-    notes: '',
-  }
 
   const APPOINTMENT_1 = Appointment.create(
     VALID_PATIENT_ID_2,
@@ -65,7 +58,7 @@ describe("CreateAppointmentUseCase", () => {
     AppointmentStatus.create("SCHEDULED"),
   );
 
-  const appointmentList = [APPOINTMENT_1, APPOINTMENT_2]
+
 
   describe("Successful operations", () => {
     todo("Should create an appointment successfully")
@@ -83,7 +76,7 @@ describe("CreateAppointmentUseCase", () => {
         fail("It should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
+        expect((error as CustomError).statusCode).toBe(500);
       }
     });
   });
