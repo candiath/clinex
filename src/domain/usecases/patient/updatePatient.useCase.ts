@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { CustomError } from "../../errors/customError";
