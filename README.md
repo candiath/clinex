@@ -23,14 +23,6 @@ Provee una API backend organizada para gestionar entidades clínicas básicas (p
 
 ---
 
-## Contexto del dominio
-Dominio clínico modelado (resumen):
-- Pacientes: entidad `Patient` con campos como dni, firstName, lastName, birthDate, email, sex e id.
-- Médicos: DTOs y tipos para nombre, especialidad, email y teléfono.
-- Casos de uso presentes para crear, leer (por ID y por DNI), actualizar y eliminar pacientes.
-
----
-
 ## Tecnologías principales y su rol
 
 - Node.js + TypeScript  
@@ -312,18 +304,12 @@ Ejemplos para médicos (basados en `DoctorDTO`)
 
 ---
 
-## Roadmap / mejoras recomendadas
-- Añadir tests de integración que levanten BD (Mongo/MySQL) para validar flujos end-to-end.
+## Roadmap / mejoras previstas
 - Publicar documentación de API (OpenAPI/Swagger).
+- Añadir tests de integración que levanten BD (MySQL) para validar flujos end-to-end.
 - Añadir CI (GitHub Actions) para ejecutar lint, build y tests en cada PR.
-- Añadir scripts npm estándar (`dev`, `build`, `start`, `test`) si faltan.
 - Añadir ejemplos de seed y scripts para entorno local reproducible.
 - Mejorar mensajes de error y códigos devueltos (uniformidad 4xx vs 5xx).
-
----
-
-## Licencia
-No se detectó un archivo `LICENSE` en el repo analizado. Añadir un archivo LICENSE (ej. MIT) si desea aclarar términos de uso.
 
 ---
 
