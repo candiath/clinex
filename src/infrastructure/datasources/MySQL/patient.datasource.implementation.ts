@@ -3,13 +3,13 @@ import { PatientDatasource } from "../../../domain/datasources/patientDatasource
 import { PatientDTO } from "../../../domain/dtos/patient/patient.dto";
 import { Patient } from "../../../domain/entities/patient.entity";
 import { CustomError } from "../../../domain/errors/customError";
-import { EntityIDHelper } from "../../../domain/helpers/entityID.helper";
+import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class PatientMySQLDatasource implements PatientDatasource {
-  async findById(id: string): Promise<Patient | null> {
+  async findById(id: EntityID): Promise<Patient | null> {
     try {
-      const validationError = EntityIDHelper.isValidEntityID(id);
-      if (validationError) return null; // ID inválido, retornar null
+      // const validationError = EntityIDHelper.isValidEntityID(id);
+      // if (validationError) return null; // ID inválido, retornar null
 
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM patients WHERE id = ?",
@@ -102,7 +102,7 @@ export class PatientMySQLDatasource implements PatientDatasource {
     }
   }
 
-  async update(id: string, newPatientData: PatientDTO): Promise<boolean> {
+  async update(id: EntityID, newPatientData: PatientDTO): Promise<boolean> {
     try {
       const [result] = await MySQLDatabase.pool.execute(
         "UPDATE patients SET dni = ?, first_name = ?, last_name = ?, birth_date = ?, email = ?, sex = ? WHERE id = ?",
@@ -113,7 +113,7 @@ export class PatientMySQLDatasource implements PatientDatasource {
           newPatientData.birthDate,
           newPatientData.email || "",
           newPatientData.sex,
-          id,
+          id.getValue(),
         ]
       );
 
@@ -126,11 +126,11 @@ export class PatientMySQLDatasource implements PatientDatasource {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: EntityID): Promise<boolean> {
     try {
       const [result] = await MySQLDatabase.pool.execute(
         "DELETE FROM patients WHERE id = ?",
-        [id]
+        [id.getValue()]
       );
       const deleteResult = result as any;
       return deleteResult.affectedRows > 0;

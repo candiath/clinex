@@ -1,3 +1,4 @@
+import { EntityID } from "../valueObjects/entityID";
 
 export class Patient {
   constructor(
@@ -7,7 +8,7 @@ export class Patient {
     public birthDate: Date,
     public email: string,
     public sex: string,
-    public id?: string,
+    public id?: EntityID,
   ) {
     this.dni = dni;
     this.firstName = firstName;
@@ -25,7 +26,10 @@ export class Patient {
   }
 
   static fromDatabase( dni: string, firstName: string, lastName: string, birthDate: Date, email: string, sex: string, id: string ): Patient {
-    return new Patient(dni, firstName, lastName, birthDate, email, sex, id);
+    //!  This method asumes that database IDs are always valid,
+    //!  therefore this may not be the best approach.
+    // TODO: issue #30
+    return new Patient(dni, firstName, lastName, birthDate, email, sex, EntityID.create(id));
   }
 
   static getMandatoryFields(): string[] {

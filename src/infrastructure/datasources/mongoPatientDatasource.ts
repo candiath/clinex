@@ -1,12 +1,12 @@
-import { Types } from "mongoose";
 import { PatientModel } from "../../data/mongo/models/patient.model";
 import { PatientDatasource } from "../../domain/datasources/patientDatasource";
 import { Patient } from "../../domain/entities/patient.entity";
 import { PatientDTO } from "../../domain/dtos/patient/patient.dto";
+import { EntityID } from "../../domain/valueObjects/entityID";
 
 
 export class MongoPatientDatasource implements PatientDatasource {
-  async findById(id: string): Promise<Patient | null> {
+  async findById(id: EntityID): Promise<Patient | null> {
     const result = await PatientModel.findOne({_id: id});
     // console.log('MongoDatasource: findById', id, result);
     if (result) {
@@ -39,10 +39,8 @@ export class MongoPatientDatasource implements PatientDatasource {
     return Promise.resolve(newPatient as Patient);
   }
 
-  async update(id: string, newPatientData: PatientDTO): Promise< boolean > {
-    const result = await PatientModel.updateOne({ _id: id }, { $set: newPatientData });
-    // console.log('MongoDatasource: update result', result);
-    console.log('MongoDatasource: update', id, newPatientData);
+  async update(id: EntityID, newPatientData: PatientDTO): Promise< boolean > {
+    const result = await PatientModel.updateOne({ _id: id.getValue() }, { $set: newPatientData });
     /**
      * {
      *  acknowledged: true,
@@ -56,10 +54,8 @@ export class MongoPatientDatasource implements PatientDatasource {
     return Promise.resolve(false);
   }
 
-  async delete(id: string): Promise<boolean> {
-    // console.log('MongoDatasource: delete', id);
-    const result = await PatientModel.deleteOne({dni: id});
-    // console.log(result)
+  async delete(id: EntityID): Promise<boolean> {
+    const result = await PatientModel.deleteOne({_id: id.getValue()});
     /** { acknowledged: true, deletedCount: 1 } */
     if ( result.deletedCount ) return Promise.resolve(true);
     return Promise.resolve(false);

@@ -1,20 +1,17 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { CustomError } from "../../errors/customError";
 import { Patient } from "../../entities/patient.entity";
+import { EntityID } from "../../valueObjects/entityID";
 
 interface ReadPatientByIdInput {
-  id?: string;
+  id?: EntityID;
 }
 
 export class ReadPatientByIdUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
   public async execute(data: ReadPatientByIdInput): Promise<Patient> {
-    // MongoDB-specific validation
-    if (!data.id ) {
-      throw CustomError.badRequest("Invalid ID format");
-    }
-
+    if (!data.id) throw CustomError.badRequest("Patient ID is required");
     let existingPatient;
     try {
       existingPatient = await this.repository.findById(data.id);

@@ -5,7 +5,6 @@ import { CustomError } from "../../errors/customError";
 import { CreateAppointmentUseCase } from "./createAppointment.useCase";
 import { EntityID } from "../../valueObjects/entityID";
 import { AppointmentStatus } from "../../valueObjects/appointmentStatus";
-import { todo } from "node:test";
 
 jest.mock(
   "../../../infrastructure/repositories/appointment.repository.implementation"
@@ -41,6 +40,7 @@ describe("CreateAppointmentUseCase", () => {
     patientId: VALID_PATIENT_ID_1,
     doctorId: VALID_DOCTOR_ID_1,
     dateTime: new Date("2025-12-31 12:34:56"),
+    status: "SCHEDULED",
     reason: '',
     notes: '',
   }
@@ -61,23 +61,25 @@ describe("CreateAppointmentUseCase", () => {
 
 
   describe("Successful operations", () => {
-    todo("Should create an appointment successfully")
-    todo("Should handle optional fields correctly")
+    test.todo("Should create an appointment successfully")
+    test.todo("Should handle optional fields correctly")
   });
     
 
   describe("Error handling", () => {
     it("Should return an error when repository fails", async () => {
-      mockRepository.getAll.mockRejectedValue(
-        CustomError.internalServerError()
+      mockRepository.create.mockRejectedValue(
+        CustomError.internalServerError("Database error")
       );
-      try {
-        const usecase = await createAppointmentUseCase.execute(VALID_APPOINTMENT_DATA);
-        fail("It should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(500);
-      }
+      
+      await expect(
+        createAppointmentUseCase.execute(VALID_APPOINTMENT_DATA)
+      ).rejects.toMatchObject({
+        statusCode: 500,
+        message: "Failed to create appointment"
+      });
+      
+      expect(mockRepository.create).toHaveBeenCalled();
     });
   });
 });

@@ -3,15 +3,16 @@ import { ReadPatientByIdUseCase } from "./readPatientById.useCase";
 import { CustomError } from "../../errors/customError";
 import { Patient } from "../../entities/patient.entity";
 import { Genres } from "../../types/genres.type";
+import { EntityID } from "../../valueObjects/entityID";
 
 describe("ReadPatientByIdUseCase", () => {
   let mockRepository: PatientRepoImplementation;
   let useCase: ReadPatientByIdUseCase;
 
   // Test constants
-  const VALID_ID = '123';
+  const VALID_ID = EntityID.create('123');
   const INVALID_ID = "ABC";
-  const EMPTY_ID = "";
+  const EMPTY_ID = "" as unknown as EntityID;
   
   const MOCK_PATIENT_DATA = {
     dni: "12345678",
@@ -116,7 +117,7 @@ describe("ReadPatientByIdUseCase", () => {
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('Invalid ID format');
+        expect((error as CustomError).message).toContain('Patient ID is required');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();
@@ -130,7 +131,7 @@ describe("ReadPatientByIdUseCase", () => {
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('Invalid ID format');
+        expect((error as CustomError).message).toContain('Patient ID is required');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();

@@ -3,7 +3,6 @@ import { DoctorDatasource } from "../../../domain/datasources/doctor.datasource"
 import { DoctorDTO } from "../../../domain/dtos/doctor/doctor.dto";
 import { Doctor } from "../../../domain/entities/doctor.entity";
 import { CustomError } from "../../../domain/errors/customError";
-import { EntityIDHelper } from "../../../domain/helpers/entityID.helper";
 import { Email } from "../../../domain/valueObjects/email";
 import { EntityID } from "../../../domain/valueObjects/entityID";
 
@@ -79,7 +78,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
         newDoctorData.specialty,
         newDoctorData.email,
         newDoctorData.phone,
-        id,
+        id.getValue(),
       ]
     );
 
@@ -90,8 +89,8 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     return Doctor.create(
       newDoctorData.name,
       newDoctorData.specialty,
-      newDoctorData.email,
-      newDoctorData.phone,
+      newDoctorData.email!,
+      newDoctorData.phone!,
       id.getValue()
     );
   }

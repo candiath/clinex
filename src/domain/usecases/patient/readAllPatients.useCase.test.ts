@@ -1,6 +1,7 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { Patient } from "../../entities/patient.entity";
 import { Genres } from "../../types/genres.type";
+import { EntityID } from "../../valueObjects/entityID";
 import { ReadAllPatientsUseCase } from "./readAllPatients.useCase";
 
 describe("ReadAllPatientsUseCase", () => {
@@ -34,7 +35,7 @@ describe("ReadAllPatientsUseCase", () => {
           new Date("1990-01-01"),
           "john@example.com",
           Genres.MALE,
-          "1"
+          EntityID.create("1")
         ),
       ];
       (mockRepository.list as jest.Mock).mockResolvedValue(mockPatients);

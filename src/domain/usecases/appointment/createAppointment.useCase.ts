@@ -2,7 +2,6 @@ import { AppointmentDTO } from "../../dtos/appointment.dto";
 import { Appointment } from "../../entities/appointment.entity";
 import { CustomError } from "../../errors/customError";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
-import { EntityID } from "../../valueObjects/entityID";
 
 export class CreateAppointmentUseCase {
   public readonly repository: AppointmentRepository;
@@ -55,7 +54,6 @@ export class CreateAppointmentUseCase {
     try {
       return await this.repository.create(appointment);
     } catch (error) {
-      console.log("Repository error:", error);
       throw CustomError.internalServerError("Failed to create appointment");
     }
   }

@@ -26,6 +26,7 @@ export class Doctor {
   }
 
   static fromDatabase( name: string, specialty: DoctorSpecialty, email: Email, phone: Phone, id: EntityID ): Doctor {
+    // TODO: issue #30
     return new Doctor(name, specialty, email, phone, id);
   }
 

@@ -1,9 +1,10 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { CustomError } from "../../errors/customError";
+import { EntityID } from "../../valueObjects/entityID";
 
 interface UpdatePatientInput {
-  id?: string; // Can be undefined from Express
+  id: EntityID;
   dni?: string;
   firstName?: string;
   lastName?: string;
@@ -16,14 +17,11 @@ export class UpdatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
   public async execute(data: UpdatePatientInput): Promise<boolean> {
-    // MongoDB-specific validation
-    if (!data.id ) {
-      throw CustomError.badRequest("Invalid ID format");
-    }
 
     const existingPatient = await this.repository.findById(data.id);
     if (!existingPatient) throw CustomError.notFound();
 
+    // TODO: issue #29
     const [error, dto] = PatientDTO.validate(data);
     if (error) throw CustomError.badRequest(error);
 
