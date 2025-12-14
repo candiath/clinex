@@ -12,7 +12,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --clear src/app.ts",
     "test": "jest",
-    "test:watch": "cls && jest --watch"
+    "test:watch": "cls && jest --watch",
+    "coverage": "jest --coverage"
   },
   "dependencies": {
     "dotenv": "^16.6.1",
