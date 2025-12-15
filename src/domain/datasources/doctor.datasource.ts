@@ -1,14 +1,12 @@
 import { DoctorDTO } from "../dtos/doctor/doctor.dto";
-import { Doctor } from "../interfaces/doctor.interface";
-import { Email } from "../valueObjects/email";
-import { EntityID } from "../valueObjects/entityID";
+import { Doctor } from "../entities/doctor.entity";
 
 export interface DoctorDatasource {
-  findById( id: EntityID ): Promise<Doctor | null>;
-  findByEmail( email: Email ): Promise<Doctor | null>;
+  findById( id: number ): Promise<Doctor | null>;
+  findByEmail( email: string ): Promise<Doctor | null>;
   save( doctor: Doctor ): Promise<Doctor | null>;
-  update( id: EntityID, newDoctorData: DoctorDTO ): Promise<Doctor | null>;
-  delete( id: EntityID ): Promise<boolean>;
+  update( id: number, newDoctorData: DoctorDTO ): Promise<Doctor | null>;
+  delete( id: number ): Promise<boolean>;
   list(): Promise<Doctor[]>;
-  emailExists( email: Email ): Promise<boolean>;
+  emailExists( email: string ): Promise<boolean>;
 }

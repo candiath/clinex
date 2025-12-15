@@ -2,8 +2,6 @@ import { DoctorDatasource } from "../../domain/datasources/doctor.datasource";
 import { DoctorDTO } from "../../domain/dtos/doctor/doctor.dto";
 import { Doctor } from "../../domain/entities/doctor.entity";
 import { DoctorRepository } from "../../domain/repositories/doctorRepository";
-import { Email } from "../../domain/valueObjects/email";
-import { EntityID } from "../../domain/valueObjects/entityID";
 
 
 export class DoctorRepositoryImplementation implements DoctorRepository {
@@ -11,25 +9,25 @@ export class DoctorRepositoryImplementation implements DoctorRepository {
   constructor( datasource: DoctorDatasource ) {
     this.datasource = datasource;
   }
-  findById(id: EntityID): Promise<Doctor | null> {
+  findById(id: number): Promise<Doctor | null> {
     return this.datasource.findById(id);
   }
-  findByEmail(email: Email): Promise<Doctor | null> {
+  findByEmail(email: string): Promise<Doctor | null> {
     return this.datasource.findByEmail(email);
   }
   save(doctor: Doctor): Promise<Doctor | null> {
     return this.datasource.save(doctor);
   }
-  update(id: EntityID, newDoctorData: DoctorDTO): Promise<Doctor | null> {
+  update(id: number, newDoctorData: DoctorDTO): Promise<Doctor | null> {
     return this.datasource.update(id, newDoctorData);
   }
-  delete(id: EntityID): Promise<boolean> {
+  delete(id: number): Promise<boolean> {
     return this.datasource.delete(id);
   }
   list(): Promise<Doctor[]> {
     return this.datasource.list();
   }
-  emailExists(email: Email): Promise<boolean> {
+  emailExists(email: string): Promise<boolean> {
     return this.datasource.emailExists(email);
   }
 

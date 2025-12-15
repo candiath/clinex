@@ -9,7 +9,7 @@ interface DeletePatientInput {
 export class DeletePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute({id}: DeletePatientInput): Promise<boolean> {
+  public async execute(id: any): Promise<boolean> {
 
     if ( !id || id === null ) throw CustomError.badRequest("Patient ID is required");
 
