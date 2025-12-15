@@ -68,10 +68,10 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     const [result] = await MySQLDatabase.pool.execute(
       "UPDATE doctors SET name = ?, specialty = ?, email = ?, phone = ? WHERE id = ?",
       [
-        newDoctorData.name,
-        newDoctorData.specialty,
-        newDoctorData.email,
-        newDoctorData.phone,
+        newDoctorData.name ?? null,
+        newDoctorData.specialty ?? null,
+        newDoctorData.email ?? null,
+        newDoctorData.phone ?? null,
         id.toString(),
       ]
     );
@@ -80,14 +80,14 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     if (updateResult.affectedRows === 0) {
       return null; // No se actualizó ningún registro
     }
-    return null;
-    // return Doctor.create(
-    //   newDoctorData.name,
-    //   newDoctorData.specialty,
-      // newDoctorData.email!,
-      // newDoctorData.phone!,
-    //   id.getValue()
-    // );
+    // return null;
+    return Doctor.create(
+      newDoctorData.name!,
+      newDoctorData.specialty!,
+      newDoctorData.email!,
+      newDoctorData.phone!,
+      id
+    );
   }
 
   async delete(id: number): Promise<boolean> {

@@ -11,6 +11,7 @@ const DoctorDTOSchema = z.looseObject({
   id: z.coerce.number().int().positive().optional(),
 });
 
+const IDSchema = z.coerce.number().int().positive().nonoptional();
 
 export class DoctorDTO {
   private constructor(
@@ -50,5 +51,20 @@ export class DoctorDTO {
         parsedData.id ?? undefined
       ),
     ];
+  }
+
+  public static validateID( id: string ): number | undefined {
+    let parsedID;
+    try {
+      parsedID = IDSchema.parse( id );
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const messages = z.prettifyError((error as z.ZodError));
+        throw CustomError.badRequest(`Validation errors:\n${messages}`);
+      }
+      throw error;
+      // return [ error, null ];
+    }
+    return parsedID
   }
 }

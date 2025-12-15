@@ -6,11 +6,11 @@ import { DoctorRepository } from "../../repositories/doctorRepository";
 export class UpdateDoctorUseCase {
   constructor( readonly repository: DoctorRepository ){}
 
-  public async execute ( data: DoctorDTO ) {
+  public async execute ( id: number, data: DoctorDTO ) {
 
-    if (!data.id) throw CustomError.badRequest("ID not provided");
+    if (!id) throw CustomError.badRequest("ID not provided");
 
-    const existingDoctor = await this.repository.findById( data.id );
+    const existingDoctor = await this.repository.findById( id );
     if ( !existingDoctor ) throw CustomError.notFound();
 
     // Update the doctor with the new data

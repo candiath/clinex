@@ -23,7 +23,7 @@ export class CreateDoctorUseCase {
       dto!.specialty,
       dto!.email,
       dto!.phone,
-      EntityID.create(dto!.id)
+      dto.id
     )
 
     // try {
