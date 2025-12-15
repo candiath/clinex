@@ -1,4 +1,4 @@
-import { Request, response, Response } from "express";
+import { Request, Response } from "express";
 import { DoctorDTO } from "../../domain/dtos/doctor/doctor.dto";
 import { CreateDoctorUseCase } from "../../domain/usecases/doctor/createDoctor.useCase";
 import { DoctorRepositoryImplementation } from "../../infrastructure/repositories/doctor.repository.implementation";
@@ -11,7 +11,7 @@ import { DeleteDoctorByIdUseCase } from "../../domain/usecases/doctor/deleteDoct
 import { UpdateDoctorUseCase } from "../../domain/usecases/doctor/updateDoctor.useCase";
 
 const repo = new DoctorRepositoryImplementation(new DoctorMySQLDatasource());
-const createDoctorUseCase = new CreateDoctorUseCase(repo);
+const createDoctorUseCase = new CreateDoctorUseCase();
 const readDoctorByIdUseCase = new ReadDoctorByIdUseCase( repo );
 const readAllDoctorsUseCase = new ReadAllDoctorsUseCase( repo );
 const deleteDoctorByIdUseCase = new DeleteDoctorByIdUseCase( repo );
@@ -21,9 +21,12 @@ const updateDoctorUseCase = new UpdateDoctorUseCase( repo );
 export class DoctorController {
   createDoctor = async (req: Request, res: Response) => {
     try {
-
-      const result = await createDoctorUseCase.execute(req.body);
-      console.log(result);
+      const [ error, dto ] = DoctorDTO.validate(req.body);
+      if (error) {
+        res.status(400).json({ error });
+        return;
+      }
+      const result = await createDoctorUseCase.execute(dto!);
       res.status(201).json({ doctor: result });
     } catch (error) {
       if (error instanceof CustomError) {
