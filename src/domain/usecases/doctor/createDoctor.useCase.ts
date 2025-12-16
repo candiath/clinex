@@ -2,13 +2,12 @@ import { Doctor } from "../../entities/doctor.entity";
 import { CustomError } from "../../errors/customError";
 import { DoctorRepository } from "../../repositories/doctorRepository";
 import { DoctorDTO } from "../../dtos/doctor/doctor.dto";
-import { EntityID } from "../../valueObjects/entityID";
 
 export class CreateDoctorUseCase {
 
-  // constructor( private readonly repository: DoctorRepository ) {
-  //   this.repository = repository;
-  // }
+  constructor( private readonly repository: DoctorRepository ) {
+    this.repository = repository;
+  }
 
   public async execute ( dto: DoctorDTO ) {
 
@@ -26,10 +25,10 @@ export class CreateDoctorUseCase {
       dto.id
     )
 
-    // try {
-    //   return this.repository.save( doctor );
-    // } catch (error) {
-    //   throw CustomError.internalServerError();
-    // }
+    try {
+      return this.repository.save( doctor );
+    } catch (error) {
+      throw CustomError.internalServerError();
+    }
   }
 }

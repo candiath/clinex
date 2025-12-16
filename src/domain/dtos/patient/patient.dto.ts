@@ -1,83 +1,73 @@
 import { CustomError } from "../../errors/customError";
-import { ValidationHelper } from "../../helpers/validation.helper";
-import { Genres } from "../../types/genres.type";
-import { Email } from "../../valueObjects/email";
-import { EntityID } from "../../valueObjects/entityID";
+import * as z from "zod";
 
+const PatientDTOSchema = z.object({
+  dni: z.string().regex(/^\d+$/, "El DNI debe contener solo números"),
+  firstName: z.string(),
+  lastName: z.string(),
+  birthDate: z.coerce.date(),
+  email: z.email().optional(),
+  sex: z.nativeEnum({ male: "male", female: "female" }),
+  id: z.coerce.number().int().positive().optional(),
+})
+
+const IDSchema = z.coerce.number().int().positive().nonoptional();
 export class PatientDTO {
   private constructor(
-    public dni: string,
-    public firstName: string,
-    public lastName: string,
-    public birthDate: Date,
-    public email: string,
-    public sex: string,
-    public id?: string,
+    public dni: string | undefined,
+    public firstName: string | undefined,
+    public lastName: string | undefined,
+    public birthDate: Date | undefined,
+    public email: string | undefined,
+    public sex: string | undefined,
+    public id?: number | undefined,
   ) { }
 
 
-  static validate(data: { [key: string]: any }): [string | null, PatientDTO | null] {
+  public static validate(data: { [key: string]: string }): [string | null, PatientDTO | null] {
     if (!data || typeof data !== 'object' && Array.isArray(data) || Object.keys(data).length === 0) {
       return ['PatientDTO no data provided or wrong format', null];
     }
 
-    //TODO: puede ser el dni un numero?
-    if (data.dni !== undefined && data.dni !== null) {
-      if (typeof data.dni !== 'string')
-        return ['DTO: DNI must be a string', null];
-    }
-
-    if (data.firstName !== undefined && data.firstName !== null) {
-      if (typeof data.firstName !== 'string')
-        return ['DTO: First name must be a string', null];
-    }
-
-    if (data.lastName !== undefined && data.lastName !== null) {
-      if (typeof data.lastName !== 'string')
-        return ['DTO: Last name must be a string', null];
-    }
-    if (data.birthDate !== undefined && data.birthDate !== null) {
-      if (typeof data.birthDate !== 'string' && !(data.birthDate instanceof Date))
-        return ['DTO: Birth date must be a string or Date', null];
-    }
-
-    let email;
+    let parsedData;
     try {
-      (data.email == null ) 
-        ? email = null
-        : ( data.email === "" ) ? email = null : email = Email.create(data.email);
+      parsedData = PatientDTOSchema.parse(data);
+      console.log({ parsedData });
     } catch (error) {
-      return [(error as CustomError).message, null];
-
+      if (error instanceof z.ZodError) {
+        const messages = z.prettifyError(error);
+        throw CustomError.badRequest(`Validation errors: \n${messages}`);
+      }
+      // TODO: en lugar de simplemente tirar el error, podría tirar un 
+      // CustomError.unhanldedException o algo por el estilo que indique
+      // donde pingo ocurrió el error para depurar mas rapidamente los 
+      // casos en los que la explosión viene por otro lado XD
+      throw error;
     }
-
-    // if (data.sex !== undefined && data.sex !== null) {
-    //   if ( Object.values(Genres).includes(data.sex))
-    //     return ['DTO: Sex must be a string', null];
-    // }
-
-    let id;
-    try {
-      id = EntityID.createOptional(data.id);
-    } catch (error) {
-      return [(error as CustomError).message, null];
-
-    }
-
-    // Convert birthDate to Date if it's a string
-    let birthDate: Date | undefined | null = data.birthDate;
-    if (birthDate && !(birthDate instanceof Date)) {
-      birthDate = new Date(birthDate as string);
-    }
-
     return [null, new PatientDTO(
-      data.dni,
-      data.firstName,
-      data.lastName,
-      birthDate as Date,
-      data.email,
-      data.sex,
-      data.id,
-    )];
+      parsedData.dni ?? undefined,
+      parsedData.firstName ?? undefined,
+      parsedData.lastName ?? undefined,
+      parsedData.birthDate ?? undefined,
+      parsedData.email ?? undefined,
+      parsedData.sex ?? undefined,
+      parsedData.id ?? undefined
+
+    )]
+  }
+
+  public static validateID(id: string): number {
+    let parsedID;
+    try {
+      parsedID = IDSchema.parse(id);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const messages = z.prettifyError((error as z.ZodError));
+        throw CustomError.badRequest(`Validation errors:\n${messages}`);
+      }
+      throw error;
+      // return [ error, null ];
+    }
+    return parsedID
   }
 }

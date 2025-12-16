@@ -3,21 +3,10 @@ import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { Patient } from "../../entities/patient.entity";
 import { CustomError } from "../../errors/customError";
 
-interface CreatePatientInput {
-  dni?: string;
-  firstName?: string;
-  lastName?: string;
-  birthDate?: string | Date;
-  email?: string;
-  sex?: string;
-}
-
 export class CreatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute(data: CreatePatientInput): Promise<Patient | null> {
-    const [error, dto] = PatientDTO.validate(data);
-    if (error) throw CustomError.badRequest(error);
+  public async execute(dto: PatientDTO): Promise<Patient | null> {
 
     if (dto!.dni == null) throw CustomError.badRequest('Patient DNI is required');
     if (dto!.firstName == null) throw CustomError.badRequest('Patient first name is required');

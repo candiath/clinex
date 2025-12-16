@@ -1,32 +1,20 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { CustomError } from "../../errors/customError";
-import { EntityID } from "../../valueObjects/entityID";
 
-interface UpdatePatientInput {
-  id: EntityID;
-  dni?: string;
-  firstName?: string;
-  lastName?: string;
-  birthDate?: string | Date;
-  email?: string;
-  sex?: string;
-}
 
 export class UpdatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute(data: UpdatePatientInput): Promise<boolean> {
+  public async execute( id: number , data: PatientDTO): Promise<boolean> {
 
-    const existingPatient = await this.repository.findById(data.id);
+    const existingPatient = await this.repository.findById(id);
     if (!existingPatient) throw CustomError.notFound();
 
     // TODO: issue #29
-    const [error, dto] = PatientDTO.validate(data);
-    if (error) throw CustomError.badRequest(error);
 
     // Update the patient with the new data
-    const updatedPatient = await this.repository.update(existingPatient.id!, dto!);
+    const updatedPatient = await this.repository.update(existingPatient.id!, data);
 
     return updatedPatient;
   }
