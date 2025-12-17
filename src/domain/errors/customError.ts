@@ -4,6 +4,7 @@ export interface CustomErrorOptions {
   timestamp?: Date,
   context?: any,
   userFriendlyMessage?: string,
+  location?: string,
 }
 
 export class CustomError extends Error {

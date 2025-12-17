@@ -1,4 +1,4 @@
-import { AppointmentDTO } from "../../dtos/appointment.dto";
+import { AppointmentDTO } from "../../dtos/appointment/appointment.dto";
 import { CustomError } from "../../errors/customError";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
 
@@ -12,12 +12,9 @@ export class UpdateAppointmentUseCase {
   }
 
 
-  public async execute (data: any) {
+  public async execute (id: number, data: AppointmentDTO) {
 
-    const [error, dto] = AppointmentDTO.validate(data);
-    if (error) throw CustomError.badRequest(error);
-
-    if (!dto!.id) throw CustomError.badRequest('ID not provided');
-    return await this.repository.update(dto!);
+    if ( isNaN(id) ) throw CustomError.badRequest("Invalid appointment ID");
+    return await this.repository.update(id, data);
   }
 }
