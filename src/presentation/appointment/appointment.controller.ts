@@ -22,7 +22,7 @@ export class AppointmentController {
   
   create = async (req: Request, res: Response) => {
     const [ , dto ] = AppointmentDTO.validate(req.body);
-    const appointment = await createAppointmentUseCase.execute(dto);
+    const appointment = await createAppointmentUseCase.execute(dto!);
     const responseEnvelope = ApiResponse.success(
       appointment,
       "Appointment created successfully"
@@ -45,8 +45,8 @@ export class AppointmentController {
   };
 
   getById = async (req: Request, res: Response) => {
-    const [ , IDdto ] = AppointmentDTO.validateID( req.params );
-    const appointment = await getAppointmentByIdUseCase.execute(req.params.id);
+    const IDdto = AppointmentDTO.validateID( req.params );
+    const appointment = await getAppointmentByIdUseCase.execute(IDdto!);
     res
       .status(200)
       .json(
@@ -56,14 +56,17 @@ export class AppointmentController {
   };
 
   delete = async (req: Request, res: Response) => {
-    const result = await deleteAppointmentUseCase.execute(req.params.id);
+    const IDdto = AppointmentDTO.validateID( req.params );
+    const result = await deleteAppointmentUseCase.execute(IDdto!);
     res
       .status(200)
       .json(ApiResponse.success(result, "Appointment deleted successfully"));
     return;
   };
   update = async (req: Request, res: Response) => {
-    const result = await updateAppointmentUseCase.execute(req.body);
+    const IDdto = AppointmentDTO.validateID( req.params );
+    const [ , dto ] = AppointmentDTO.validate(req.body);
+    const result = await updateAppointmentUseCase.execute(IDdto!, dto!);
     res
       .status(200)
       .json(ApiResponse.success(result, "Appointment updated successfully"));
