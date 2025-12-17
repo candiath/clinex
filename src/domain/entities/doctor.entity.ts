@@ -1,5 +1,4 @@
 import { DoctorSpecialty } from '../types/doctorSpecialty.type'
-import { EntityID } from '../valueObjects/entityID';
 
 export class Doctor {
 

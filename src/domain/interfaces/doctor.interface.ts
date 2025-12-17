@@ -2,7 +2,7 @@ import { DoctorSpecialty } from '../types/doctorSpecialty.type';
 import { EntityID } from '../valueObjects/entityID';
 import { Phone } from '../valueObjects/phone';
 
-export interface Doctor {
+export interface DEPRECATEDDoctor {
   id?: EntityID;
   name: string;
   specialty: DoctorSpecialty;

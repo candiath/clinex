@@ -1,4 +1,4 @@
-export interface PatientInterface {
+export interface DEPRECATEDPatientInterface {
   id?: string,
   dni?: string,
   name?: string,
