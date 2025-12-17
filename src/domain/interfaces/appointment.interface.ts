@@ -1,7 +1,7 @@
 import { AppointmentStatus } from '../types/appointmentStatus.type';
 import { EntityID } from '../valueObjects/entityID';
 
-export interface Appointment {
+export interface DEPRECATEDAppointment {
   id?: EntityID;
   patientId: EntityID;
   doctorId: EntityID;

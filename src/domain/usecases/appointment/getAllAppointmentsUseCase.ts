@@ -8,9 +8,9 @@ export class GetAllAppointmentsUseCase {
   constructor(repository: AppointmentRepository) {
     this.repository = repository;
   }
-  //todo: decidir si execute necesita alguna data o no
   public async execute () {
 
+    // TODO: try catch?
     return this.repository.getAll();
 
   }

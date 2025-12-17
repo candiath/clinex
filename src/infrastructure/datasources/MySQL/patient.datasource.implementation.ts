@@ -3,19 +3,14 @@ import { PatientDatasource } from "../../../domain/datasources/patientDatasource
 import { PatientDTO } from "../../../domain/dtos/patient/patient.dto";
 import { Patient } from "../../../domain/entities/patient.entity";
 import { CustomError } from "../../../domain/errors/customError";
-import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class PatientMySQLDatasource implements PatientDatasource {
-  async findById(id: EntityID): Promise<Patient | null> {
+  async findById(id: number): Promise<Patient | null> {
     try {
-      // const validationError = EntityIDHelper.isValidEntityID(id);
-      // if (validationError) return null; // ID inválido, retornar null
-
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM patients WHERE id = ?",
         [id]
       );
-
       const patients = rows as any[];
       if (patients.length === 0) return null;
 
@@ -102,7 +97,7 @@ export class PatientMySQLDatasource implements PatientDatasource {
     }
   }
 
-  async update(id: EntityID, newPatientData: PatientDTO): Promise<boolean> {
+  async update(id: number, newPatientData: PatientDTO): Promise<boolean> {
     try {
       const [result] = await MySQLDatabase.pool.execute(
         "UPDATE patients SET dni = ?, first_name = ?, last_name = ?, birth_date = ?, email = ?, sex = ? WHERE id = ?",
@@ -113,7 +108,7 @@ export class PatientMySQLDatasource implements PatientDatasource {
           newPatientData.birthDate,
           newPatientData.email || "",
           newPatientData.sex,
-          id.getValue(),
+          id.toString(),
         ]
       );
 
@@ -126,11 +121,11 @@ export class PatientMySQLDatasource implements PatientDatasource {
     }
   }
 
-  async delete(id: EntityID): Promise<boolean> {
+  async delete(id: number): Promise<boolean> {
     try {
       const [result] = await MySQLDatabase.pool.execute(
         "DELETE FROM patients WHERE id = ?",
-        [id.getValue()]
+        [id.toString()]
       );
       const deleteResult = result as any;
       return deleteResult.affectedRows > 0;

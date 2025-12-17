@@ -1,7 +1,6 @@
 import { AppointmentDatasource } from "../../domain/datasources/appointment.datasource";
 import { Appointment } from "../../domain/entities/appointment.entity";
 import { AppointmentRepository } from "../../domain/repositories/appointment.repository";
-import { EntityID } from "../../domain/valueObjects/entityID";
 
 export class AppointmentRepositoryImplementation implements AppointmentRepository {
 
@@ -15,13 +14,13 @@ export class AppointmentRepositoryImplementation implements AppointmentRepositor
   getAll(): Promise<Appointment[] | null> {
     return this.datasource.getAll();
   }
-  getById(id: EntityID): Promise<Appointment | null> {
+  getById(id: number): Promise<Appointment | null> {
     return this.datasource.getById(id);
   }
-  update(appointment: Appointment): Promise<Appointment | null> {
-    return this.datasource.update(appointment);
+  update(id: number, appointment: Appointment): Promise<Appointment | null> {
+    return this.datasource.update(id, appointment);
   }
-  delete(id: EntityID): Promise<boolean> {
+  delete(id: number): Promise<boolean> {
     return this.datasource.delete(id);
   }
 }

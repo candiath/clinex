@@ -9,11 +9,7 @@ export class CreateDoctorUseCase {
     this.repository = repository;
   }
 
-  public async execute ( data: any ) {
-
-    // console.log(Doctor.getMandatoryFields().toString())
-    const [ error, dto ] = DoctorDTO.validate( data );
-    if ( error ) throw CustomError.badRequest(error);
+  public async execute ( dto: DoctorDTO ) {
 
     console.log('DTO validated:', dto);
     if ( dto!.name == null ) throw CustomError.badRequest('Doctor name is required');
@@ -26,7 +22,7 @@ export class CreateDoctorUseCase {
       dto!.specialty,
       dto!.email,
       dto!.phone,
-      dto!.id
+      dto.id
     )
 
     try {

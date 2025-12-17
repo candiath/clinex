@@ -1,20 +1,17 @@
 import { CustomError } from "../../errors/customError";
-import { ValidationHelper } from "../../helpers/validation.helper";
 import { DoctorRepository } from "../../repositories/doctorRepository";
-import { EntityID } from "../../valueObjects/entityID";
 
 
 export class DeleteDoctorByIdUseCase {
   constructor( readonly repository: DoctorRepository ){}
 
-  public async execute ( id: any ) {
+  public async execute ( id: number ) {
 
-    const sanitizedData = EntityID.create(id);
 
-    const existingDoctor = await this.repository.findById(sanitizedData);
+    const existingDoctor = await this.repository.findById(id);
     if (existingDoctor == null) throw CustomError.notFound("Doctor not found");
 
-    const deleted = await this.repository.delete(sanitizedData);
+    const deleted = await this.repository.delete(id);
 
     return deleted;
   }

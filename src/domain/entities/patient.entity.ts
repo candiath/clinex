@@ -1,5 +1,3 @@
-import { EntityID } from "../valueObjects/entityID";
-
 export class Patient {
   constructor(
     public dni: string,
@@ -8,7 +6,7 @@ export class Patient {
     public birthDate: Date,
     public email: string,
     public sex: string,
-    public id?: EntityID,
+    public id?: number,
   ) {
     this.dni = dni;
     this.firstName = firstName;
@@ -25,11 +23,12 @@ export class Patient {
     return new Patient(dni, firstName, lastName, birthDate, email, sex);
   }
 
-  static fromDatabase( dni: string, firstName: string, lastName: string, birthDate: Date, email: string, sex: string, id: string ): Patient {
+  static fromDatabase( dni: string, firstName: string, lastName: string, birthDate: Date, email: string, sex: string, id: number ): Patient {
     //!  This method asumes that database IDs are always valid,
     //!  therefore this may not be the best approach.
+    //? NOTE: the data type for IDs was changed to number due to zod implementation. Maybe that issue does not apply anymore
     // TODO: issue #30
-    return new Patient(dni, firstName, lastName, birthDate, email, sex, EntityID.create(id));
+    return new Patient(dni, firstName, lastName, birthDate, email, sex, id);
   }
 
   static getMandatoryFields(): string[] {

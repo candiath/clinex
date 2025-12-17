@@ -1,5 +1,5 @@
 import { CustomError } from "../../errors/customError";
-import { ValidationHelper } from "../../helpers/validation.helper";
+// import { ValidationHelper } from "../../helpers/validation.helper";
 import { DoctorRepository } from "../../repositories/doctorRepository";
 
 
@@ -9,8 +9,8 @@ export class ReadDoctorByIdUseCase {
 
   public async execute ( data: any ) {
 
-    const error = ValidationHelper.isEntityIDNotValid( data.id );
-    if ( error ) throw CustomError.badRequest( error );
+    // const error = ValidationHelper.isEntityIDNotValid( data.id );
+    // if ( error ) throw CustomError.badRequest( error );
 
     let existingDoctor;
     try {

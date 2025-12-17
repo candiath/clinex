@@ -1,25 +1,20 @@
 import { DoctorDTO } from "../../dtos/doctor/doctor.dto";
 import { CustomError } from "../../errors/customError";
-import { ValidationHelper } from "../../helpers/validation.helper";
 import { DoctorRepository } from "../../repositories/doctorRepository";
 
 
 export class UpdateDoctorUseCase {
   constructor( readonly repository: DoctorRepository ){}
 
-  public async execute ( data: any ) {
+  public async execute ( id: number, data: DoctorDTO ) {
 
-    const validationError = ValidationHelper.isEntityIDNotValid( data.id );
-    if ( validationError ) throw CustomError.badRequest( validationError );
+    if (!id) throw CustomError.badRequest("ID not provided");
 
-    const existingDoctor = await this.repository.findById( data.id );
+    const existingDoctor = await this.repository.findById( id );
     if ( !existingDoctor ) throw CustomError.notFound();
 
-    const [ error, dto ] = DoctorDTO.validate( data );
-    if ( error ) throw CustomError.badRequest( error );
-
     // Update the doctor with the new data
-    const updatedDoctor = await this.repository.update(existingDoctor.id!, dto!);
+    const updatedDoctor = await this.repository.update(existingDoctor.id!, data);
 
     return updatedDoctor;
   }

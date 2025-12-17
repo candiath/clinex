@@ -3,19 +3,13 @@ import { DoctorDatasource } from "../../../domain/datasources/doctor.datasource"
 import { DoctorDTO } from "../../../domain/dtos/doctor/doctor.dto";
 import { Doctor } from "../../../domain/entities/doctor.entity";
 import { CustomError } from "../../../domain/errors/customError";
-import { Email } from "../../../domain/valueObjects/email";
-import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class DoctorMySQLDatasource implements DoctorDatasource {
-  async findById(id: EntityID): Promise<Doctor | null> {
+  async findById(id: number): Promise<Doctor | null> {
     try {
-      // const validationError = EntityIDHelper.isValidEntityID(id);
-      // if (validationError) return null; // ID inválido, retornar null
-      
-
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM doctors WHERE id = ?",
-        [id.getValue()] // Usar el ID original
+        [id.toString()] // Usar el ID original
       );
 
       const doctors = rows as any[];
@@ -36,7 +30,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
       );
     }
   }
-  findByEmail(email: Email): Promise<Doctor | null> {
+  findByEmail(email: string): Promise<Doctor | null> {
     throw new Error("Method not implemented.");
   }
 
@@ -70,15 +64,15 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     }
   }
 
-  async update(id: EntityID, newDoctorData: DoctorDTO): Promise<Doctor | null> {
+  async update(id: number, newDoctorData: DoctorDTO): Promise<Doctor | null> {
     const [result] = await MySQLDatabase.pool.execute(
       "UPDATE doctors SET name = ?, specialty = ?, email = ?, phone = ? WHERE id = ?",
       [
-        newDoctorData.name,
-        newDoctorData.specialty,
-        newDoctorData.email,
-        newDoctorData.phone,
-        id.getValue(),
+        newDoctorData.name ?? null,
+        newDoctorData.specialty ?? null,
+        newDoctorData.email ?? null,
+        newDoctorData.phone ?? null,
+        id.toString(),
       ]
     );
 
@@ -86,19 +80,20 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     if (updateResult.affectedRows === 0) {
       return null; // No se actualizó ningún registro
     }
+    // return null;
     return Doctor.create(
-      newDoctorData.name,
-      newDoctorData.specialty,
+      newDoctorData.name!,
+      newDoctorData.specialty!,
       newDoctorData.email!,
       newDoctorData.phone!,
-      id.getValue()
+      id
     );
   }
 
-  async delete(id: EntityID): Promise<boolean> {
+  async delete(id: number): Promise<boolean> {
     const [result] = await MySQLDatabase.pool.execute(
       "DELETE FROM doctors WHERE id = ?",
-      [id.getValue()]
+      [id.toString()]
     );
     const deleteResult = result as any;
     return deleteResult.affectedRows > 0; // Retorna true si se eliminó al menos un registro
@@ -119,10 +114,10 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     return mapresult;
   }
 
-  async emailExists(email: Email): Promise<boolean> {
+  async emailExists(email: string): Promise<boolean> {
     const [rows] = await MySQLDatabase.pool.execute(
       "SELECT COUNT(*) as count FROM doctors WHERE email = ?",
-      [email.getValue()]
+      [email]
     );
     const count = (rows as any[])[0].count;
     return count > 0;

@@ -1,84 +1,70 @@
 import { DoctorSpecialty } from "../../types/doctorSpecialty.type";
-import { ValidationHelper } from "../../helpers/validation.helper";
-import { EntityID } from "../../valueObjects/entityID";
-import { Email } from "../../valueObjects/email";
-import { Phone } from "../../valueObjects/phone";
 import { CustomError } from "../../errors/customError";
+import * as z from "zod";
+
+
+const DoctorDTOSchema = z.looseObject({
+  name: z.string().nullish(),
+  specialty: z.nativeEnum(DoctorSpecialty).nullish(),
+  email: z.email().nullish(),
+  phone: z.string().nullish(),
+  id: z.coerce.number().int().positive().optional(),
+});
+
+const IDSchema = z.coerce.number().int().positive().nonoptional();
 
 export class DoctorDTO {
   private constructor(
-    public name: string,
-    public specialty: DoctorSpecialty,
-    public email: Email | null,
-    public phone: Phone | null,
-    public id?: EntityID
-  ) {}
+    public name: string | undefined,
+    public specialty: DoctorSpecialty | undefined,
+    public email: string | undefined,
+    public phone: string | undefined,
+    public id?: number | undefined
+  ) { }
 
   public static validate(data: {
-    [key: string]: any;
+    [key: string]: string;
   }): [string | null, DoctorDTO | null] {
     if (!data || typeof data != "object") {
       return ["DoctorDTO no data provided or wrong format", null];
     }
 
-    // console.log('Validating DoctorDTO:');
-    // console.log({ name: data.name, specialty: data.specialty, email: data.email, phone: data.phone, id: data.id });
-
-    // Validate data types only (not business rules)
-    if (data.name !== undefined && data.name !== null) {
-      // console.log('Validating name:', data.name);
-      if (typeof data.name != "string")
-        return ["DTO: Name must be a string", null];
-    }
-
-    // console.log('Validating specialty: data:', data.specialty);
-    // console.log('Validating specialty type:', typeof data.specialty);
-
-    if (data.specialty !== undefined && data.specialty !== null) {
-      // console.log('Validating specialty in dto:', data.specialty);
-      if (!ValidationHelper.isValidMedicalSpecialty(data.specialty))
-        return ["DTO: Specialty must be a valid DoctorSpecialty", null];
-    }
-
-    // TODO: strict type email variable
-    let email;
+    let parsedData;
     try {
-      ( data.email == null) ? email = null : email = Email.create(data.email);
+      parsedData = DoctorDTOSchema.parse(data);
+      console.log({"parseddata": parsedData});
     } catch (error) {
-      return [(error as CustomError).message, null];
+      if (error instanceof z.ZodError) {
+        // const messages = error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join('\n');
+        const messages = z.prettifyError((error as z.ZodError));
+        throw CustomError.badRequest(`Validation errors:\n${messages}`);
+      }
+      throw error;
     }
-
-    let phone;
-    try {
-      ( data.phone == null ) ? phone = null : phone = Phone.create(data.phone);
-    } catch (error) {
-      return [(error as CustomError).message, null];
-    }
-
-    let id;
-    try {
-      if (data.id != null)
-      id = EntityID.createOptional(data.id);
-    } catch (error) {
-      return [(error as CustomError).message, null];
-    }
-
-    if (
-      (data.name === undefined || data.name === null) &&
-      (data.specialty === undefined || data.specialty === null)
-    ) {
-      return ["At least one field is mandatory", null];
-    }
-
     return [
       null,
       new DoctorDTO(
-        data.name,
-        data.specialty,
-        email,
-        phone,
-        id ?? undefined
+        parsedData!.name ?? undefined,
+        parsedData!.specialty ?? undefined,
+        parsedData!.email ?? undefined,
+        parsedData!.phone ?? undefined,
+        parsedData.id ?? undefined
       ),
     ];
+  }
+
+  public static validateID( id: string ): number | undefined {
+    let parsedID;
+    try {
+      parsedID = IDSchema.parse( id );
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const messages = z.prettifyError((error as z.ZodError));
+        throw CustomError.badRequest(`Validation errors:\n${messages}`);
+      }
+      throw error;
+      // return [ error, null ];
+    }
+    return parsedID
   }
 }

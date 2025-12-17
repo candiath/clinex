@@ -1,4 +1,4 @@
-enum Statuses {
+export enum AppointmentStatusValues {
   SCHEDULED = "SCHEDULED",
   CONFIRMED = "CONFIRMED",
   IN_PROGRESS = "IN_PROGRESS",
@@ -8,17 +8,26 @@ enum Statuses {
 }
 
 export class AppointmentStatus {
-  private constructor(private readonly value: any) {}
+  private constructor(
+    private readonly value: AppointmentStatusValues
+  ) {}
 
-  static create(value: any): AppointmentStatus {
-    const test = Object.values( Statuses ).includes( value );
+  static create(value: string): AppointmentStatus {
+    const test = Object.values(AppointmentStatusValues).includes(
+      value as AppointmentStatusValues
+    );
 
-    if ( test ) return new AppointmentStatus(value);
-    throw 'Appointment status is not valid';
+    if (test) return new AppointmentStatus(value as AppointmentStatusValues);
+    throw "Appointment status is not valid";
   }
 
-  getValue(): any {
-    return this.value;
+  public static includes(value: string | AppointmentStatus): boolean {
+    return Object.values(AppointmentStatusValues).includes(
+      value as AppointmentStatusValues
+    );
+  }
+
+  getValue(): string {
+    return this.value.toString();
   }
 }
-
