@@ -1,14 +1,15 @@
 import { AppointmentStatus } from '../valueObjects/appointmentStatus';
+import { EntityID } from '../valueObjects/entityID';
 export class Appointment {
 
   private constructor(
-    public patientId: number,
-    public doctorId: number,
+    public patientId: EntityID,
+    public doctorId: EntityID,
     public dateTime: Date,
     public status: AppointmentStatus,
     public reason?: string,
     public notes?: string,
-    public id?: number,
+    public id?: EntityID,
   ) {
     this.patientId = patientId;
     this.doctorId = doctorId;
@@ -21,8 +22,8 @@ export class Appointment {
 
 
   static create(
-    patientId: number,
-    doctorId: number, 
+    patientId: EntityID,
+    doctorId: EntityID, 
     dateTime: Date,
     status: AppointmentStatus,
     reason?: string,
@@ -32,13 +33,13 @@ export class Appointment {
   }
 
   static fromDatabase(
-    patientId: number,
-    doctorId: number,
+    patientId: EntityID,
+    doctorId: EntityID,
     dateTime: Date,
     status: AppointmentStatus,
     reason: string,
     notes: string,
-    id: number
+    id: EntityID
   ): Appointment {
     return new Appointment(patientId, doctorId, dateTime, status, reason, notes, id);
   }

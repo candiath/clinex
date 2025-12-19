@@ -1,12 +1,12 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
-import { PatientDTO } from "../../dtos/patient/patient.dto";
 import { Patient } from "../../entities/patient.entity";
 import { CustomError } from "../../errors/customError";
 
 export class CreatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-  public async execute(dto: PatientDTO): Promise<Patient | null> {
+
+  public async execute(dto: Patient): Promise<Patient> {
 
     if (dto!.dni == null) throw CustomError.badRequest('Patient DNI is required');
     if (dto!.firstName == null) throw CustomError.badRequest('Patient first name is required');

@@ -1,34 +1,28 @@
 import { Doctor } from "../../entities/doctor.entity";
 import { CustomError } from "../../errors/customError";
+import { DoctorDataSchema } from "../../interfaces/dataSchemas.interfaces";
+import { DoctorInterface } from "../../interfaces/doctor.interfaces";
 import { DoctorRepository } from "../../repositories/doctorRepository";
-import { DoctorDTO } from "../../dtos/doctor/doctor.dto";
 
 export class CreateDoctorUseCase {
-
-  constructor( private readonly repository: DoctorRepository ) {
+  constructor(private readonly repository: DoctorRepository) {
     this.repository = repository;
   }
 
-  public async execute ( dto: DoctorDTO ) {
-
-    console.log('DTO validated:', dto);
-    if ( dto!.name == null ) throw CustomError.badRequest('Doctor name is required');
-    if ( dto!.specialty == null ) throw CustomError.badRequest('Doctor specialty is required');
-    if ( dto!.email == null ) throw CustomError.badRequest('Doctor email is required');
-    if ( dto!.phone == null ) throw CustomError.badRequest('Doctor phone is required');
-
-    const doctor = Doctor.create(
-      dto!.name,
-      dto!.specialty,
-      dto!.email,
-      dto!.phone,
-      dto.id
-    )
-
-    try {
-      return this.repository.save( doctor );
-    } catch (error) {
-      throw CustomError.internalServerError();
+  public async execute(dto: DoctorInterface): Promise<Doctor> {
+    const parsedDto = DoctorDataSchema.safeParse(dto);
+    if (!parsedDto.success) {
+      throw CustomError.badRequest(parsedDto.error.message, {
+        location: "CreateDoctorUseCase",
+      });
     }
+    const doctor = Doctor.create(
+      dto.name,
+      dto.specialty,
+      dto.email,
+      dto.phone
+    );
+
+    return this.repository.save(doctor);
   }
 }

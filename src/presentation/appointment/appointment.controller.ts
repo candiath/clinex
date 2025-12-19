@@ -7,7 +7,9 @@ import { DeleteAppointmentUseCase } from "../../domain/usecases/appointment/dele
 import { UpdateAppointmentUseCase } from "../../domain/usecases/appointment/updateAppointmentUseCase";
 import { AppointmentRepositoryImplementation } from "../../infrastructure/repositories/appointment.repository.implementation";
 import { AppointmentMySQLDatasource } from "../../infrastructure/datasources/MySQL/appointment.datasource.implementation";
-import { AppointmentDTO } from "../../domain/dtos/appointment/appointment.dto";
+import { validate } from "../../domain/dtos/appointment/appointment.dto";
+import { EntityID } from "../../domain/valueObjects/entityID";
+import { AppointmentInterface } from "../../domain/interfaces/appointment.interfaces";
 
 const repo = new AppointmentRepositoryImplementation(
   new AppointmentMySQLDatasource()
@@ -21,7 +23,7 @@ const updateAppointmentUseCase = new UpdateAppointmentUseCase(repo);
 export class AppointmentController {
   
   create = async (req: Request, res: Response) => {
-    const [ , dto ] = AppointmentDTO.validate(req.body);
+    const dto = validate(req.body);
     const appointment = await createAppointmentUseCase.execute(dto!);
     const responseEnvelope = ApiResponse.success(
       appointment,
@@ -45,7 +47,8 @@ export class AppointmentController {
   };
 
   getById = async (req: Request, res: Response) => {
-    const IDdto = AppointmentDTO.validateID( req.params );
+    // const IDdto = EntityIDSchema.parse( req.params );
+    const IDdto = EntityID.validate(req.params.id);
     const appointment = await getAppointmentByIdUseCase.execute(IDdto!);
     res
       .status(200)
@@ -56,7 +59,8 @@ export class AppointmentController {
   };
 
   delete = async (req: Request, res: Response) => {
-    const IDdto = AppointmentDTO.validateID( req.params );
+    // const IDdto = EntityIDSchema.parse( req.params );
+    const IDdto = EntityID.validate(req.params.id);
     const result = await deleteAppointmentUseCase.execute(IDdto!);
     res
       .status(200)
@@ -64,8 +68,9 @@ export class AppointmentController {
     return;
   };
   update = async (req: Request, res: Response) => {
-    const IDdto = AppointmentDTO.validateID( req.params );
-    const [ , dto ] = AppointmentDTO.validate(req.body);
+    // const IDdto = EntityIDSchema.parse( req.params );
+    const IDdto = EntityID.validate(req.params.id);
+    const dto: AppointmentInterface = validate(req.body);
     const result = await updateAppointmentUseCase.execute(IDdto!, dto!);
     res
       .status(200)

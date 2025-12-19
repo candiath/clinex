@@ -1,15 +1,15 @@
 import { MySQLDatabase } from "../../../data/mysql/mysql.init";
 import { DoctorDatasource } from "../../../domain/datasources/doctor.datasource";
-import { DoctorDTO } from "../../../domain/dtos/doctor/doctor.dto";
 import { Doctor } from "../../../domain/entities/doctor.entity";
 import { CustomError } from "../../../domain/errors/customError";
+import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class DoctorMySQLDatasource implements DoctorDatasource {
-  async findById(id: number): Promise<Doctor | null> {
+  async findById(id: EntityID): Promise<Doctor | null> {
     try {
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM doctors WHERE id = ?",
-        [id.toString()] // Usar el ID original
+        [id.getValue()] // Usar el ID original
       );
 
       const doctors = rows as any[];
@@ -21,12 +21,14 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
         row.specialty,
         row.email,
         row.phone,
-        row.id.toString() // ID va al final
+        EntityID.validate(row.id) // ID va al final
       );
       return doc;
     } catch (error) {
+      // console.log({error});
       throw CustomError.internalServerError(
-        "MySQL datasource: error finding doctor by ID"
+        "MySQL datasource: error finding doctor by ID",
+        { location: "DoctorMySQLDatasource.findById" }
       );
     }
   }
@@ -34,7 +36,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     throw new Error("Method not implemented.");
   }
 
-  async save(doctor: Doctor): Promise<Doctor | null> {
+  async save(doctor: Doctor): Promise<Doctor> {
     try {
       const [result] = await MySQLDatabase.pool.execute(
         "INSERT INTO doctors (name, specialty, email, phone) VALUES (?, ?, ?, ?)",
@@ -55,16 +57,18 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
         doctor.specialty,
         doctor.email,
         doctor.phone,
-        newId.toString() // Convertir a string para mantener consistencia
+        EntityID.validate(newId) // Convertir a string para mantener consistencia
       );
 
       return createdDoctor;
     } catch (error) {
-      throw CustomError.internalServerError((error as Error).message || "Error saving doctor in MySQL datasource");
+      throw CustomError.internalServerError(
+        (error as Error).message || "Error saving doctor in MySQL datasource"
+      );
     }
   }
 
-  async update(id: number, newDoctorData: DoctorDTO): Promise<Doctor | null> {
+  async update(id: EntityID, newDoctorData: Doctor): Promise<Doctor> {
     const [result] = await MySQLDatabase.pool.execute(
       "UPDATE doctors SET name = ?, specialty = ?, email = ?, phone = ? WHERE id = ?",
       [
@@ -72,13 +76,17 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
         newDoctorData.specialty ?? null,
         newDoctorData.email ?? null,
         newDoctorData.phone ?? null,
-        id.toString(),
+        id.getValue(),
       ]
     );
 
     const updateResult = result as any;
     if (updateResult.affectedRows === 0) {
-      return null; // No se actualizó ningún registro
+      return Promise.reject(
+        CustomError.badRequest("No records updated", {
+          location: "DoctorMySQLDatasource.update",
+        })
+      ); // No se actualizó ningún registro
     }
     // return null;
     return Doctor.create(
@@ -90,10 +98,10 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     );
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: EntityID): Promise<boolean> {
     const [result] = await MySQLDatabase.pool.execute(
       "DELETE FROM doctors WHERE id = ?",
-      [id.toString()]
+      [id.getValue()]
     );
     const deleteResult = result as any;
     return deleteResult.affectedRows > 0; // Retorna true si se eliminó al menos un registro

@@ -30,25 +30,25 @@ export class ValidationHelper {
     return null;
   }
 
-  public static validatePhone ( phone: any ): string | null {
+  // public static validatePhone ( phone: any ): string | null {
 
-    if (phone === undefined) return 'Phone is undefined';
-    if (typeof phone !== 'string') return 'Phone must be a string';
+  //   if (phone === undefined) return 'Phone is undefined';
+  //   if (typeof phone !== 'string') return 'Phone must be a string';
 
-    if (phone.trim().length === 0) return 'Phone cannot be empty';
+  //   if (phone.trim().length === 0) return 'Phone cannot be empty';
 
-    // Solo números y separadores comunes
-    const phoneRegex = /^[\d\s\-\(\)\+\.]{7,20}$/;
-    if (!phoneRegex.test(phone)) return 'Phone format is invalid';
+  //   // Solo números y separadores comunes
+  //   const phoneRegex = /^[0-9\s()+\.\-]{7,20}$/;
+  //   if (!phoneRegex.test(phone)) return 'Phone format is invalid';
 
-    // Verificar que tiene al menos 7 dígitos
-    const digitsOnly = phone.replace(/\D/g, '');
-    if (digitsOnly.length < 7 || digitsOnly.length > 15) {
-      return 'Phone must have between 7 and 15 digits';
-    }
+  //   // Verificar que tiene al menos 7 dígitos
+  //   const digitsOnly = phone.replace(/\D/g, '');
+  //   if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+  //     return 'Phone must have between 7 and 15 digits';
+  //   }
 
-    return null;
-  }
+  //   return null;
+  // }
 
   public static isValidMedicalSpecialty = ( value: any ): value is DoctorSpecialty => {
 
