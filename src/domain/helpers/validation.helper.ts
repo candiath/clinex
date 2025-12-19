@@ -9,7 +9,6 @@ export class ValidationHelper {
     if ( typeof id !== 'string' ) return 'UUID must be a string';
     if ( id.trim().length === 0 ) return 'UUID cannot be empty';
 
-    // UUID format (PostgreSQL típico)
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (uuidRegex.test(id)) return null;
 
@@ -37,11 +36,9 @@ export class ValidationHelper {
 
   //   if (phone.trim().length === 0) return 'Phone cannot be empty';
 
-  //   // Solo números y separadores comunes
   //   const phoneRegex = /^[0-9\s()+\.\-]{7,20}$/;
   //   if (!phoneRegex.test(phone)) return 'Phone format is invalid';
 
-  //   // Verificar que tiene al menos 7 dígitos
   //   const digitsOnly = phone.replace(/\D/g, '');
   //   if (digitsOnly.length < 7 || digitsOnly.length > 15) {
   //     return 'Phone must have between 7 and 15 digits';

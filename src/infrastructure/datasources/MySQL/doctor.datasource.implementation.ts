@@ -9,7 +9,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
     try {
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM doctors WHERE id = ?",
-        [id.getValue()] // Usar el ID original
+        [id.getValue()]
       );
 
       const doctors = rows as any[];
@@ -21,7 +21,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
         row.specialty,
         row.email,
         row.phone,
-        EntityID.validate(row.id) // ID va al final
+        EntityID.validate(row.id)
       );
       return doc;
     } catch (error) {
@@ -57,7 +57,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
         doctor.specialty,
         doctor.email,
         doctor.phone,
-        EntityID.validate(newId) // Convertir a string para mantener consistencia
+        EntityID.validate(newId)
       );
 
       return createdDoctor;
@@ -86,7 +86,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
         CustomError.badRequest("No records updated", {
           location: "DoctorMySQLDatasource.update",
         })
-      ); // No se actualizó ningún registro
+      );
     }
     // return null;
     return Doctor.create(
@@ -104,7 +104,7 @@ export class DoctorMySQLDatasource implements DoctorDatasource {
       [id.getValue()]
     );
     const deleteResult = result as any;
-    return deleteResult.affectedRows > 0; // Retorna true si se eliminó al menos un registro
+    return deleteResult.affectedRows > 0;
   }
 
   async list(): Promise<Doctor[]> {

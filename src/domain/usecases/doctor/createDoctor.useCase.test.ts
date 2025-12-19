@@ -95,7 +95,6 @@ describe("Create doctor use case", () => {
     createDoctorUseCase = new CreateDoctorUseCase(mockRepository);
 
     jest.spyOn(DoctorDTO, "validate").mockImplementation((data) => {
-      // Simula validación exitosa por defecto
       if (!data || typeof data !== "object") {
         return ["DoctorDTO mock: no data provided or wrong format", null];
       }

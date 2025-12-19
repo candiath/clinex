@@ -64,7 +64,6 @@ describe("ReadAllPatientsUseCase", () => {
 
   describe("Behavior verification", () => {
     it("should return an empty object if there are no patients", async () => {
-      // Verificar comportamientos específicos
       const mockPatients: Patient[] = [];
       (mockRepository.list as jest.Mock).mockResolvedValue(mockPatients);
 
