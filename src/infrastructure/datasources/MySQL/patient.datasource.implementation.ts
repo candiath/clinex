@@ -1,15 +1,16 @@
 import { MySQLDatabase } from "../../../data/mysql/mysql.init";
 import { PatientDatasource } from "../../../domain/datasources/patientDatasource";
-import { PatientDTO } from "../../../domain/dtos/patient/patient.dto";
 import { Patient } from "../../../domain/entities/patient.entity";
 import { CustomError } from "../../../domain/errors/customError";
+import { PatientInterface } from "../../../domain/interfaces/patient.interfaces";
+import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class PatientMySQLDatasource implements PatientDatasource {
-  async findById(id: number): Promise<Patient | null> {
+  async findById(id: EntityID): Promise<Patient | null> {
     try {
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM patients WHERE id = ?",
-        [id]
+        [id.getValue()]
       );
       const patients = rows as any[];
       if (patients.length === 0) return null;
@@ -58,7 +59,7 @@ export class PatientMySQLDatasource implements PatientDatasource {
     }
   }
 
-  async save(patient: Patient): Promise<Patient | null> {
+  async save(patient: Patient): Promise<Patient> {
     try {
       const [result] = await MySQLDatabase.pool.execute(
         "INSERT INTO patients (dni, first_name, last_name, birth_date, email, sex) VALUES (?, ?, ?, ?, ?, ?)",
@@ -97,7 +98,7 @@ export class PatientMySQLDatasource implements PatientDatasource {
     }
   }
 
-  async update(id: number, newPatientData: PatientDTO): Promise<boolean> {
+  async update(id: EntityID, newPatientData: PatientInterface): Promise<Patient> {
     try {
       const [result] = await MySQLDatabase.pool.execute(
         "UPDATE patients SET dni = ?, first_name = ?, last_name = ?, birth_date = ?, email = ?, sex = ? WHERE id = ?",
@@ -113,7 +114,17 @@ export class PatientMySQLDatasource implements PatientDatasource {
       );
 
       const updateResult = result as any;
-      return updateResult.affectedRows > 0;
+      return updateResult.affectedRows > 0
+        ? Patient.fromDatabase(
+            newPatientData.dni,
+            newPatientData.firstName,
+            newPatientData.lastName,
+            newPatientData.birthDate,
+            newPatientData.email || "",
+            newPatientData.sex,
+            id
+          )
+        : (() => { throw CustomError.conflict("Patient not found for update"); })();
     } catch (error) {
       throw CustomError.internalServerError(
         "MySQL datasource: error updating patient"
@@ -121,7 +132,7 @@ export class PatientMySQLDatasource implements PatientDatasource {
     }
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: EntityID): Promise<boolean> {
     try {
       const [result] = await MySQLDatabase.pool.execute(
         "DELETE FROM patients WHERE id = ?",

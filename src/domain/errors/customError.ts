@@ -1,24 +1,24 @@
 export interface CustomErrorOptions {
-  code?: string,
-  details?: any,
-  timestamp?: Date,
-  context?: any,
-  userFriendlyMessage?: string,
-  location?: string,
+  code?: string;
+  details?: any;
+  timestamp?: Date;
+  context?: any;
+  userFriendlyMessage?: string;
+  location?: string;
 }
 
 export class CustomError extends Error {
-
   public readonly code?: string;
-  public readonly details?: any;
+  public readonly details?: string;
   public readonly timestamp?: Date;
-  public readonly context?: any;
+  public readonly context?: string;
   public readonly userFriendlyMessage?: string;
+  public readonly location?: string;
 
   private constructor(
     public readonly statusCode: number = 500,
     public readonly message: string,
-    options?: CustomErrorOptions,
+    options?: CustomErrorOptions
   ) {
     super(message);
     this.name = "CustomError";
@@ -27,14 +27,22 @@ export class CustomError extends Error {
     this.timestamp = options?.timestamp ?? undefined;
     this.context = options?.context ?? undefined;
     this.userFriendlyMessage = options?.userFriendlyMessage ?? undefined;
+    this.location = options?.location ?? undefined;
 
     // Set the prototype explicitly to maintain the correct prototype chain
     Object.setPrototypeOf(this, CustomError.prototype);
   }
 
-  static badRequest(message?: string, options?: CustomErrorOptions): CustomError {
+  static badRequest(
+    message?: string,
+    options?: CustomErrorOptions
+  ): CustomError {
     // 400: The server cannot process the request due to client error (e.g., malformed request syntax).
-    return new CustomError(400, (message = message || "Bad Request"), options);
+    return new CustomError(400, (message = message || "Bad Request"), {
+      code: "BAD_REQUEST",
+      timestamp: new Date(),
+      ...options,
+    });
   }
   // static unauthorized(message?: string): CustomError {
   //   // 401: Authentication is required and has failed or has not yet been provided.
@@ -46,11 +54,15 @@ export class CustomError extends Error {
   // }
   // static forbidden(message?: string): CustomError {
   //   // 403: The client does not have access rights to the content.
-  //   return new CustomError(403, (message = message || "Forbidden"));
+  //   return new CustomError(403, (message = message || "Forbidkden"));
   // }
   static notFound(message?: string, options?: CustomErrorOptions): CustomError {
     // 404: The server can not find the requested resource.
-    return new CustomError(404, (message = message || "Not Found"), options);
+    return new CustomError(404, (message = message || "Not Found"), {
+      code: "NOT_FOUND",
+      timestamp: new Date(),
+      ...options,
+    });
   }
   // static requestTimeout(message?: string): CustomError {
   //   // 408: The server timed out waiting for the request.
@@ -58,7 +70,7 @@ export class CustomError extends Error {
   // }
   static conflict(message?: string): CustomError {
     // 409: The request could not be completed due to a conflict with the current state of the resource.
-    return new CustomError(409, message || "Conflict");
+    return new CustomError(409, message = message || "Conflict");
   }
   // static gone(message?: string): CustomError {
   //   // 410: The resource requested is no longer available and will not be available again.
@@ -112,13 +124,19 @@ export class CustomError extends Error {
   //   // 451: The server is denying access to the resource as a consequence of a legal demand.
   //   return new CustomError(451, message || "Unavailable For Legal Reasons");
   // }
-  static internalServerError(message?: string, options?: CustomErrorOptions): CustomError {
+  static internalServerError(
+    message?: string,
+    options?: CustomErrorOptions
+  ): CustomError {
     // 500: A generic error message, given when no more specific message is suitable.
-    return new CustomError(500, message || "Internal Server Error", options);
+    return new CustomError(500, message || "Internal Server Error", { ...options, code: "INTERNAL_SERVER_ERROR" });
   }
-  static notImplemented(message?: string, options?: CustomErrorOptions): CustomError {
+  static notImplemented(
+    message?: string,
+    options?: CustomErrorOptions
+  ): CustomError {
     // 501: The server either does not recognize the request method, or it lacks the ability to fulfill the request.
-    return new CustomError(501, message || "Not Implemented", options);
+    return new CustomError(501, message || "Not Implemented", { ...options, code: "NOT_IMPLEMENTED" });
   }
   // static badGateway(message?: string): CustomError {
   //   // 502: The server was acting as a gateway or proxy and received an invalid response from the upstream server.
@@ -141,7 +159,7 @@ export class CustomError extends Error {
     return new CustomError(
       500,
       error.message || "An unexpected error occurred",
-      options,
+      { ...options, code: "UNHANDLED_ERROR" }
     );
   }
 }

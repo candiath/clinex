@@ -1,9 +1,10 @@
 import { Appointment } from "../entities/appointment.entity";
+import { EntityID } from "../valueObjects/entityID";
 export interface AppointmentDatasource {
 
-  create(appointment: Appointment): Promise<Appointment | null>;
-  getAll(): Promise<Appointment[] | null>;
-  getById(id: number): Promise<Appointment | null>;
-  update(id: number, appointment: Appointment): Promise<Appointment | null>;
-  delete(id: number): Promise<boolean>;
+  create(appointment: Appointment): Promise<Appointment>;
+  getAll(): Promise<Appointment[]>;
+  getById(id: EntityID): Promise<Appointment | null>;
+  update(id: EntityID, appointment: Appointment): Promise<Appointment>;
+  delete(id: EntityID): Promise<boolean>;
 }

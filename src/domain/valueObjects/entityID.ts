@@ -1,8 +1,26 @@
 import { CustomError } from "../errors/customError";
+import * as z from "zod";
 
 export class EntityID {
-  private constructor(private readonly id: any) {}
+  private constructor(private readonly id: number) {}
 
+  static validate(id: string | number): EntityID {
+    const parsed = z.coerce.number().int().positive().safeParse(id);
+    if (!parsed.success) {
+      throw CustomError.badRequest(
+        "ID is not a valid positive integer string",
+        { location: "EntityID.validate" }
+      );
+    }
+    return new EntityID(parsed.data);
+  }
+
+  
+
+  
+  /**
+   * @deprecated
+   */
   static create(id: any): EntityID {
     if (id instanceof EntityID) return id;
     const intValue = parseInt(id);
@@ -25,5 +43,9 @@ export class EntityID {
 
   getValue() {
     return this.id;
+  }
+
+  toString(): string {
+    return this.id.toString();
   }
 }

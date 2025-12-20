@@ -2,9 +2,10 @@ import { MySQLDatabase } from "../../../data/mysql/mysql.init";
 import { AppointmentDatasource } from "../../../domain/datasources/appointment.datasource";
 import { Appointment } from "../../../domain/entities/appointment.entity";
 import { CustomError } from "../../../domain/errors/customError";
+import { EntityID } from "../../../domain/valueObjects/entityID";
 
 export class AppointmentMySQLDatasource implements AppointmentDatasource {
-  async getById(id: number): Promise<Appointment | null> {
+  async getById(id: EntityID): Promise<Appointment | null> {
     try {
       const [rows] = await MySQLDatabase.pool.execute(
         "SELECT * FROM appointments where id = ?",
@@ -30,7 +31,7 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
     }
   }
 
-  async create(appointment: Appointment): Promise<Appointment | null> {
+  async create(appointment: Appointment): Promise<Appointment> {
     try {
       // todo: enforce timedate format
       // console.log(`INSERT INTO appointments (patientId, doctorId, dateTime, status, reason, notes) VALUES (?, ?, ?, ?, ?, ?)`)
@@ -67,7 +68,7 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
     }
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: EntityID): Promise<boolean> {
     try {
       // const validationError = ValidationHelper.validateEntityID(id);
       // if (validationError)
@@ -93,7 +94,7 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
     }
   }
 
-  async update(id: number, appointment: Appointment): Promise<Appointment | null> {
+  async update(id: EntityID, appointment: Appointment): Promise<Appointment> {
     try {
       // console.log(`UPDATE appointments SET patientId = ?, doctorId = ?, dateTime = ?, status = ?, reason = ?, notes = ? WHERE id = ?`);
       const [result] = await MySQLDatabase.pool.execute(
@@ -131,7 +132,7 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
     }
   }
 
-  async getAll(): Promise<Appointment[] | null> {
+  async getAll(): Promise<Appointment[]> {
     // todo: add filtering / pagination
     try {
       const [rows] = await MySQLDatabase.pool.execute(

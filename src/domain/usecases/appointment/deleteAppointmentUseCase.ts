@@ -1,5 +1,5 @@
-import { CustomError } from "../../errors/customError";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
+import { EntityID } from "../../valueObjects/entityID";
 
 
 export class DeleteAppointmentUseCase {
@@ -10,8 +10,7 @@ export class DeleteAppointmentUseCase {
     this.repository = repository;
   }
 
-  public async execute (id: number) {
-    if ( isNaN(id) ) throw CustomError.badRequest("Invalid appointment ID");
+  public async execute (id: EntityID): Promise<boolean> {
     return this.repository.delete(id);
   }
 }

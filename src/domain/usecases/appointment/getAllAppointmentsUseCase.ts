@@ -10,7 +10,6 @@ export class GetAllAppointmentsUseCase {
   }
   public async execute () {
 
-    // TODO: try catch?
     return this.repository.getAll();
 
   }

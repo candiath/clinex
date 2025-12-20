@@ -1,4 +1,5 @@
 import { DoctorSpecialty } from '../types/doctorSpecialty.type'
+import { EntityID } from '../valueObjects/entityID';
 
 export class Doctor {
 
@@ -7,7 +8,7 @@ export class Doctor {
     public specialty: DoctorSpecialty, 
     public email: string, 
     public phone: string,
-    public id?: number, 
+    public id?: EntityID, 
   ) {
     this.name = name;
     this.specialty = specialty;
@@ -18,11 +19,11 @@ export class Doctor {
 
   public static readonly mandatoryFields = ['name', 'specialty', 'email', 'phone'];
 
-  static create( name: string, specialty: DoctorSpecialty, email: string, phone: string, id?: number ): Doctor {
+  static create( name: string, specialty: DoctorSpecialty, email: string, phone: string, id?: EntityID ): Doctor {
     return new Doctor(name, specialty, email, phone, id);
   }
 
-  static fromDatabase( name: string, specialty: DoctorSpecialty, email: string, phone: string, id: number ): Doctor {
+  static fromDatabase( name: string, specialty: DoctorSpecialty, email: string, phone: string, id: EntityID ): Doctor {
     // TODO: issue #30
     return new Doctor(name, specialty, email, phone, id);
   }

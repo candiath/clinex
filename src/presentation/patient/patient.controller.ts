@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { PatientRepoImplementation } from "../../infrastructure/repositories/patientRepositoryImplementation";
-// import { PatientMySQLDatasource } from "../../infrastructure/datasources/MySQL/patient.datasource.implementation"; // To use MySQL
 import { CreatePatientUseCase } from "../../domain/usecases/patient/createPatient.useCase";
 import { DeletePatientUseCase } from "../../domain/usecases/patient/deletePatient.useCase";
 import { ReadAllPatientsUseCase } from "../../domain/usecases/patient/readAllPatients.useCase";
@@ -8,12 +7,12 @@ import { UpdatePatientUseCase } from "../../domain/usecases/patient/updatePatien
 import { ReadPatientByIdUseCase } from "../../domain/usecases/patient/readPatientById.useCase";
 import { ApiResponse } from "../../domain/helpers/apiResponse.helper";
 import { PatientMySQLDatasource } from "../../infrastructure/datasources/MySQL/patient.datasource.implementation";
-import { PatientDTO } from "../../domain/dtos/patient/patient.dto";
+import { validate } from "../../domain/dtos/patient/patient.dto";
+import { EntityID } from "../../domain/valueObjects/entityID";
+import { PatientInterface } from "../../domain/interfaces/patient.interfaces";
 
-// Currently using MongoDB - to switch to MySQL, uncomment the import above and change this line:
-// const repo = new PatientRepoImplementation(new MongoPatientDatasource());
-const repo = new PatientRepoImplementation(new PatientMySQLDatasource()); // Use this for MySQL
 
+const repo = new PatientRepoImplementation(new PatientMySQLDatasource());
 const createPatientUseCase = new CreatePatientUseCase(repo);
 const readPatientByIdUseCase = new ReadPatientByIdUseCase(repo);
 const readAllPatientsUseCase = new ReadAllPatientsUseCase(repo);
@@ -22,14 +21,14 @@ const updatePatientUseCase = new UpdatePatientUseCase(repo);
 
 export class PatientController {
   createPatient = async (req: Request, res: Response): Promise<void> => {
-    const [, dto] = PatientDTO.validate(req.body);
-    const result = await createPatientUseCase.execute(dto!);
+    const dto: PatientInterface = validate(req.body);
+    const result = await createPatientUseCase.execute(dto);
     res.status(201).json(ApiResponse.success(result, "Patient created successfully"));
   };
 
   getPatientById = async (req: Request, res: Response): Promise<void> => {
-    const IDdto= PatientDTO.validateID(req.params.id);
-    const result = await readPatientByIdUseCase.execute(IDdto);
+    // const IDdto = EntityIDSchema.parse(req.params.id);
+    const result = await readPatientByIdUseCase.execute(EntityID.validate(req.params.id));
     const responseEnvelope = ApiResponse.success(result, "Patient fetched successfully");
     res.status(200).json(responseEnvelope);
     return;
@@ -43,15 +42,15 @@ export class PatientController {
   };
 
   updatePatient = async (req: Request, res: Response): Promise<void> => {
-    const id = PatientDTO.validateID(req.params.id);
-    const [, dto] = PatientDTO.validate(req.body);
-    const result = await updatePatientUseCase.execute(id!, dto!);
+    const id = EntityID.validate(req.params.id);
+    const dto: PatientInterface = validate(req.body);
+    const result = await updatePatientUseCase.execute(id, dto);
     res.status(200).json(ApiResponse.success(result, "Patient updated successfully"));
     return;
   };
 
   deletePatient = async (req: Request, res: Response): Promise<void> => {
-    const id = PatientDTO.validateID(req.params.id);
+    const id = EntityID.validate(req.params.id);
     const result = await deletePatientUseCase.execute(id);
     const responseEnvelope = ApiResponse.success(result, "Patient deleted successfully");
     res.status(200).json(responseEnvelope);

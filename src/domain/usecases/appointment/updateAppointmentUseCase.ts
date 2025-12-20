@@ -1,6 +1,7 @@
-import { AppointmentDTO } from "../../dtos/appointment/appointment.dto";
-import { CustomError } from "../../errors/customError";
+import { Appointment } from "../../entities/appointment.entity";
+import { AppointmentInterface } from "../../interfaces/appointment.interfaces";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
+import { EntityID } from "../../valueObjects/entityID";
 
 
 export class UpdateAppointmentUseCase {
@@ -12,9 +13,13 @@ export class UpdateAppointmentUseCase {
   }
 
 
-  public async execute (id: number, data: AppointmentDTO) {
-
-    if ( isNaN(id) ) throw CustomError.badRequest("Invalid appointment ID");
-    return await this.repository.update(id, data);
+  public async execute (id: EntityID, data: AppointmentInterface): Promise<Appointment> {
+    const newAppointment = Appointment.create(
+      data.patientId,
+      data.doctorId,
+      data.date,
+      data.status
+    );
+    return await this.repository.update(id, newAppointment);
   }
 }
