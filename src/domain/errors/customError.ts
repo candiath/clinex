@@ -70,7 +70,7 @@ export class CustomError extends Error {
   // }
   static conflict(message?: string): CustomError {
     // 409: The request could not be completed due to a conflict with the current state of the resource.
-    return new CustomError(409, message || "Conflict");
+    return new CustomError(409, message = message || "Conflict");
   }
   // static gone(message?: string): CustomError {
   //   // 410: The resource requested is no longer available and will not be available again.

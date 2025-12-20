@@ -11,17 +11,9 @@ export class Appointment {
     public notes?: string,
     public id?: EntityID,
   ) {
-    this.patientId = patientId;
-    this.doctorId = doctorId;
-    this.dateTime = dateTime;
-    this.status = status;
-    this.reason = reason;
-    this.notes = notes;
-    this.id = id;
   }
 
-
-  static create(
+  public static create(
     patientId: EntityID,
     doctorId: EntityID, 
     dateTime: Date,

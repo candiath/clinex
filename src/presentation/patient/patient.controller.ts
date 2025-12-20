@@ -22,7 +22,7 @@ const updatePatientUseCase = new UpdatePatientUseCase(repo);
 export class PatientController {
   createPatient = async (req: Request, res: Response): Promise<void> => {
     const dto: PatientInterface = validate(req.body);
-    const result = await createPatientUseCase.execute(dto!);
+    const result = await createPatientUseCase.execute(dto);
     res.status(201).json(ApiResponse.success(result, "Patient created successfully"));
   };
 
@@ -44,7 +44,7 @@ export class PatientController {
   updatePatient = async (req: Request, res: Response): Promise<void> => {
     const id = EntityID.validate(req.params.id);
     const dto: PatientInterface = validate(req.body);
-    const result = await updatePatientUseCase.execute(id!, dto!);
+    const result = await updatePatientUseCase.execute(id, dto);
     res.status(200).json(ApiResponse.success(result, "Patient updated successfully"));
     return;
   };
