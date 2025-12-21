@@ -44,11 +44,15 @@ export class AppRoutes {
     router.use('/api/patients', PatientRoutes.routes);
     router.use('/api/doctors', DoctorRoutes.routes);
     router.use('/api/appointments', AppointmentRoutes.routes);
+    
+    // Middlewares - must come BEFORE catch-all
+    router.use(responseEnvelope);
+    router.use(errorHandler);
+    
+    // Catch-all 404 - must be LAST
     router.use('/', (req, res) => {
       res.status(404).json({ error: "Resource not Found", url: req.originalUrl });
     });
-    router.use(responseEnvelope);
-    router.use(errorHandler); // <-- Esto captura errores no manejados
     
     return router;
   }

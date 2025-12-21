@@ -8,4 +8,6 @@ module.exports = {
   transform: {
     ...tsJestTransformCfg,
   },
+  // Setup file to load .env.test before integration tests
+  setupFiles: ['<rootDir>/src/tests/setup.ts'],
 };

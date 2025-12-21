@@ -16,16 +16,18 @@ export class Server {
     this.port = options.port;
     this.routes = options.routes;
     this.publicPath = options.publicPath;
+    
+    // Configure middlewares immediately
+    this.app.use( express.json() )
+    this.app.use( express.urlencoded( { extended: true }) );
+    
+    // Mount routes
+    this.app.use( this.routes );
   }
 
   async start() {
-    // Middlewares
-    this.app.use( express.json() )
-    this.app.use( express.urlencoded( { extended: true }) );
-    // this.app.use( this.publicPath, express.static( 'public' ));
-
-    // Routes
-    this.app.use( this.routes );
+    // Middlewares and routes already configured in constructor
+    // No need to reconfigure here
 
     return new Promise<void>( ( resolve, reject ) => {
       this.serverListener = this.app.listen( this.port, () => {
