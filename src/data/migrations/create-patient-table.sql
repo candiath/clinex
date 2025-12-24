@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS patients (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_patient_dni ON patients(dni);
-CREATE INDEX IF NOT EXISTS idx_patient_email ON patients(email);
-CREATE INDEX IF NOT EXISTS idx_patient_active ON patients(is_active);
+CREATE INDEX idx_patient_dni ON patients(dni);
+CREATE INDEX idx_patient_email ON patients(email);
+CREATE INDEX idx_patient_active ON patients(is_active);

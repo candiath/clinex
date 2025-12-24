@@ -23,7 +23,8 @@ export class PatientController {
   createPatient = async (req: Request, res: Response): Promise<void> => {
     const dto: PatientInterface = validate(req.body);
     const result = await createPatientUseCase.execute(dto);
-    res.status(201).json(ApiResponse.success(result, "Patient created successfully"));
+    res.status(201).json({ patient: result });
+    return;
   };
 
   getPatientById = async (req: Request, res: Response): Promise<void> => {

@@ -14,9 +14,19 @@ export class UpdatePatientUseCase {
         location: "UpdatePatientUseCase",
       });
 
+    // Merge new data with existing data (for partial updates)
+    const mergedData: PatientInterface = {
+      dni: data.dni ?? existingPatient.dni,
+      firstName: data.firstName ?? existingPatient.firstName,
+      lastName: data.lastName ?? existingPatient.lastName,
+      birthDate: data.birthDate ?? existingPatient.birthDate,
+      email: data.email ?? existingPatient.email,
+      sex: data.sex ?? existingPatient.sex,
+    };
+
     const updatedPatient = await this.repository.update(
-      existingPatient.id!,
-      data
+      id,
+      mergedData
     );
 
     return updatedPatient;

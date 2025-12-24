@@ -20,6 +20,6 @@ CREATE TABLE IF NOT EXISTS doctors (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_doctor_email ON doctors(email);
-CREATE INDEX IF NOT EXISTS idx_doctor_specialty ON doctors(specialty);
-CREATE INDEX IF NOT EXISTS idx_doctor_active ON doctors(is_active);
+CREATE INDEX idx_doctor_email ON doctors(email);
+CREATE INDEX idx_doctor_specialty ON doctors(specialty);
+CREATE INDEX idx_doctor_active ON doctors(is_active);

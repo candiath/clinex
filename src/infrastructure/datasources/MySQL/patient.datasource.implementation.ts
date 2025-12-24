@@ -99,37 +99,36 @@ export class PatientMySQLDatasource implements PatientDatasource {
   }
 
   async update(id: EntityID, newPatientData: PatientInterface): Promise<Patient> {
-    try {
-      const [result] = await MySQLDatabase.pool.execute(
-        "UPDATE patients SET dni = ?, first_name = ?, last_name = ?, birth_date = ?, email = ?, sex = ? WHERE id = ?",
-        [
-          newPatientData.dni,
-          newPatientData.firstName,
-          newPatientData.lastName,
-          newPatientData.birthDate,
-          newPatientData.email || "",
-          newPatientData.sex,
-          id.toString(),
-        ]
-      );
+    const [result] = await MySQLDatabase.pool.execute(
+      "UPDATE patients SET dni = ?, first_name = ?, last_name = ?, birth_date = ?, email = ?, sex = ? WHERE id = ?",
+      [
+        newPatientData.dni,
+        newPatientData.firstName,
+        newPatientData.lastName,
+        newPatientData.birthDate,
+        newPatientData.email || "",
+        newPatientData.sex,
+        id.getValue(),
+      ]
+    );
 
-      const updateResult = result as any;
-      return updateResult.affectedRows > 0
-        ? Patient.fromDatabase(
-            newPatientData.dni,
-            newPatientData.firstName,
-            newPatientData.lastName,
-            newPatientData.birthDate,
-            newPatientData.email || "",
-            newPatientData.sex,
-            id
-          )
-        : (() => { throw CustomError.conflict("Patient not found for update"); })();
-    } catch (error) {
-      throw CustomError.internalServerError(
-        "MySQL datasource: error updating patient"
+    const updateResult = result as any;
+    if (updateResult.affectedRows === 0) {
+      return Promise.reject(
+        CustomError.badRequest("No records updated", {
+          location: "PatientMySQLDatasource.update",
+        })
       );
     }
+    return Patient.fromDatabase(
+      newPatientData.dni,
+      newPatientData.firstName,
+      newPatientData.lastName,
+      newPatientData.birthDate,
+      newPatientData.email || "",
+      newPatientData.sex,
+      id
+    );
   }
 
   async delete(id: EntityID): Promise<boolean> {

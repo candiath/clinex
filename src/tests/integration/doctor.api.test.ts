@@ -1,11 +1,12 @@
 import request from "supertest";
 import { config } from "dotenv";
 import express from "express";
-import { TestDatabaseHelper } from "../helpers/testDatabase.helper";
 import { TestServerHelper } from "../helpers/testServer.helper";
-import { TestDataFactory } from "../helpers/testData.factory";
+import { TestDataFactory } from "../helpers/doctor.testData.factory";
 import { AppRoutes } from "../../presentation/routes";
 import { DoctorSpecialty } from "../../domain/types/doctorSpecialty.type";
+import { TestDatabaseBaseHelper } from "../helpers/testDatabaseBase.helper";
+import {DoctorTestDatabaseHelper} from '../helpers/doctorTestDatabase.helper'
 
 // Load test environment variables
 config({ path: ".env.test" });
@@ -31,14 +32,14 @@ describe("Doctor API Integration Tests", () => {
 
   // Setup: Connect to database and create server
   beforeAll(async () => {
-    await TestDatabaseHelper.connect();
+    await TestDatabaseBaseHelper.connect();
     app = TestServerHelper.createTestServer(AppRoutes.routes);
     console.log("🧪 Integration test environment ready");
   });
 
   // Teardown: Disconnect from database
   afterAll(async () => {
-    await TestDatabaseHelper.disconnect();
+    await TestDatabaseBaseHelper.disconnect();
     TestServerHelper.cleanup();
     console.log("🧹 Integration test environment cleaned up");
   });
@@ -46,7 +47,7 @@ describe("Doctor API Integration Tests", () => {
   // Optional: Clear data between test suites for isolation
   // Uncomment if tests are interfering with each other
   // beforeEach(async () => {
-  //   await TestDatabaseHelper.clearDoctorsTable();
+  //   await TestDatabaseBaseHelper.clearDoctorsTable();
   // });
 
   describe("POST /api/doctors", () => {
@@ -68,7 +69,7 @@ describe("Doctor API Integration Tests", () => {
         expect(response.body.doctor.phone).toBe(doctorData.phone);
 
         // Verify doctor was saved in database
-        const savedDoctor = await TestDatabaseHelper.getDoctorByEmail(doctorData.email);
+        const savedDoctor = await DoctorTestDatabaseHelper.getDoctorByEmail(doctorData.email);
         expect(savedDoctor).toBeDefined();
         expect(savedDoctor?.name).toBe(doctorData.name);
       });
@@ -80,7 +81,7 @@ describe("Doctor API Integration Tests", () => {
         await request(app).post("/api/doctors").send(doctor1).expect(201);
         await request(app).post("/api/doctors").send(doctor2).expect(201);
 
-        const count = await TestDatabaseHelper.getDoctorCount();
+        const count = await DoctorTestDatabaseHelper.getDoctorCount();
         expect(count).toBeGreaterThanOrEqual(2);
       });
     });
@@ -141,7 +142,7 @@ describe("Doctor API Integration Tests", () => {
       it("should get an existing doctor by ID and return 200", async () => {
         // Seed a doctor in the database
         const doctorData = TestDataFactory.createValidDoctor();
-        const doctorId = await TestDatabaseHelper.seedDoctor(doctorData);
+        const doctorId = await DoctorTestDatabaseHelper.seedDoctor(doctorData);
 
         const response = await request(app)
           .get(`/api/doctors/${doctorId}`)
@@ -188,7 +189,7 @@ describe("Doctor API Integration Tests", () => {
         // Seed multiple doctors
         const doctors = TestDataFactory.createValidDoctors(3);
         for (const doctor of doctors) {
-          await TestDatabaseHelper.seedDoctor(doctor);
+          await DoctorTestDatabaseHelper.seedDoctor(doctor);
         }
 
         const response = await request(app)
@@ -203,7 +204,7 @@ describe("Doctor API Integration Tests", () => {
 
       it("should return empty array when no doctors exist", async () => {
         // Clear all doctors first
-        await TestDatabaseHelper.clearDoctorsTable();
+        await DoctorTestDatabaseHelper.clearDoctorsTable();
 
         const response = await request(app)
           .get("/api/doctors")
@@ -222,7 +223,7 @@ describe("Doctor API Integration Tests", () => {
       it("should update an existing doctor and return 200", async () => {
         // Seed a doctor
         const originalData = TestDataFactory.createValidDoctor();
-        const doctorId = await TestDatabaseHelper.seedDoctor(originalData);
+        const doctorId = await DoctorTestDatabaseHelper.seedDoctor(originalData);
 
         // Update data
         const updateData = {
@@ -240,14 +241,14 @@ describe("Doctor API Integration Tests", () => {
         expect(response.body.data.specialty).toBe(updateData.specialty);
 
         // Verify update in database
-        const updatedDoctor = await TestDatabaseHelper.getDoctorById(doctorId);
+        const updatedDoctor = await DoctorTestDatabaseHelper.getDoctorById(doctorId);
         expect(updatedDoctor?.name).toBe(updateData.name);
         expect(updatedDoctor?.specialty).toBe(updateData.specialty);
       });
 
       it("should partially update a doctor (only name)", async () => {
         const originalData = TestDataFactory.createValidDoctor();
-        const doctorId = await TestDatabaseHelper.seedDoctor(originalData);
+        const doctorId = await DoctorTestDatabaseHelper.seedDoctor(originalData);
 
         const updateData = { name: "Dr. Partially Updated" };
 
@@ -277,7 +278,7 @@ describe("Doctor API Integration Tests", () => {
 
       it("should return 400 when update data is invalid", async () => {
         const doctorData = TestDataFactory.createValidDoctor();
-        const doctorId = await TestDatabaseHelper.seedDoctor(doctorData);
+        const doctorId = await DoctorTestDatabaseHelper.seedDoctor(doctorData);
 
         const invalidUpdate = { email: "invalid-email" };
 
@@ -296,7 +297,7 @@ describe("Doctor API Integration Tests", () => {
       it("should delete an existing doctor and return 200", async () => {
         // Seed a doctor
         const doctorData = TestDataFactory.createValidDoctor();
-        const doctorId = await TestDatabaseHelper.seedDoctor(doctorData);
+        const doctorId = await DoctorTestDatabaseHelper.seedDoctor(doctorData);
 
         const response = await request(app)
           .delete(`/api/doctors/${doctorId}`)
@@ -305,7 +306,7 @@ describe("Doctor API Integration Tests", () => {
         expect(response.body).toHaveProperty("success", true);
 
         // Verify doctor was deleted from database
-        const deletedDoctor = await TestDatabaseHelper.getDoctorById(doctorId);
+        const deletedDoctor = await DoctorTestDatabaseHelper.getDoctorById(doctorId);
         expect(deletedDoctor).toBeNull();
       });
     });

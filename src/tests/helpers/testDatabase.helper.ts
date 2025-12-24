@@ -4,6 +4,7 @@ import { EntityID } from "../../domain/valueObjects/entityID";
 /**
  * Helper for managing test database operations
  * Provides setup, teardown, and utility functions for integration tests
+ * @deprecated Use DoctorTestDatabaseHelper and PatientTestDatabaseHelper instead
  */
 export class TestDatabaseHelper {
   private static isConnected = false;
