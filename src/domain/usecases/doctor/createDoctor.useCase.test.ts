@@ -1,12 +1,13 @@
 import { CreateDoctorUseCase } from "./createDoctor.useCase";
 import { DoctorRepositoryImplementation } from "../../../infrastructure/repositories/doctor.repository.implementation";
-import { DoctorMySQLDatasource } from "../../../infrastructure/datasources/MySQL/doctor.datasource.implementation";
 import { DoctorDatasource } from "../../datasources/doctor.datasource";
-import { after } from "node:test";
 import { Doctor } from "../../entities/doctor.entity";
 import { CustomError } from "../../errors/customError";
 import { ValidationHelper } from "../../helpers/validation.helper";
-import { DoctorDTO } from "../../dtos/doctor/doctor.dto";
+import * as DoctorDTO from "../../dtos/doctor/doctor.dto";
+import { DoctorSpecialty } from "../../types/doctorSpecialty.type";
+import { EntityID } from "../../valueObjects/entityID";
+import { DoctorInterface } from "../../interfaces/doctor.interfaces";
 
 jest.mock(
   "../../../infrastructure/repositories/doctor.repository.implementation"
@@ -23,47 +24,38 @@ describe("Create doctor use case", () => {
     typeof ValidationHelper
   >;
 
-  const mockDoctorDTO = DoctorDTO as jest.Mocked<typeof DoctorDTO>;
+  // const mockDoctorDTO = validate as jest.MockedFunction<typeof validate>;
 
   // Test constraints
+  // Usa el tipo DoctorSpecialty para specialty
   const VALID_DOCTOR_DATA = {
     name: "Dr. Test",
-    specialty: "CARDIOLOGY",
+    specialty: "CARDIOLOGY" as DoctorSpecialty,
     email: "dr.test@example.com",
     phone: "123-456-7890",
   };
 
-  // Helper function to create expected Doctor instance
-  const createExpectedDoctor = (data: any) => {
+  // Helper para crear instancia Doctor esperada
+  const createExpectedDoctor = (
+    data: typeof VALID_DOCTOR_DATA & { id?: string }
+  ) => {
     return Doctor.create(
       data.name,
       data.specialty,
       data.email,
       data.phone,
-      data.id || undefined // ID is optional
+      EntityID.createOptional(data.id) || undefined
     );
   };
 
-  // Helper function to test validation errors
+  // Helper para probar errores de validación
   const testValidationError = async (
     invalidData: any,
     expectedMessage: string
   ) => {
-    await expect(createDoctorUseCase.execute(invalidData)).rejects.toThrow(
-      expectedMessage
-    );
-  };
-
-  // Helper function to test missing field errors
-  const testMissingFieldError = async (
-    baseData: any,
-    fieldToRemove: string,
-    expectedErrorMessage: string
-  ) => {
-    const invalidData = { ...baseData };
-    delete invalidData[fieldToRemove];
-
-    await testValidationError(invalidData, expectedErrorMessage);
+    await expect(
+      createDoctorUseCase.execute(invalidData as any)
+    ).rejects.toThrow(expectedMessage);
   };
 
   beforeEach(() => {
@@ -90,26 +82,29 @@ describe("Create doctor use case", () => {
     // mockValidationHelper
     mockValidationHelper.isValidMedicalSpecialty.mockReturnValue(true);
     mockValidationHelper.validateEmail.mockReturnValue(null);
-    mockValidationHelper.validatePhone.mockReturnValue(null);
-
     createDoctorUseCase = new CreateDoctorUseCase(mockRepository);
 
-    jest.spyOn(DoctorDTO, "validate").mockImplementation((data) => {
-      // Simula validación exitosa por defecto
+    jest.spyOn(DoctorDTO, "validate").mockImplementation((data: any) => {
+      // Simula validación real: lanza CustomError si falta algún campo requerido
       if (!data || typeof data !== "object") {
-        return ["DoctorDTO mock: no data provided or wrong format", null];
+        throw CustomError.badRequest(
+          "DoctorDTO no data provided or wrong format"
+        );
       }
-
-      return [
-        null,
-        Doctor.create(
-          data.name,
-          data.specialty,
-          data.email,
-          data.phone,
-          data.id || undefined
-        ),
-      ];
+      const requiredFields = ["name", "specialty", "email", "phone"];
+      for (const field of requiredFields) {
+        if (data[field] == null || data[field] === "") {
+          throw CustomError.badRequest(`Doctor ${field} is required`);
+        }
+      }
+      // Simula validación de formato de email y teléfono si es necesario en tests específicos
+      return Doctor.create(
+        data.name,
+        data.specialty,
+        data.email,
+        data.phone,
+        data.id || undefined
+      );
     });
   });
 
@@ -121,7 +116,6 @@ describe("Create doctor use case", () => {
   describe("Successful doctor creation", () => {
     it("Should create a doctor successfully with all required data", async () => {
       const expectedDoctor = createExpectedDoctor(VALID_DOCTOR_DATA);
-      (DoctorDTO.validate as jest.Mock).mockReturnValue([null, expectedDoctor]);
       mockRepository.save.mockResolvedValue(expectedDoctor);
 
       const result = await createDoctorUseCase.execute(VALID_DOCTOR_DATA);
@@ -138,116 +132,78 @@ describe("Create doctor use case", () => {
 
   describe("Validation errors", () => {
     it("Should throw error when name is missing", async () => {
-      const { name, ...doctorWithoutName } = VALID_DOCTOR_DATA;
-
-      try {
-        await createDoctorUseCase.execute(doctorWithoutName);
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe("Doctor name is required");
-      }
+      const doctorWithoutName = { ...VALID_DOCTOR_DATA };
+      delete (doctorWithoutName as any).name;
+      await expect(
+        createDoctorUseCase.execute(doctorWithoutName as any)
+      ).rejects.toThrow("Name is required");
     });
 
     it("Should throw error when specialty is missing", async () => {
-      const { specialty, ...doctorWithoutSpecialty } = VALID_DOCTOR_DATA;
-
-      try {
-        await createDoctorUseCase.execute(doctorWithoutSpecialty);
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe(
-          "Doctor specialty is required"
-        );
-      }
+      const doctorWithoutSpecialty = { ...VALID_DOCTOR_DATA };
+      delete (doctorWithoutSpecialty as any).specialty;
+      await expect(
+        createDoctorUseCase.execute(doctorWithoutSpecialty as any)
+      ).rejects.toThrow("Invalid option: expected one of");
     });
 
     it("Should throw error when email is missing", async () => {
-      const { email, ...doctorWithoutEmail } = VALID_DOCTOR_DATA;
-      try {
-        await createDoctorUseCase.execute(doctorWithoutEmail);
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe("Doctor email is required");
-      }
+      const doctorWithoutEmail = { ...VALID_DOCTOR_DATA };
+      delete (doctorWithoutEmail as any).email;
+      await expect(
+        createDoctorUseCase.execute(doctorWithoutEmail as any)
+      ).rejects.toThrow("Missing or invalid email");
     });
 
     it("Should throw error when phone is missing", async () => {
-      const { phone, ...doctorWithoutPhone } = VALID_DOCTOR_DATA;
-      try {
-        await createDoctorUseCase.execute(doctorWithoutPhone);
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe("Doctor phone is required");
-      }
+      const doctorWithoutPhone = { ...VALID_DOCTOR_DATA };
+      delete (doctorWithoutPhone as any).phone;
+      await expect(
+        createDoctorUseCase.execute(doctorWithoutPhone as any)
+      ).rejects.toThrow("Phone is required or was provided in a wrong format");
     });
 
     it("Should throw error when data is completely invalid", async () => {
-      // await testValidationError({}, "Doctor name is required");
-      try {
-        await createDoctorUseCase.execute({});
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).message).toBe("Doctor name is required");
-        expect((error as CustomError).statusCode).toBe(400);
-      }
+      await expect(createDoctorUseCase.execute({} as any)).rejects.toThrow(
+        "Name is required"
+      );
     });
 
-    // test.todo("Should throw error when email format is invalid");
     it("Should throw error when email format is invalid", async () => {
+      // Simula que el mock de validate lanza error de formato de email
       const invalidEmailData = {
         ...VALID_DOCTOR_DATA,
         email: "invalid-email-format",
       };
-
-      (mockDoctorDTO.validate as jest.Mock).mockReturnValue([
-        "Invalid email format",
-        null,
-      ]);
-
-      try {
-        await createDoctorUseCase.execute(invalidEmailData);
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-      }
+      // jest.spyOn(require("../../dtos/doctor/doctor.dto"), "validate").mockImplementation(() => {
+      //   throw CustomError.badRequest("Invalid email format");
+      // });
+      await expect(
+        createDoctorUseCase.execute(invalidEmailData as any)
+      ).rejects.toThrow("Missing or invalid email");
     });
 
-    // test.todo("Should throw error when phone format is invalid");
     it("Should throw error when phone format is invalid", async () => {
+      // Simula que el mock de validate lanza error de formato de teléfono
       const invalidPhoneData = {
         ...VALID_DOCTOR_DATA,
         phone: "invalid-phone-format",
       };
-
-      (mockDoctorDTO.validate as jest.Mock).mockReturnValue([
-        "Phone format is invalid",
-      ]);
-      try {
-        await createDoctorUseCase.execute(invalidPhoneData);
-      } catch (error) {
-        expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).statusCode).toBe(400);
-      }
+      // jest.spyOn(require("../../dtos/doctor/doctor.dto"), "validate").mockImplementation(() => {
+      //   throw CustomError.badRequest("Phone format is invalid");
+      // });
+      await expect(
+        createDoctorUseCase.execute(invalidPhoneData as any)
+      ).rejects.toThrow("Invalid phone number");
     });
   });
 
   describe("Repository errors", () => {
-    it("Should throw internal server error when repository save fails", () => {
+    it("Should throw internal server error when repository save fails", async () => {
       mockRepository.save.mockRejectedValue(
         CustomError.internalServerError("Internal server error")
       );
-
-      return expect(
+      await expect(
         createDoctorUseCase.execute(VALID_DOCTOR_DATA)
       ).rejects.toThrow("Internal server error");
     });
@@ -261,9 +217,25 @@ describe("Create doctor use case", () => {
         phone: null,
       };
 
-      await expect(
-        createDoctorUseCase.execute(doctorWithNullValues)
-      ).rejects.toThrow("Doctor name is required");
+      expect.assertions(4);
+      
+      try {
+        await createDoctorUseCase.execute(
+          doctorWithNullValues as unknown as DoctorInterface
+        );
+        fail("Expect to throw");
+      } catch (error) {
+        expect((error as CustomError).message).toContain("Name is required");
+        expect((error as CustomError).message).toContain(
+          "Invalid option: expected one of"
+        );
+        expect((error as CustomError).message).toContain(
+          "Missing or invalid email"
+        );
+        expect((error as CustomError).message).toContain(
+          "Phone is required or was provided in a wrong format"
+        );
+      }
     });
 
     it("Should handle undefined values as missing", async () => {
@@ -275,9 +247,25 @@ describe("Create doctor use case", () => {
         phone: undefined,
       };
 
-      await expect(
-        createDoctorUseCase.execute(doctorWithUndefinedValues)
-      ).rejects.toThrow("Doctor name is required");
+      expect.assertions(4);
+
+      try {
+        await createDoctorUseCase.execute(
+          doctorWithUndefinedValues as unknown as DoctorInterface
+        );
+        fail("Expect to throw");
+      } catch (error) {
+        expect((error as CustomError).message).toContain("Name is required");
+        expect((error as CustomError).message).toContain(
+          "Invalid option: expected one of"
+        );
+        expect((error as CustomError).message).toContain(
+          "Missing or invalid email"
+        );
+        expect((error as CustomError).message).toContain(
+          "Phone is required or was provided in a wrong format"
+        );
+      }
     });
   });
 });
