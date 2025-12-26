@@ -41,16 +41,16 @@ describe("ReadAllDoctorsUseCase", () => {
   const MOCK_DOCTOR_1 = Doctor.create(
     "Dr. John Smith",
     DoctorSpecialty.CARDIOLOGY,
-    Email.create("john.smith@clinex.com"),
-    Phone.create("123-456-7890"),
-    EntityID.create("123")
+    "john.smith@clinex.com",
+    "123-456-7890",
+    EntityID.validate("123")
   );
 
   const MOCK_DOCTOR_2 = Doctor.create(
     "Dr. Jane Doe",
     DoctorSpecialty.DERMATOLOGY,
-    Email.create("jane.doe@clinex.com"),
-    Phone.create("098-765-4321"),
+    "jane.doe@clinex.com",
+    "098-765-4321",
     EntityID.create("456")
   );
 
@@ -61,14 +61,14 @@ describe("ReadAllDoctorsUseCase", () => {
   describe("Successful retrieval", () => {
     it("Should return all doctors when multiple doctors exist", async () => {
       mockRepository.list.mockResolvedValue(MOCK_DOCTORS_LIST);
-      const usecase = await readAllDoctorsUseCase.execute(null);
+      const usecase = await readAllDoctorsUseCase.execute();
 
       expect(usecase).toEqual(MOCK_DOCTORS_LIST);
     });
     
     it("Should return empty array when no doctors exist", async () => {
       mockRepository.list.mockResolvedValue(EMPTY_DOCTORS_LIST);
-      const usecase = await readAllDoctorsUseCase.execute(null)
+      const usecase = await readAllDoctorsUseCase.execute()
       
       expect(usecase).toEqual(EMPTY_DOCTORS_LIST);
 
@@ -81,14 +81,14 @@ describe("ReadAllDoctorsUseCase", () => {
       const e = CustomError.internalServerError("Mock error message");
       mockRepository.list.mockRejectedValue(e);
 
-      expect(readAllDoctorsUseCase.execute(null)).rejects.toThrow(e);
+      expect(readAllDoctorsUseCase.execute()).rejects.toThrow(e);
     });
 
     it("Should throw Error when repository throws Error", async() => {
       const e = new Error("Mock error message");
       mockRepository.list.mockRejectedValue(e);
 
-      expect(readAllDoctorsUseCase.execute(null)).rejects.toThrow(e);
+      expect(readAllDoctorsUseCase.execute()).rejects.toThrow(e);
     });
     
   });
