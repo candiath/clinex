@@ -172,7 +172,7 @@ describe("DoctorDTO", () => {
           ...VALID_DOCTOR_DATA,
           email: "invalid-email",
         });
-      }).toThrow("Invalid email address");
+      }).toThrow("Missing or invalid email");
     });
 
     it("Should return error when phone is invalid", () => {

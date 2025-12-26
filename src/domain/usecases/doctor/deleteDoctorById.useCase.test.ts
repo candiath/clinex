@@ -2,7 +2,6 @@ import { DoctorRepositoryImplementation } from "../../../infrastructure/reposito
 import { DoctorDatasource } from "../../datasources/doctor.datasource";
 import { DeleteDoctorByIdUseCase } from "./deleteDoctorById.useCase";
 import { CustomError } from "../../errors/customError";
-import { ValidationHelper } from "../../helpers/validation.helper";
 import { Doctor } from "../../entities/doctor.entity";
 import { DoctorSpecialty } from "../../types/doctorSpecialty.type";
 import { Email } from "../../valueObjects/email";
@@ -16,7 +15,7 @@ jest.mock("../../helpers/validation.helper");
 
 describe("Delete doctor by ID use case", () => {
   let mockRepository: jest.Mocked<DoctorRepositoryImplementation>;
-  let mockDatasource: jest.Mocked<DoctorDatasource>;
+  // let mockDatasource: jest.Mocked<DoctorDatasource>;
 
   let usecase: DeleteDoctorByIdUseCase;
 
@@ -41,13 +40,13 @@ describe("Delete doctor by ID use case", () => {
     usecase = new DeleteDoctorByIdUseCase(mockRepository);
   });
 
-  const VALID_ID: EntityID = EntityID.create("123");
+  const VALID_ID: EntityID = EntityID.validate("123");
   const INVALID_ID = "ABC";
   const VALID_DOCTOR: Doctor = Doctor.create(
     "John",
     DoctorSpecialty.CARDIOLOGY,
-    Email.create("john@clinex.com"),
-    Phone.create("123456789"),
+    "john@clinex.com",
+    "123456789",
     VALID_ID
   );
 
@@ -63,16 +62,15 @@ describe("Delete doctor by ID use case", () => {
       expect(mockRepository.delete).toHaveBeenCalledWith(VALID_DOCTOR.id);
     });
 
-
     it("Should handle empty doctor list", async () => {
       mockRepository.findById.mockResolvedValue(null);
       let result;
       try {
-        result = await usecase.execute(VALID_ID.getValue());
+        result = await usecase.execute(VALID_ID);
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
-        expect((error as CustomError).message).toBe('Doctor not found');
+        expect((error as CustomError).message).toBe("Doctor not found");
         expect((error as CustomError).statusCode).toBe(404);
         expect(mockRepository.delete).not.toHaveBeenCalled();
       }
@@ -81,7 +79,6 @@ describe("Delete doctor by ID use case", () => {
 
   describe("Error handling", () => {
     it("Should throw CustomError when repository search fails", async () => {
-
       mockRepository.findById.mockRejectedValue(
         CustomError.serviceUnavailable()
       );
@@ -100,7 +97,6 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository deletion fails", async () => {
-
       mockRepository.findById.mockResolvedValue(VALID_DOCTOR);
       mockRepository.delete.mockRejectedValue(CustomError.serviceUnavailable());
 
@@ -118,7 +114,6 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository search throws unknown error", async () => {
-
       mockRepository.findById.mockRejectedValue(new Error());
 
       let result;
@@ -134,9 +129,8 @@ describe("Delete doctor by ID use case", () => {
     });
 
     it("Should throw CustomError when repository deletion throws unknown error", async () => {
-
       mockRepository.findById.mockResolvedValue(VALID_DOCTOR);
-      mockRepository.delete.mockRejectedValue(new Error);
+      mockRepository.delete.mockRejectedValue(new Error());
 
       let result;
       try {
@@ -152,19 +146,21 @@ describe("Delete doctor by ID use case", () => {
   });
 
   describe("Validations", () => {
-    it("Should throw error when ID is invalid", async() => {
-      const errorMessageMock = "ID is not a number";
-
-      let result;
+    it("Should throw error when ID is invalid", async () => {
+      expect.assertions(4);
       try {
-        result = await usecase.execute(INVALID_ID);
+        await usecase.execute(INVALID_ID as unknown as EntityID);
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
+        expect((error as CustomError).message).toContain(
+          "Invalid input: expected number, received NaN"
+        );
+        expect((error as CustomError).location).toContain(
+          "DeleteDoctorByIdUseCase"
+        );
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toBe(errorMessageMock);
       }
-      expect(result).toBeUndefined();
-    })
+    });
   });
 });
