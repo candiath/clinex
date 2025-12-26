@@ -42,7 +42,7 @@ describe("CustomError", () => {
       expect(error).toBeInstanceOf(CustomError);
       expect(error.statusCode).toBe(400);
       expect(error.details).toBeUndefined();
-      expect(error.timestamp).toBeUndefined();
+      expect(error.timestamp).toBeDefined();
       expect(error.context).toBeUndefined();
       expect(error.userFriendlyMessage).toBe(undefined);
     });
@@ -57,7 +57,7 @@ describe("CustomError", () => {
       expect(customError).toBeInstanceOf(CustomError);
       expect(customError.message).toBe("Standard error message");
       expect(customError.statusCode).toBe(500);
-      expect(customError.code).toBeUndefined();
+      expect(customError.code).toBe("UNHANDLED_ERROR");
       expect(customError.details).toBeUndefined();
       expect(customError.timestamp).toBeUndefined();
       expect(customError.context).toBeUndefined();

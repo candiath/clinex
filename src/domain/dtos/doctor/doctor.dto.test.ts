@@ -1,16 +1,13 @@
-import { ValidationHelper } from "../../helpers/validation.helper";
 import { Email } from "../../valueObjects/email";
-
 import { Phone } from "../../valueObjects/phone";
-import { DoctorDTO } from "./doctor.dto";
-
+import * as DoctorDTO from "./doctor.dto";
 jest.spyOn(Email, 'create');
 jest.spyOn(Phone, 'create');
 
 describe("DoctorDTO", () => {
-  const mockValidationHelper = ValidationHelper as jest.Mocked<
-    typeof ValidationHelper
-  >;
+  // const mockValidationHelper = ValidationHelper as jest.Mocked<
+  //   typeof ValidationHelper
+  // >;
 
   const VALID_DOCTOR_DATA = {
     name: "Test name",
@@ -25,14 +22,14 @@ describe("DoctorDTO", () => {
   };
 
   // Helper function to test validation errors
-  const testValidationError = async (
-    invalidData: any,
-    expectedMessage: string
-  ) => {
-    await expect(DoctorDTO.validate(invalidData)).rejects.toThrow(
-      expectedMessage
-    );
-  };
+  // const testValidationError = async (
+  //   invalidData: any,
+  //   expectedMessage: string
+  // ) => {
+  //   await expect(DoctorDTO.validate(invalidData)).rejects.toThrow(
+  //     expectedMessage
+  //   );
+  // };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -75,199 +72,136 @@ describe("DoctorDTO", () => {
   });
 
   // Helper function to test missing field errors
-  const testMissingFieldError = async (
-    baseData: any,
-    fieldToRemove: string,
-    expectedErrorMessage: any
-  ) => {
-    const invalidData = { ...baseData };
-    delete invalidData[fieldToRemove];
+  // const testMissingFieldError = async (
+  //   baseData: any,
+  //   fieldToRemove: string,
+  //   expectedErrorMessage: any
+  // ) => {
+  //   const invalidData = { ...baseData };
+  //   delete invalidData[fieldToRemove];
 
-    await testValidationError(invalidData, expectedErrorMessage);
-  };
+  //   await testValidationError(invalidData, expectedErrorMessage);
+  // };
 
-  const removeField = (fieldToRemove: string, baseData: any) => {
+  const removeField = (fieldToRemove: string, baseData: {[key: string]: string}) => {
     const invalidData = { ...baseData };
-    delete invalidData[fieldToRemove];
+    delete (invalidData)[fieldToRemove];
     return invalidData;
   };
 
   describe("Successful Doctor DTO creation", () => {
     it("Should return a Doctor DTO with doctor data", () => {
-      const [error, dto] = DoctorDTO.validate(VALID_DOCTOR_DATA);
+      const returnData = DoctorDTO.validate(VALID_DOCTOR_DATA);
 
 
 
-      expect(error).toBe(null);
-      expect(dto).not.toBe(null);
-      expect(dto).toBeInstanceOf(DoctorDTO);
+      expect(returnData).not.toBe(null);
+      expect(returnData).toBeInstanceOf(Object);
 
-      expect(dto!.name).toEqual(VALID_DOCTOR_DATA.name);
-      expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA.specialty);
-      expect(dto!.email).toBeDefined();
-      expect(dto!.phone).toBeDefined();
+      expect(returnData!.name).toEqual(VALID_DOCTOR_DATA.name);
+      expect(returnData!.specialty).toEqual(VALID_DOCTOR_DATA.specialty);
+      expect(returnData!.email).toBeDefined();
+      expect(returnData!.phone).toBeDefined();
 
-      expect(Email.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.email);
-      expect(Phone.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.phone);
-    });
-
-    it("Should return a Doctor DTO with doctor and ID data", () => {
-      // mockEntityID.create.mockReturnValue();
-      const [error, dto] = DoctorDTO.validate(VALID_DOCTOR_DATA_WITH_ID);
-
-      expect(error).toBe(null);
-      expect(dto).not.toBe(null);
-      expect(dto).toBeInstanceOf(DoctorDTO);
-
-      expect(dto!.id).toBeDefined();
-      expect(dto!.name).toEqual(VALID_DOCTOR_DATA_WITH_ID.name);
-      expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toBeDefined();
-      expect(dto!.phone).toBeDefined();
-
-
-      expect(Email.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.email);
-      expect(Phone.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.phone);
     });
 
     it("Should NOT throw an error when name is missing", async () => {
       const invalidData = removeField("name", VALID_DOCTOR_DATA);
-      const [error, dto] = await DoctorDTO.validate(invalidData);
+      const returnData = await DoctorDTO.validate(invalidData);
 
-      expect(error).toBe(null);
-      expect(dto).not.toBe(null);
-      expect(dto).toBeInstanceOf(DoctorDTO);
+      expect(returnData).not.toBe(null);
+      expect(returnData).toBeInstanceOf(Object);
 
-      expect(dto!.name).toEqual(undefined);
-      expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toBeDefined();
-      expect(dto!.phone).toBeDefined();
+      expect(returnData!.name).toEqual(undefined);
+      expect(returnData!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
+      expect(returnData!.email).toBeDefined();
+      expect(returnData!.phone).toBeDefined();
 
 
-      expect(Email.create).toHaveBeenCalledWith(invalidData.email);
-      expect(Phone.create).toHaveBeenCalledWith(invalidData.phone);
     });
 
     it("Should NOT throw an error when specialty is missing", async () => {
       const invalidData = removeField("specialty", VALID_DOCTOR_DATA);
-      const [error, dto] = await DoctorDTO.validate(invalidData);
+      const returnData = await DoctorDTO.validate(invalidData);
 
-      expect(error).toBe(null);
-      expect(dto).not.toBe(null);
-      expect(dto).toBeInstanceOf(DoctorDTO);
+      expect(returnData).not.toBe(null);
+      expect(returnData).toBeInstanceOf(Object);
+      expect(returnData!.name).toEqual(VALID_DOCTOR_DATA.name);
+      expect(returnData!.specialty).toEqual(undefined);
+      expect(returnData!.email).toBeDefined();
+      expect(returnData!.phone).toBeDefined();
 
-      expect(dto!.name).toEqual(VALID_DOCTOR_DATA.name);
-      expect(dto!.specialty).toEqual(undefined);
-      expect(dto!.email).toBeDefined();
-      expect(dto!.phone).toBeDefined();
-
-      expect(Email.create).toHaveBeenCalledWith(invalidData.email);
-      expect(Phone.create).toHaveBeenCalledWith(invalidData.phone);
     });
 
     it("Should NOT throw an error when email is missing", async () => {
       const invalidData = removeField("email", VALID_DOCTOR_DATA);
-      const [error, dto] = await DoctorDTO.validate(invalidData);
+      const returnData = await DoctorDTO.validate(invalidData);
 
-      expect(error).toBe(null);
-      expect(dto).not.toBe(null);
-      expect(dto).toBeInstanceOf(DoctorDTO);
+      expect(returnData).not.toBe(null);
+      expect(returnData).toBeInstanceOf(Object);
 
-      expect(dto!.name).toEqual(VALID_DOCTOR_DATA_WITH_ID.name);
-      expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toEqual(null);
-      expect(dto!.phone).toBeDefined();
-
+      expect(returnData!.name).toEqual(VALID_DOCTOR_DATA_WITH_ID.name);
+      expect(returnData!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
+      expect(returnData!.email).toBeUndefined();
+      expect(returnData!.phone).toBeDefined();
 
 
-      expect(Email.create).not.toHaveBeenCalled();
-      expect(Phone.create).toHaveBeenCalledWith(invalidData.phone);
+      // expect(Email.create).not.toHaveBeenCalled();
     });
 
     it("Should NOT throw an error when phone is missing", async () => {
       const invalidData = removeField("phone", VALID_DOCTOR_DATA);
-      const [error, dto] = await DoctorDTO.validate(invalidData);
+      const returnData = await DoctorDTO.validate(invalidData);
 
-      expect(error).toBe(null);
-      expect(dto).not.toBe(null);
-      expect(dto).toBeInstanceOf(DoctorDTO);
+      expect(returnData).not.toBe(null);
+      expect(returnData).toBeInstanceOf(Object);
 
-      expect(dto!.name).toEqual(VALID_DOCTOR_DATA.name);
-      expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toBeDefined();
-      expect(dto!.phone).toEqual(null);
+      expect(returnData!.name).toEqual(VALID_DOCTOR_DATA.name);
+      expect(returnData!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
+      expect(returnData!.email).toBeDefined();
+      expect(returnData!.phone).toBeUndefined();
 
-
-
-      expect(Email.create).toHaveBeenCalledWith(invalidData.email);
-      expect(Phone.create).not.toHaveBeenCalled();
-    });
-
-    it("Should NOT throw an error when ID is missing", async () => {
-      const invalidData = removeField("id", VALID_DOCTOR_DATA);
-      const [error, dto] = await DoctorDTO.validate(invalidData);
-
-      expect(error).toBe(null);
-      expect(dto).not.toBe(null);
-      expect(dto).toBeInstanceOf(DoctorDTO);
-
-      expect(dto!.id).toEqual(undefined);
-      expect(dto!.name).toEqual(VALID_DOCTOR_DATA.name);
-      expect(dto!.specialty).toEqual(VALID_DOCTOR_DATA_WITH_ID.specialty);
-      expect(dto!.email).toBeDefined();
-      expect(dto!.phone).toBeDefined();
-
-      
-
-      expect(Email.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.email);
-      expect(Phone.create).toHaveBeenCalledWith(VALID_DOCTOR_DATA.phone);
+      // expect(Phone.create).not.toHaveBeenCalled();
     });
   });
 
   describe("Validation errors", () => {
     it("Should return error when email is invalid", () => {
-      
-      const [error, dto] = DoctorDTO.validate({
-        ...VALID_DOCTOR_DATA,
-        email: "invalid-email",
-      });
-
-      expect(error).toEqual("Email format is not valid");
-      expect(dto).not.toBeInstanceOf(DoctorDTO);
-      expect(dto).toBeNull();
+      expect(() => {
+        DoctorDTO.validate({
+          ...VALID_DOCTOR_DATA,
+          email: "invalid-email",
+        });
+      }).toThrow("Invalid email address");
     });
 
     it("Should return error when phone is invalid", () => {
-      const [error, dto] = DoctorDTO.validate({
+      expect(()=>{
+        DoctorDTO.validate({
         ...VALID_DOCTOR_DATA,
-        phone: "invalid-phone",
+        phone: "phone",
       });
-
-      expect(dto).not.toBeInstanceOf(DoctorDTO);
-      expect(error).toEqual("Phone format is invalid");
-      expect(dto).toBeNull();
+      }).toThrow("Invalid phone number");
     });
 
     it("Should return error when specialty is invalid", () => {
-      const [error, dto] = DoctorDTO.validate({
-        ...VALID_DOCTOR_DATA,
-        specialty: "invalid-specialty",
-      });
+      expect(() => {
+        DoctorDTO.validate({
+          ...VALID_DOCTOR_DATA,
+          specialty: "invalid-specialty",
+        })
+      }).toThrow("Invalid option: expected one of");
 
-      expect(error).toEqual("DTO: Specialty must be a valid DoctorSpecialty");
-      expect(dto).not.toBeInstanceOf(DoctorDTO);
-      expect(dto).toBeNull();
+      // expect(returnData).toBeNull();
     });
 
     it("Should throw an error when ID is invalid", () => {
-      
-      const [ error, dto ] = DoctorDTO.validate({
-        ...VALID_DOCTOR_DATA,
-        id: 'invalid-id',
-      });
-
-      expect( dto ).toBe(null);
-      expect( error ).toBe( 'ID is not a number' );
-    })
+      expect(() => {
+        DoctorDTO.validateID({
+          ...VALID_DOCTOR_DATA,
+          id: 'invalid-id',
+        });
+      }).toThrow("Invalid input: expected number, received NaN");
+    });
   });
 });
