@@ -1,5 +1,6 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { CustomError } from "../../errors/customError";
+import { EntityIDSchema } from "../../interfaces/dataSchemas.interfaces";
 import { EntityID } from "../../valueObjects/entityID";
 
 interface DeletePatientInput {
@@ -11,10 +12,12 @@ export class DeletePatientUseCase {
 
   public async execute(id: any): Promise<boolean> {
 
-    if ( !id || id === null ) throw CustomError.badRequest("Patient ID is required");
+    const parsedID = EntityIDSchema.safeParse(id);
+
+    if (!parsedID.success ) throw CustomError.badRequest(parsedID.error.message);
 
     const existingPatient = await this.repository.findById(id);
-    if (!existingPatient) throw CustomError.notFound("Patient not found");
+    if (!existingPatient) throw CustomError.notFound("Patient does not exist", {location: "DeletePatientUseCase"});
 
     const deleted = await this.repository.delete(id);
 
