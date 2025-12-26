@@ -1,18 +1,15 @@
 import { PatientRepoImplementation } from "../../../infrastructure/repositories/patientRepositoryImplementation";
 import { Patient } from "../../entities/patient.entity";
 import { CustomError } from "../../errors/customError";
+import { PatientDataSchema } from "../../interfaces/dataSchemas.interfaces";
 
 export class CreatePatientUseCase {
   constructor(private readonly repository: PatientRepoImplementation) {}
 
-
   public async execute(dto: Patient): Promise<Patient> {
-
-    if (dto!.dni == null) throw CustomError.badRequest('Patient DNI is required');
-    if (dto!.firstName == null) throw CustomError.badRequest('Patient first name is required');
-    if (dto!.lastName == null) throw CustomError.badRequest('Patient last name is required');
-    if (dto!.birthDate == null) throw CustomError.badRequest('Patient birth date is required');
-    if (dto!.sex == null) throw CustomError.badRequest('Patient sex is required');
+    const parsedPatient = PatientDataSchema.safeParse(dto);
+    if (!parsedPatient.success)
+      throw CustomError.badRequest(parsedPatient.error.message);
 
     const patient = new Patient(
       dto!.dni,
