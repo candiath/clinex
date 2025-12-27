@@ -5,6 +5,7 @@ export const envs = {
   PORT: env.get('PORT').required().asPortNumber(),
   PROD: env.get('PROD').required().asString(),
 
+  RUN_SCHEMA_CHECK: env.get('RUN_SCHEMA_CHECK').default('false').asBool(),
 
   MYSQL_HOST: env.get('MYSQL_HOST').required().asString(),
   MYSQL_PORT: env.get('MYSQL_PORT').required().asPortNumber(),

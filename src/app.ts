@@ -2,6 +2,7 @@ import { envs } from "./config/plugins/envs.plugin";
 import { PatientModel } from "./data/mongo/models/patient.model";
 import { MongoDatabase } from "./data/mongo/mongo.init";
 import { MySQLDatabase } from "./data/mysql/mysql.init";
+import { MigrationRunner } from "./data/mysql/migrations.runner";
 import { Patient } from "./domain/entities/patient.entity";
 import { CreatePatientUseCase } from "./domain/usecases/patient/createPatient.useCase";
 import { DeletePatientUseCase } from "./domain/usecases/patient/deletePatient.useCase";
@@ -22,6 +23,15 @@ async function main() {
   // });
 
   await MySQLDatabase.connect();
+  
+  await MigrationRunner.runMigrations();
+  
+  if (envs.RUN_SCHEMA_CHECK) {
+    const isValid = await MigrationRunner.verifySchema(['patients', 'doctors']);
+    if (!isValid) {
+      throw new Error('Database schema validation failed. Check migrations.');
+    }
+  }
   
   const server = new Server( {
     port: envs.PORT,
