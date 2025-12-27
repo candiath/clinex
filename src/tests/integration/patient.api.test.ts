@@ -297,4 +297,8 @@ describe("Patient API Integration Tests", () => {
       });
     });
   });
+
+  describe("Extra tests", () => {
+    it.todo("Should hanlde unknown error types with status 500");
+  })
 });
