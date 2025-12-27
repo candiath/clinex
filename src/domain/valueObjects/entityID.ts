@@ -19,7 +19,7 @@ export class EntityID {
 
   
   /**
-   * @deprecated
+   * @deprecated Use EntityID.validate instead
    */
   static create(id: any): EntityID {
     if (id instanceof EntityID) return id;
