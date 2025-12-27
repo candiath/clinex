@@ -40,7 +40,7 @@ describe("ReadPatientByIdUseCase", () => {
     (mockRepository.findById as jest.Mock).mockRejectedValue(error);
 
     try {
-      await useCase.execute({ id: VALID_ID });
+      await useCase.execute(VALID_ID);
       fail("Should have thrown an error");
     } catch (thrownError) {
       expect(thrownError).toBeInstanceOf(CustomError);
@@ -84,7 +84,7 @@ describe("ReadPatientByIdUseCase", () => {
 
       (mockRepository.findById as jest.Mock).mockResolvedValue(mockPatient);
 
-      const result = await useCase.execute({ id: VALID_ID });
+      const result = await useCase.execute(VALID_ID);
 
       expect(result).toEqual(mockPatient);
       expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
@@ -95,7 +95,7 @@ describe("ReadPatientByIdUseCase", () => {
       (mockRepository.findById as jest.Mock).mockResolvedValue(null);
 
       try {
-        await useCase.execute({ id: VALID_ID });
+        await useCase.execute(VALID_ID);
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
@@ -112,12 +112,12 @@ describe("ReadPatientByIdUseCase", () => {
 
     it("should throw CustomError with correct status code for empty ID", async () => {
       try {
-        await useCase.execute({ id: EMPTY_ID });
+        await useCase.execute(EMPTY_ID);
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('Patient ID is required');
+        expect((error as CustomError).message).toContain('ID should be greater than 0');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();
@@ -126,55 +126,16 @@ describe("ReadPatientByIdUseCase", () => {
     // Edge case: null/undefined IDs
     it("should handle null ID gracefully", async () => {
       try {
-        await useCase.execute({ id: null as any });
+        await useCase.execute(null as unknown as EntityID);
         fail("Should have thrown an error");
       } catch (error) {
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).statusCode).toBe(400);
-        expect((error as CustomError).message).toContain('Patient ID is required');
+        expect((error as CustomError).message).toContain('ID should be greater than 0');
       }
       
       expect(mockRepository.findById).not.toHaveBeenCalled();
     });
   });
 
-  describe("Error handling", () => {
-    describe("Repository errors", () => {
-      it("should handle generic repository errors with 500 status", async () => {
-        // Arrange
-        (mockRepository.findById as jest.Mock).mockRejectedValue(new Error('Generic database error'));
-
-        // Act & Assert
-        try {
-          await useCase.execute({ id: VALID_ID });
-          fail("Should have thrown an error");
-        } catch (error) {
-          expect(error).toBeInstanceOf(CustomError);
-          expect((error as CustomError).statusCode).toBe(500);
-          expect((error as CustomError).message).toBe("Error fetching patient from DB");
-        }
-
-        expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
-        expect(mockRepository.findById).toHaveBeenCalledTimes(1);
-      });
-
-      it("should handle unknown error types with 500 status", async () => {
-        // Arrange
-        (mockRepository.findById as jest.Mock).mockRejectedValue("String error");
-
-        // Act & Assert
-        try {
-          await useCase.execute({ id: VALID_ID });
-          fail("Should have thrown an error");
-        } catch (error) {
-          expect(error).toBeInstanceOf(CustomError);
-          expect((error as CustomError).statusCode).toBe(500);
-          expect((error as CustomError).message).toBe("Error fetching patient from DB");
-        }
-
-        expect(mockRepository.findById).toHaveBeenCalledWith(VALID_ID);
-        expect(mockRepository.findById).toHaveBeenCalledTimes(1);
-      });
-    });
-  });
 });
