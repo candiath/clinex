@@ -1,6 +1,7 @@
 import { Appointment } from "../../entities/appointment.entity";
 import { AppointmentInterface } from "../../interfaces/appointment.interfaces";
 import { AppointmentRepository } from "../../repositories/appointment.repository";
+import { AppointmentStatus } from "../../valueObjects/appointmentStatus";
 import { EntityID } from "../../valueObjects/entityID";
 
 
@@ -18,7 +19,7 @@ export class UpdateAppointmentUseCase {
       data.patientId,
       data.doctorId,
       data.date,
-      data.status
+      AppointmentStatus.create(data.status)
     );
     return await this.repository.update(id, newAppointment);
   }

@@ -22,7 +22,6 @@ export class AppointmentStatus {
   }
 
   static create(value: string): AppointmentStatus {
-    console.log({value});
     const test = Object.values(AppointmentStatusValues).includes(
       value as AppointmentStatusValues
     );

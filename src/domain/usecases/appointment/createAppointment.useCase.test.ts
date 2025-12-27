@@ -57,7 +57,6 @@ describe("CreateAppointmentUseCase", () => {
         await createAppointmentUseCase.execute(VALID_APPOINTMENT_DATA);
         fail("Should have thrown an error");
       } catch (error) {
-        console.log({error});
         expect(error).toBeInstanceOf(CustomError);
         expect((error as CustomError).message).toContain(
           "MOCKDatabase error"

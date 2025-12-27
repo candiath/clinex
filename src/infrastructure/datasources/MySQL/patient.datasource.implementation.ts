@@ -163,8 +163,8 @@ export class PatientMySQLDatasource implements PatientDatasource {
         );
       });
     } catch (error) {
-      throw CustomError.internalServerError(
-        "MySQL datasource: error listing patients"
+      throw CustomError.internalServerError("",
+        { location: "PatientMySQLDatasource", userFriendlyMessage: "MySQL datasource: error listing patients"}
       );
     }
   }
