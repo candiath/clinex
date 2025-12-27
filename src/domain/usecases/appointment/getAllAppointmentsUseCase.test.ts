@@ -1,5 +1,4 @@
 import { Appointment } from "../../entities/appointment.entity";
-import { AppointmentRepository } from "../../repositories/appointment.repository";
 import { AppointmentRepositoryImplementation } from "../../../infrastructure/repositories/appointment.repository.implementation";
 import { GetAllAppointmentsUseCase } from "./getAllAppointmentsUseCase";
 import { AppointmentDatasource } from "../../datasources/appointment.datasource";

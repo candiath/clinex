@@ -5,6 +5,7 @@ import { CustomError } from "../../errors/customError";
 import { CreateAppointmentUseCase } from "./createAppointment.useCase";
 import { EntityID } from "../../valueObjects/entityID";
 import { AppointmentStatus } from "../../valueObjects/appointmentStatus";
+import { createAppointmentInput } from "../../interfaces/appointment.interfaces";
 
 jest.mock(
   "../../../infrastructure/repositories/appointment.repository.implementation"
@@ -33,52 +34,36 @@ describe("CreateAppointmentUseCase", () => {
 
   const VALID_PATIENT_ID_1 = EntityID.create("123");
   const VALID_DOCTOR_ID_1 = EntityID.create("456");
-  const VALID_PATIENT_ID_2 = EntityID.create("234");
-  const VALID_DOCTOR_ID_2 = EntityID.create("567");
 
-  const VALID_APPOINTMENT_DATA = {
+  const VALID_APPOINTMENT_DATA: createAppointmentInput = {
     patientId: VALID_PATIENT_ID_1,
     doctorId: VALID_DOCTOR_ID_1,
-    dateTime: new Date("2025-12-31 12:34:56"),
+    date: new Date("2025-12-31 12:34:56"),
     status: "SCHEDULED",
-    reason: '',
-    notes: '',
-  }
-
-  const APPOINTMENT_1 = Appointment.create(
-    VALID_PATIENT_ID_2,
-    VALID_DOCTOR_ID_2,
-    new Date("2025-12-30 12:34:56"),
-    AppointmentStatus.create("SCHEDULED"),
-  );
-  const APPOINTMENT_2 = Appointment.create(
-    VALID_PATIENT_ID_2,
-    VALID_DOCTOR_ID_2,
-    new Date("2025-12-30 12:34:56"),
-    AppointmentStatus.create("SCHEDULED"),
-  );
-
-
+  };
 
   describe("Successful operations", () => {
-    test.todo("Should create an appointment successfully")
-    test.todo("Should handle optional fields correctly")
+    test.todo("Should create an appointment successfully");
+    test.todo("Should handle optional fields correctly");
   });
-    
 
   describe("Error handling", () => {
     it("Should return an error when repository fails", async () => {
       mockRepository.create.mockRejectedValue(
-        CustomError.internalServerError("Database error")
+        CustomError.internalServerError("MOCKDatabase error")
       );
-      
-      await expect(
-        createAppointmentUseCase.execute(VALID_APPOINTMENT_DATA)
-      ).rejects.toMatchObject({
-        statusCode: 500,
-        message: "Failed to create appointment"
-      });
-      
+
+      try {
+        await createAppointmentUseCase.execute(VALID_APPOINTMENT_DATA);
+        fail("Should have thrown an error");
+      } catch (error) {
+        console.log({error});
+        expect(error).toBeInstanceOf(CustomError);
+        expect((error as CustomError).message).toContain(
+          "MOCKDatabase error"
+        );
+        expect((error as CustomError).statusCode).toBe(500);
+      }
       expect(mockRepository.create).toHaveBeenCalled();
     });
   });

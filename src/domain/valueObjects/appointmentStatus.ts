@@ -1,3 +1,6 @@
+import { CustomError } from "../errors/customError";
+import { AppointmentStatusSchema } from "../interfaces/dataSchemas.interfaces";
+
 export enum AppointmentStatusValues {
   SCHEDULED = "SCHEDULED",
   CONFIRMED = "CONFIRMED",
@@ -12,7 +15,14 @@ export class AppointmentStatus {
     private readonly value: AppointmentStatusValues
   ) {}
 
+  static validate( value: string ): AppointmentStatus {
+    const parsedData = AppointmentStatusSchema.safeParse( value );
+    if (!parsedData.success) throw CustomError.badRequest(parsedData.error.message, {location: "AppointmentStatus: validate"});
+    return new AppointmentStatus(parsedData.data as AppointmentStatusValues)
+  }
+
   static create(value: string): AppointmentStatus {
+    console.log({value});
     const test = Object.values(AppointmentStatusValues).includes(
       value as AppointmentStatusValues
     );

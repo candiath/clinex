@@ -1,4 +1,3 @@
-import { AppointmentStatus } from "../valueObjects/appointmentStatus";
 import { EntityID } from "../valueObjects/entityID";
 
 export interface AppointmentInterface {
@@ -6,14 +5,14 @@ export interface AppointmentInterface {
   patientId: EntityID;
   doctorId: EntityID;
   date: Date;
-  status: AppointmentStatus;
+  status: string;
 }
 
 export interface createAppointmentInput {
   patientId: EntityID;
   doctorId: EntityID;
   date: Date;
-  status: AppointmentStatus;
+  status: string;
 }
 
 export interface getAppointmentByIdInput {
