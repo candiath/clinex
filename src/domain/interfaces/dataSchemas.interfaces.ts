@@ -6,23 +6,35 @@ export const EntityIDSchema = z.coerce
   .int()
   .positive("ID should be greater than 0")
   .nonoptional();
-export const EmailSchema = z.email("Missing or invalid email").nonoptional();
+export const EmailSchema = z
+  .string()
+  .email("Missing or invalid email")
+  .nonoptional();
 export const MedicalSpecialtySchema = z.enum(DoctorSpecialty).nonoptional();
 export const FutureDateSchema = z.coerce
   .date("Date cannot be in the past")
+  .min(new Date())
   .nonoptional();
-export const PhoneSchema = z
-  .string("Phone is required or was provided in a wrong format")
+export const PhoneSchema = z.coerce
+  // .string("Phone is required or was provided in a wrong format")
+  .string({
+    error: (iss) => `"${iss.input}" is not a valid phone`,
+  })
   .trim()
+  .min(1, { message: "Phone cannot be empty", abort: true })
   .regex(/^[0-9+()\-\s]{7,20}$/, "Invalid phone number");
+
 export const NameSchema = z
   .string("Name is required")
   .min(3, "Name is too short")
   .nonoptional();
+
 export const BirthDateSchema = z.coerce
-  .date("Invalid birth date")
-  .max(new Date(), "Birth date cannot be in the future")
+  .date({ error: "Cannot parse date" })
+  .min(new Date("1900-01-01"), "Birth date is too far in the past")
+  .max(new Date(), "Birth date should be in the past")
   .nonoptional();
+
 export const DniSchema = z.coerce
   .number()
   .int()
