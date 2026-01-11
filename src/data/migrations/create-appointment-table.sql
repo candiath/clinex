@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS appointments (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  patient_id VARCHAR(255) NOT NULL,
+  doctor_id VARCHAR(255) NOT NULL,
+  date_time DATETIME NOT NULL,
+  status ENUM (
+    "SCHEDULED",
+    "CONFIRMED",
+    "IN_PROGRESS",
+    "COMPLETED",
+    "CANCELLED",
+    "NO_SHOW"
+  ) NOT NULL,
+  reason TEXT,
+  notes TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_appointment_active ON appointments (is_active);

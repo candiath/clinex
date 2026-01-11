@@ -25,11 +25,7 @@ export class AppointmentController {
   create = async (req: Request, res: Response) => {
     const dto = validate(req.body);
     const appointment = await createAppointmentUseCase.execute(dto!);
-    const responseEnvelope = ApiResponse.success(
-      appointment,
-      "Appointment created successfully"
-    );
-    res.status(200).json(responseEnvelope);
+    res.status(201).json({ appointment });
     return;
   };
 

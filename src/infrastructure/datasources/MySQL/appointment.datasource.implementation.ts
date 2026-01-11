@@ -17,9 +17,9 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
 
       const row = appointments[0];
       const appointment = Appointment.fromDatabase(
-        row.patientId,
-        row.doctorId,
-        row.dateTime,
+        row.patient_id,
+        row.doctor_id,
+        row.date_time,
         row.status,
         row.reason,
         row.notes,
@@ -34,9 +34,9 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
   async create(appointment: Appointment): Promise<Appointment> {
     try {
       // todo: enforce timedate format
-      // console.log(`INSERT INTO appointments (patientId, doctorId, dateTime, status, reason, notes) VALUES (?, ?, ?, ?, ?, ?)`)
+      // console.log(`INSERT INTO appointments (patient_id, doctor_id, date_time, status, reason, notes) VALUES (?, ?, ?, ?, ?, ?)`)
       const [result] = await MySQLDatabase.pool.execute(
-        "INSERT INTO appointments (patientId, doctorId, dateTime, status, reason, notes) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO appointments (patient_id, doctor_id, date_time, status, reason, notes) VALUES (?, ?, ?, ?, ?, ?)",
         [
           appointment.patientId.toString(),
           appointment.doctorId.toString(),
@@ -96,9 +96,9 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
 
   async update(id: EntityID, appointment: Appointment): Promise<Appointment> {
     try {
-      // console.log(`UPDATE appointments SET patientId = ?, doctorId = ?, dateTime = ?, status = ?, reason = ?, notes = ? WHERE id = ?`);
+      // console.log(`UPDATE appointments SET patient_id = ?, doctor_id = ?, date_time = ?, status = ?, reason = ?, notes = ? WHERE id = ?`);
       const [result] = await MySQLDatabase.pool.execute(
-        "UPDATE appointments SET patientId = ?, doctorId = ?, dateTime = ?, status = ?, reason = ?, notes = ? WHERE id = ?",
+        "UPDATE appointments SET patient_id = ?, doctor_id = ?, date_time = ?, status = ?, reason = ?, notes = ? WHERE id = ?",
         [
           appointment.patientId.toString(),
           appointment.doctorId.toString(),
@@ -106,7 +106,7 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
           appointment.status.getValue(),
           appointment.reason ?? null,  // ✅ Convertir undefined a null
           appointment.notes ?? null,   // ✅ Convertir undefined a null
-          appointment.id,
+          id.toString(),
         ]
       );
 
@@ -123,7 +123,7 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
         appointment.status,
         appointment.reason ?? "",
         appointment.notes ?? "",
-        appointment.id!
+        id
       );
 
       return newAppointment;
@@ -142,9 +142,9 @@ export class AppointmentMySQLDatasource implements AppointmentDatasource {
 
       return appointments.map((row) =>
         Appointment.fromDatabase(
-          row.patientId,
-          row.doctorId,
-          row.dateTime,
+          row.patient_id,
+          row.doctor_id,
+          row.date_time,
           row.status,
           row.reason,
           row.notes,

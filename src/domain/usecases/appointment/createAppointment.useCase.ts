@@ -22,7 +22,7 @@ export class CreateAppointmentUseCase {
     const appointment = Appointment.create(
       data.patientId,
       data.doctorId,
-      data.date,
+      data.dateTime,
       AppointmentStatus.create(data.status)
     );
 

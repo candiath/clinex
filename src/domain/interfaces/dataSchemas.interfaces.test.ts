@@ -332,7 +332,7 @@ describe("Data Schemas Interfaces", () => {
         //! The missing property 'values' in ZodIssue type warn 
         //! can be ignored for this specific test case
         expect((issue.values as unknown)).toBeDefined();
-        expect((issue.values as any)).toEqual([
+        expect((issue.values as unknown)).toEqual([
           "male",
           "female",
           "other",

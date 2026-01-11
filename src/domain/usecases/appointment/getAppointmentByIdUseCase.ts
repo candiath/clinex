@@ -1,5 +1,7 @@
 import { AppointmentRepository } from "../../repositories/appointment.repository";
 import { EntityID } from "../../valueObjects/entityID";
+import { CustomError } from "../../errors/customError";
+import { Appointment } from "../../entities/appointment.entity";
 
 export class GetAppointmentByIdUseCase {
 
@@ -9,8 +11,14 @@ export class GetAppointmentByIdUseCase {
     this.repository = repository;
   }
 
-  public async execute (id: EntityID) {
-
-    return this.repository.getById(id);
+  public async execute (id: EntityID): Promise<Appointment> {
+    const appointment = await this.repository.getById(id);
+    
+    if (!appointment)
+      throw CustomError.notFound("Appointment not found", {
+        location: "GetAppointmentByIdUseCase",
+      });
+    
+    return appointment;
   }
 }

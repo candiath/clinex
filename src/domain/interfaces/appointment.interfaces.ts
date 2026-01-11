@@ -4,14 +4,16 @@ export interface AppointmentInterface {
   id: EntityID;
   patientId: EntityID;
   doctorId: EntityID;
-  date: Date;
+  dateTime: Date;
   status: string;
+  reason?: string;
+  notes?: string;
 }
 
 export interface createAppointmentInput {
   patientId: EntityID;
   doctorId: EntityID;
-  date: Date;
+  dateTime: Date;
   status: string;
 }
 

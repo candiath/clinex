@@ -58,10 +58,12 @@ export const AppointmentStatusSchema = z
   .nonoptional();
 
 export const AppointmentDataSchema = z.object({
-  date: FutureDateSchema,
+  dateTime: FutureDateSchema,
   status: AppointmentStatusSchema,
   doctorId: EntityIDSchema,
   patientId: EntityIDSchema,
+  reason: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 export const DoctorDataSchema = z.strictObject({
