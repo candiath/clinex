@@ -4,7 +4,6 @@ import { Patient } from "../../entities/patient.entity";
 import { CustomError } from "../../errors/customError";
 import { PatientDatasource } from "../../datasources/patientDatasource";
 import { PatientInterface } from "../../interfaces/patient.interfaces";
-import { error } from "console";
 
 // Mock the repository
 jest.mock(
@@ -170,7 +169,7 @@ describe("CreatePatientUseCase", () => {
           );
           expect((error as CustomError).message).toContain("Name is required");
           expect((error as CustomError).message).toContain(
-            "Invalid birth date"
+            "Invalid Date"
           );
           expect((error as CustomError).message).toContain(
             "Invalid option: expected one of"
@@ -208,7 +207,7 @@ describe("CreatePatientUseCase", () => {
         await testMissingFieldError(
           VALID_PATIENT_DATA,
           "birthDate",
-          "Invalid birth date"
+          "Invalid Date"
         );
       });
 

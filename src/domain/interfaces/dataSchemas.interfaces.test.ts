@@ -126,7 +126,8 @@ describe("Data Schemas Interfaces", () => {
         expect(result.success).toBeFalsy();
         expect(result.error?.issues[0].code).toBe("invalid_type");
         expect(result.error?.issues[0].message).toBe(
-          "Invalid input: expected string, received number"
+          // "Invalid input: expected string, received number"
+          "Missing or invalid email"
         );
 
         expect(result.error?.message).toContain(`"expected": "string"`);

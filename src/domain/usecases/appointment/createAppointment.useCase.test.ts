@@ -46,7 +46,7 @@ describe("CreateAppointmentUseCase", () => {
   });
 
   describe("Error handling", () => {
-    it.only("Should return an error when repository fails", async () => {
+    it("Should return an error when repository fails", async () => {
       mockRepository.create.mockRejectedValue(
         CustomError.internalServerError("MOCKDatabase error")
       );

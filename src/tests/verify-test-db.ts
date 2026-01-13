@@ -14,10 +14,10 @@ if (result.error) {
   process.exit(1);
 }
 
-console.log('✅ Loaded .env.test from:', envTestPath);
-console.log('   MYSQL_DATABASE:', process.env.MYSQL_DATABASE);
-console.log('   MYSQL_PORT:', process.env.MYSQL_PORT);
-console.log('');
+// console.log('✅ Loaded .env.test from:', envTestPath);
+// console.log('   MYSQL_DATABASE:', process.env.MYSQL_DATABASE);
+// console.log('   MYSQL_PORT:', process.env.MYSQL_PORT);
+// console.log('');
 import { TestDatabaseHelper } from "./helpers/testDatabase.helper";
 
 async function verifyTestDatabase() {
@@ -35,7 +35,7 @@ async function verifyTestDatabase() {
     await TestDatabaseHelper.disconnect();
 
     console.log("\n✅ Verificación completada exitosamente");
-    console.log("Si viste 'clinex_test @ localhost:3307', estás usando la DB correcta!\n");
+    // console.log("Si viste 'clinex_test @ localhost:3307', estás usando la DB correcta!\n");
 
   } catch (error) {
     console.error("\n❌ Error en la verificación:", error);

@@ -7,7 +7,7 @@ export const EntityIDSchema = z.coerce
   .positive("ID should be greater than 0")
   .nonoptional();
 export const EmailSchema = z
-  .string()
+  // .string()
   .email("Missing or invalid email")
   .nonoptional();
 export const MedicalSpecialtySchema = z.enum(DoctorSpecialty).nonoptional();

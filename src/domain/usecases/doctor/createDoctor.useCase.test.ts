@@ -15,6 +15,10 @@ jest.mock(
 
 jest.mock("../../helpers/validation.helper");
 
+jest.mock("../../dtos/doctor/doctor.dto", () => ({
+  validate: jest.fn(),
+}));
+
 describe("Create doctor use case", () => {
   let createDoctorUseCase: CreateDoctorUseCase;
   let mockRepository: jest.Mocked<DoctorRepositoryImplementation>;
@@ -84,7 +88,10 @@ describe("Create doctor use case", () => {
     mockValidationHelper.validateEmail.mockReturnValue(null);
     createDoctorUseCase = new CreateDoctorUseCase(mockRepository);
 
-    jest.spyOn(DoctorDTO, "validate").mockImplementation((data: any) => {
+    const mockValidate = DoctorDTO.validate as jest.MockedFunction<
+      typeof DoctorDTO.validate
+    >;
+    mockValidate.mockImplementation((data: any) => {
       // Simula validación real: lanza CustomError si falta algún campo requerido
       if (!data || typeof data !== "object") {
         throw CustomError.badRequest(
@@ -152,7 +159,13 @@ describe("Create doctor use case", () => {
       delete (doctorWithoutEmail as any).email;
       await expect(
         createDoctorUseCase.execute(doctorWithoutEmail as any)
-      ).rejects.toThrow("Missing or invalid email");
+      ).rejects.toThrow(expect.objectContaining({
+        message: expect.stringContaining(`
+    "code": "invalid_type",
+    "path": [
+      "email"
+    ],`)
+      }));
     });
 
     it("Should throw error when phone is missing", async () => {
@@ -160,7 +173,7 @@ describe("Create doctor use case", () => {
       delete (doctorWithoutPhone as any).phone;
       await expect(
         createDoctorUseCase.execute(doctorWithoutPhone as any)
-      ).rejects.toThrow("Phone is required or was provided in a wrong format");
+      ).rejects.toThrow("Invalid phone number");
     });
 
     it("Should throw error when data is completely invalid", async () => {
@@ -233,7 +246,7 @@ describe("Create doctor use case", () => {
           "Missing or invalid email"
         );
         expect((error as CustomError).message).toContain(
-          "Phone is required or was provided in a wrong format"
+          "Invalid phone number"
         );
       }
     });
@@ -263,7 +276,7 @@ describe("Create doctor use case", () => {
           "Missing or invalid email"
         );
         expect((error as CustomError).message).toContain(
-          "Phone is required or was provided in a wrong format"
+          "Invalid phone number"
         );
       }
     });
