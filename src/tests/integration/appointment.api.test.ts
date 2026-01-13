@@ -25,7 +25,7 @@ describe("Appointment API Integration Tests", () => {
 
   // mock console to reduce noise during tests
   beforeAll(() => {
-    // jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
     // jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 

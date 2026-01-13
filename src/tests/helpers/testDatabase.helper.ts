@@ -51,7 +51,7 @@ export class TestDatabaseHelper {
       await MigrationRunner.runMigrations();
       
       this.isConnected = true;
-      console.log("✅ Test database connected successfully");
+      // console.log("✅ Test database connected successfully");
     } catch (error) {
       console.error("❌ Failed to connect to test database:", error);
       throw error;
