@@ -1,4 +1,5 @@
 import { MySQLDatabase, MySQLConfig } from "../../data/mysql/mysql.init";
+import { MigrationRunner } from "../../data/mysql/migrations.runner";
 
 /**
  * Base helper for managing test database operations
@@ -43,6 +44,10 @@ export class TestDatabaseBaseHelper {
       console.log(`🔧 Test Config: ${testConfig.database} @ ${testConfig.host}:${testConfig.port}`);
       
       await MySQLDatabase.connect();
+      
+      // Run migrations to ensure schema is up-to-date
+      await MigrationRunner.runMigrations();
+      
       this.isConnected = true;
       // console.log("✅ Test database connected successfully");
     } catch (error) {

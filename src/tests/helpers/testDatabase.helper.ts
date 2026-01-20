@@ -69,7 +69,7 @@ export class TestDatabaseHelper {
 
     try {
       await MySQLDatabase.pool.end();      MySQLDatabase.reset(); // Clear configuration      this.isConnected = false;
-      console.log("✅ Test database disconnected");
+      // console.log("✅ Test database disconnected");
     } catch (error) {
       console.error("❌ Failed to disconnect from test database:", error);
       throw error;

@@ -76,7 +76,7 @@ export class MigrationRunner {
         }
       }
 
-      console.log(`✅ Completed: ${filename}`);
+      // console.log(`✅ Completed: ${filename}`);
     } catch (error: any) {
       console.error(`  ❌ Failed: ${filename}`, error.message);
       throw error;

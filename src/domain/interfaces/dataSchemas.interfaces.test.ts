@@ -211,8 +211,8 @@ describe("Data Schemas Interfaces", () => {
         expect(result.error?.issues[0].code).toBe("too_small");
 
         //! The ods of this failing are low, but not zero
-        expect(result.error?.issues[0].message).toBe(
-          `Too small: expected date to be >=${new Date()}`
+        expect(result.error?.issues[0].message).toContain(
+          `Too small: expected date to be >=`
         );
       });
     });
